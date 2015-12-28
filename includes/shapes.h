@@ -1,6 +1,7 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
+#include <iostream>
 #include <vector>
 
 namespace POICS {
@@ -17,18 +18,24 @@ namespace POICS {
 			bool operator==(const Point& p2) const;
 
 			void setAsMiddle(const Point& p1, const Point& p2);
-	};
-
-	class Rect {
-	public:
-		Point pos; double width, height;
-		Rect(double x, double y, double w, double h): pos(x,y), width(w), height(h) {}
+			friend std::ostream& operator<<(std::ostream& os, const Point& dt);
 	};
 
 	class Polygon;
+	class Rect {
+	public:
+		Point pos; double width, height;
+		Rect(){}
+		Rect(double x, double y, double w, double h): pos(x,y), width(w), height(h) {}
+		friend std::ostream& operator<<(std::ostream& os, const Rect& dt);
+		void copyToPolygonCW(Polygon& pl) const;
+		void copyToPolygonCCW(Polygon& pl) const;
+	};
+
 	class Portal{
 	public:
 		Point p1; Point p2; Polygon* neighbor;
+		Portal(){}
 		Portal(const Point& _p1, const Point& _p2, Polygon* _neighbor): p1(_p1), p2(_p2), neighbor(_neighbor){}
 	};
 
@@ -39,11 +46,14 @@ namespace POICS {
 
 	public: 
 		int id;
+		Polygon(){}
 		Polygon(int _id) : id(_id){}
 		~Polygon(){}
 
 		std::vector<Portal>& getNeighbors() { return neighbors;}
 		std::vector<Point>& getPoints() { return points;}
+
+		void reset(){points.clear(); neighbors.clear();}
 
 		void addPoint(Point point){ points.push_back(point);}
 		void addPoint(double x, double y){ points.push_back(Point(x,y));}
@@ -54,6 +64,8 @@ namespace POICS {
 		}
 
 		bool testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2) const;
+
+		friend std::ostream& operator<<(std::ostream& os, const Polygon& pl);
 	};
 }
 

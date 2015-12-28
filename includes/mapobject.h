@@ -4,6 +4,7 @@
 #include "shapes.h"
 #include <map>
 #include <vector>
+#include <iostream>
 
 namespace POICS {
 	class POI {
@@ -15,11 +16,13 @@ namespace POICS {
 		Rect border;
 		std::vector<double> topic_relevance;
 
-		POI(int _id, std::string _name, int _activityType, int _activityTime, double x, double y, double w, double h)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h){}
+		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, double x, double y, double w, double h)
+		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h), topic_relevance(num_topic, 0.0){}
 
-		POI(int _id, std::string _name, int _activityType, int _activityTime, Rect _border)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border){}
+		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, Rect& _border)
+		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border), topic_relevance(num_topic, 0.0){}
+
+		friend std::ostream& operator<<(std::ostream& os, const POI& p);
 	};
 
 	class SpawnPoint {
@@ -30,8 +33,10 @@ namespace POICS {
 		SpawnPoint(int _id, double _dist, double x, double y, double w, double h)
 		: id(_id), dist(_dist), border(x,y,w,h){}
 
-		SpawnPoint(int _id, double _dist,Rect _border)
+		SpawnPoint(int _id, double _dist, Rect& _border)
 		: id(_id), dist(_dist), border(_border){}
+
+		friend std::ostream& operator<<(std::ostream& os, const SpawnPoint& sp);
 	};
 
 	class ExitPoint {
@@ -42,8 +47,10 @@ namespace POICS {
 		ExitPoint(int _id, double x, double y, double w, double h)
 		: id(_id), border(x,y,w,h){}
 
-		ExitPoint(int _id, Rect _border)
+		ExitPoint(int _id, Rect& _border)
 		: id(_id), border(_border){}
+
+		friend std::ostream& operator<<(std::ostream& os, const ExitPoint& ep);
 	};
 
 	class MapArea{
@@ -62,15 +69,21 @@ namespace POICS {
 		void addTopic(std::string name);
 
 		int addPOI(std::string name, int activityType, int activityTime, double x, double y, double w, double h);
+		int addPOI(std::string name, int activityType, int activityTime, Rect& r);
 		void setTopicRelevance(int poiId, std::string topic_name, double relevance);
 
 		int addSpawnPoint(double dist, double x, double y, double w, double h);
+		int addSpawnPoint(double dist, Rect& r);
 
+		
 		int addExitPoint(double x, double y, double w, double h);
+		int addExitPoint(Rect& r);
 
 		int createObstacle();
 		int addObstacle(Polygon& polygon);
 		void addObstaclePoint(int id, double x, double y);
+
+		friend std::ostream& operator<<(std::ostream& os, const MapArea& m);
 	};
 }
 

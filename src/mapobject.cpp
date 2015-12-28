@@ -1,49 +1,119 @@
-#include <exception>
+#include "helper.h"
 #include "mapobject.h"
 
-void POICS::MapArea::addTopic(std::string name){
-	topic_ids.insert(make_pair(name, topic_ids.size()));
-}
+using std::endl;
 
-int POICS::MapArea::addPOI(std::string name, int activityType, int activityTime, double x, double y, double w, double h){
-	int id = pois.size();
-	pois.push_back(POI (id, name, activityType, activityTime, x, y, w, h));
-	return id;
-}
+namespace POICS{
+	void MapArea::addTopic(std::string name){
+		topic_ids.insert(make_pair(name, topic_ids.size()));
+	}
 
-void POICS::MapArea::setTopicRelevance(int poiId, std::string topic_name, double relevance){
-	auto topic = topic_ids.find(topic_name);
+	int MapArea::addPOI(std::string name, int activityType, int activityTime, double x, double y, double w, double h){
+		int id = pois.size();
+		pois.push_back(POI (id, name, topic_ids.size(), activityType, activityTime, x, y, w, h));
+		return id;
+	}
 
-	if (topic == topic_ids.end()) throw std::runtime_error("Topic not found: " + topic_name);
+	int MapArea::addPOI(std::string name, int activityType, int activityTime, Rect& r){
+		int id = pois.size();
+		pois.push_back(POI (id, name, topic_ids.size(), activityType, activityTime, r));
+		return id;
+	}
 
-	pois[poiId].topic_relevance[topic->second] = relevance;
-}
+	void MapArea::setTopicRelevance(int poiId, std::string topic_name, double relevance){
+		auto topic = topic_ids.find(topic_name);
 
-int POICS::MapArea::addSpawnPoint(double dist, double x, double y, double w, double h){
-	int id = spawns.size();
-	spawns.push_back(SpawnPoint (id, dist, x, y, w, h));
-	return id;
-}
+		if (topic == topic_ids.end()) except("Topic not found: " + topic_name);
 
-int POICS::MapArea::addExitPoint(double x, double y, double w, double h){
-	int id = exits.size();
-	exits.push_back(ExitPoint (id, x, y, w, h));
-	return id;
-}
+		pois[poiId].topic_relevance[topic->second] = relevance;
+	}
 
-int POICS::MapArea::createObstacle(){
-	int id = obstacles.size();
-	obstacles.push_back(Polygon(id));
-	return id;
-}
+	int MapArea::addSpawnPoint(double dist, double x, double y, double w, double h){
+		int id = spawns.size();
+		spawns.push_back(SpawnPoint (id, dist, x, y, w, h));
+		return id;
+	}
 
-int POICS::MapArea::addObstacle(Polygon& polygon){
-	int id = obstacles.size();
-	polygon.id = id;
-	obstacles.push_back(polygon);
-	return id;
-}
+	int MapArea::addSpawnPoint(double dist, Rect& r){
+		int id = spawns.size();
+		spawns.push_back(SpawnPoint (id, dist, r));
+		return id;
+	}
 
-void POICS::MapArea::addObstaclePoint(int id, double x, double y){
-	obstacles[id].addPoint(x,y);
+	int MapArea::addExitPoint(double x, double y, double w, double h){
+		int id = exits.size();
+		exits.push_back(ExitPoint (id, x, y, w, h));
+		return id;
+	}
+
+	int MapArea::addExitPoint(Rect& r){
+		int id = exits.size();
+		exits.push_back(ExitPoint (id, r));
+		return id;
+	}
+
+	int MapArea::createObstacle(){
+		int id = obstacles.size();
+		obstacles.push_back(Polygon(id));
+		return id;
+	}
+
+	int MapArea::addObstacle(Polygon& polygon){
+		int id = obstacles.size();
+		polygon.id = id;
+		obstacles.push_back(polygon);
+		return id;
+	}
+
+	void MapArea::addObstaclePoint(int id, double x, double y){
+		obstacles[id].addPoint(x,y);
+	}
+
+	std::ostream& operator<<(std::ostream& os, const POI& p){
+		os<<p.name<<" "<<p.activityType<<" "<<p.activityTime<<" "<<p.border<<endl;
+		for (auto itr = p.topic_relevance.begin(); itr != p.topic_relevance.end(); ++itr){
+			os<<*itr<<" ";
+		}
+		return os<<endl;
+
+	}
+	std::ostream& operator<<(std::ostream& os, const SpawnPoint& sp){
+		return os<<sp.border;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const ExitPoint& ep){
+		return os<<ep.border;
+	}
+
+	std::ostream& operator<<(std::ostream& os, const MapArea& m){
+		os<<m.width<<" "<<m.height<<endl;
+
+		os << "topic" << endl;
+		for (auto itr = m.topic_ids.begin(); itr != m.topic_ids.end(); ++itr){
+			os << itr->first << ": "<< itr->second << endl;
+		}
+
+		os << "\nspawns" << endl;
+		for (auto itr = m.spawns.begin(); itr != m.spawns.end(); ++itr){
+			os << *itr << endl;
+		}
+
+		os << "\nexits" << endl;
+		for (auto itr = m.exits.begin(); itr != m.exits.end(); ++itr){
+			os << *itr << endl;
+		}
+
+
+		os << "\nPOI" << endl;
+		for (auto itr = m.pois.begin(); itr != m.pois.end(); ++itr){
+			os << *itr;
+		}
+
+		os << "\nobstacle" <<endl;
+		for (const Polygon& p : m.obstacles){
+			os << p << std::endl;;	
+		}
+		
+		return os;
+	}
 }

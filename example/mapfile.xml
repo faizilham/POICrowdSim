@@ -4,11 +4,6 @@
 		shoes, electronics, dress, coffee
 	</topics>
 
-	<obstacles>
-		<obstacle shape="poly">10,20.5 20,20.5 15.5,25</obstacle>
-		<obstacle shape="rect" x="25" y="25" width="5" height="10" />
-	</obstacles>
-
 	<spawns>
 		<spawn x="40" y="0" width="10" height="20" />
 		<spawn x="40" y="70" width="10" height="20" />
@@ -19,16 +14,21 @@
 	</exits>
 
 	<pois>
-		<poi name="toko baju" duration="" activity="" x="20" y="20" width="20" height="20">
-			<relevancy>
+		<poi name="toko baju" duration="100" activity="" x="20" y="20" width="20" height="20">
+			<relevance>
 				<topic name="shoes" value="0.5"/>
-				<topic topic="dress" value="0.7"/>
-			</relevancy>
+				<topic name="dress" value="0.7"/>
+			</relevance>
 		</poi>
-		<poi name="toko kopi" duration="" activity="" x="20" y="20" width="20" height="20">
-			<relevancy>
-				<topic topic="coffee" value="0.7"/>
-			</relevancy>
+		<poi name="toko kopi" duration="30" activity="" x="20" y="20" width="20" height="20">
+			<relevance>
+				<topic name="coffee" value="0.7"/>
+			</relevance>
 		</poi>
 	</pois>
+
+	<obstacles>
+		<obstacle shape="poly">10,20.5 20,20.5 15.5,25</obstacle>
+		<obstacle shape="rect" x="25" y="25" width="5" height="10" />
+	</obstacles>
 </environment>

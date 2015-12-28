@@ -1,62 +1,172 @@
 #include "mapreader.h"
-#include <exception>
-#include "stringhelper.h"
+#include "helper.h"
+#include <cstdlib>
 
-typedef std::vector<std::string> token_t;
+using tinyxml2::XML_SUCCESS; 
+using tinyxml2::XMLElement;
+using tinyxml2::XMLNode;
 
-POICS::XMLMapReader::XMLMapReader(std::string _filepath) {
-	doc.LoadFile(_filepath);
-}
+namespace POICS{
 
-void except(const char* str){
-	throw std::runtime_exception(str);
-}
+	typedef std::vector<std::string> token_t;
 
+	const char* POLY_SHAPE = "poly";
+	const char* RECT_SHAPE = "rect";
 
-POICS::XMLMapReader& POICS::XMLMapReader::operator>> (MapArea& map){
-	XMLElement *elmt1, *elmt2; std::string s1, s2;
-	if (!(elmt1 = doc.FirstChildElement( "environment" )))
-		except("Expecting environment tag");
-
-	double d1, d2;
-	if (!elmt1->QueryDoubleAttribute("width", &d1) || elmt1->QueryDoubleAttribute("height", &d2))
-		except("Expecting width & height attribute in environment");
-
-	map.width = d1; map.height = d2;
-
-	/** read topic **/
-	if (!(elmt2 = elmt1->FirstChildElement("topics")))
-		except("Expecting topics tag")
-
-	trim(s1.assign(elmt2->GetText()));
-	token_t tokens;
-	split(s1, ',', tokens);
-
-	for (std::string topic : tokens){
-		map.addTopic(topic);
+	void doubleAttr(XMLElement *elmt, const char* attr, double& d){
+		if (elmt->QueryDoubleAttribute(attr, &d) != XML_SUCCESS)
+			except(std::string("Expecting double attribute: ") + attr);
 	}
 
-	/** read obstacle **/
+	void intAttr(XMLElement *elmt, const char* attr, int& d){
+		if (elmt->QueryIntAttribute(attr, &d) != XML_SUCCESS)
+			except(std::string("Expecting int attribute: ") + attr);
+	}
+
+	void strAttr(XMLElement *elmt, const char* attr, std::string& str){
+		const char* cstr = elmt->Attribute(attr);
+		if (cstr == NULL)
+			except(std::string("Expecting string attribute: ") + attr);
+
+		str.assign(cstr);
+	}
+
+	void readRect(XMLElement *elmt, Rect& r){
+		double x, y, w, h;
+
+		if ((elmt->QueryDoubleAttribute("x", &x) != XML_SUCCESS) || \
+			(elmt->QueryDoubleAttribute("y", &y) != XML_SUCCESS) || \
+			(elmt->QueryDoubleAttribute("width", &w) != XML_SUCCESS) || \
+			(elmt->QueryDoubleAttribute("height", &h) != XML_SUCCESS))
+			except("Expecting attributes x, y, width and height");
+
+		r.pos.x = x; r.pos.y = y; r.width = w; r.height = h;
+	}
+
+	void readPoly(XMLElement *elmt, Polygon& poly){
+		std::string s; char buf; poly.reset(); Point point;
+		trim(s.assign(elmt->GetText()));
+
+		token_t tokens;
+		split(s, ' ', tokens);
+
+		std::stringstream ss;
+
+		for (std::string& strp : tokens){
+			ss.str(strp);
+			ss>>point.x>>buf>>point.y;
+			poly.addPoint(point);
+			ss.clear();
+		}
+	}
+
+	XMLMapReader::XMLMapReader(const char* _filepath) {
+		doc.LoadFile(_filepath);
+	}
+
+	XMLElement* readChildElement(XMLNode* node, const char* attr, bool optional = false){
+		XMLElement *elmt = node->FirstChildElement(attr);
+		if (elmt != NULL || optional){
+			return elmt;
+		} 
+
+		except(std::string("Expecting child: ") + attr);
+		return NULL;
+	}
+
+	void readRelevance(XMLElement* root, MapArea& map, int id){
+		XMLElement *elmt = readChildElement(root, "relevance");
+		elmt = readChildElement(elmt, "topic", true);
+		std::string name; double value;
+
+		while (elmt != NULL){
+			strAttr(elmt, "name", name);
+			doubleAttr(elmt, "value", value);
+			map.setTopicRelevance(id, name, value);	
+			elmt = elmt->NextSiblingElement("topic");
+		}		
+	}
 
 
-	const char* title = titleElement->GetText();
-	printf( "Name of play (1): %s\n", title );
+	XMLMapReader& XMLMapReader::operator>> (MapArea& map){
+		XMLElement *elmt1, *elmt2, *elmt3; std::string s1; Rect rect;
 
-	XMLText* textNode = titleElement->FirstChild()->ToText();
-	title = textNode->Value();
-	printf( "Name of play (2): %s\n", title );
+		if ((elmt1 = doc.FirstChildElement( "environment" )) == NULL)
+			except("Expecting environment tag");
 
-	return doc.ErrorID();
+		
+		doubleAttr(elmt1, "width", map.width);
+		doubleAttr(elmt1, "height", map.height);
+
+		/** read topic **/
+		elmt2 = readChildElement(elmt1, "topics");
+
+		trim(s1.assign(elmt2->GetText()));
+		token_t tokens;
+		split(s1, ',', tokens);
+
+		for (std::string& topic : tokens){
+			map.addTopic(topic);
+		}
+
+		/** read spawn points **/
+		elmt2 = readChildElement(elmt1, "spawns");
+		elmt3 = readChildElement(elmt2, "spawn");
+
+		do{
+			readRect(elmt3, rect);
+			map.addSpawnPoint(0, rect);
+			elmt3 = elmt3->NextSiblingElement("spawn");
+		}while(elmt3 != NULL);
+
+
+		/** read exit points **/
+		elmt2 = readChildElement(elmt1, "exits");
+		elmt3 = readChildElement(elmt2, "exit");
+
+		do{
+			readRect(elmt3, rect);
+			map.addExitPoint(rect);
+			elmt3 = elmt3->NextSiblingElement("exit");
+		}while(elmt3 != NULL);
+
+		/** read poi **/
+		elmt2 = readChildElement(elmt1, "pois");
+		elmt3 = readChildElement(elmt2, "poi");
+
+		do{
+			int duration, activity_type = 0;
+			strAttr(elmt3, "name", s1);
+			intAttr(elmt3, "duration", duration);
+			
+			readRect(elmt3, rect);
+			int id = map.addPOI(s1, activity_type, duration, rect);
+
+			readRelevance(elmt3, map, id);
+
+			elmt3 = elmt3->NextSiblingElement("poi");
+		}while(elmt3 != NULL);
+
+		elmt2 = readChildElement(elmt1, "obstacles");
+		elmt3 = readChildElement(elmt2, "obstacle", true);
+
+		Polygon poly;
+		while (elmt3 != NULL){
+			strAttr(elmt3, "shape", s1);
+
+			if (s1 == POLY_SHAPE){
+				readPoly(elmt3, poly);
+			} else if (s1 == RECT_SHAPE){
+				readRect(elmt3, rect);
+				rect.copyToPolygonCW(poly);
+			} else {
+				except("Unknown shape type attribute");
+			}
+
+			map.addObstacle(poly);
+			elmt3 = elmt3->NextSiblingElement("obstacle");
+		}
+
+		return *this;
+	}
 }
-
-/*
-
-XMLElement* titleElement = doc.FirstChildElement( "PLAY" )->FirstChildElement( "TITLE" );
-	const char* title = titleElement->GetText();
-	printf( "Name of play (1): %s\n", title );
-
-	XMLText* textNode = titleElement->FirstChild()->ToText();
-	title = textNode->Value();
-	printf( "Name of play (2): %s\n", title );
-
-	return doc.ErrorID();*/

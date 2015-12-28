@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <exception>
 
 namespace POICS{
 	// trim from start
@@ -35,6 +36,14 @@ namespace POICS{
 			elems.push_back(trim(item));
 		}
 		return elems;
+	}
+
+	static inline void except(const char* str){
+		throw std::runtime_error(str);
+	}
+
+	static inline void except(std::string str){
+		throw std::runtime_error(str);
 	}
 }
 

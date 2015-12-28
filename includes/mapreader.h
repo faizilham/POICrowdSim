@@ -8,9 +8,9 @@ namespace POICS {
 
 	class XMLMapReader {
 	private:
-		XMLDocument doc;
+		tinyxml2::XMLDocument doc;
 	public:
-		XMLMapReader(std::string _filepath);
+		XMLMapReader(const char* _filepath);
 		~XMLMapReader(){}
 
 		XMLMapReader& operator>> (MapArea& map);

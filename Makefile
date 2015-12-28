@@ -8,10 +8,10 @@ HEXT = h
 INCLUDE_DIR=includes
 THIRD_PARTY_DIR=tinyxml2
 
-MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp
+MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp
 
 LIB = -lm
-INCLUDE = $(addprefix -I,$(INCLUDE_DIR))
+INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
 
 MODE = debug
 # release or debug
@@ -31,10 +31,13 @@ OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
 .PHONY: all run clean obj
   
-all: obj
-	$(CC) -o bin/main $(OBJS) $(LIB)
+all: obj bin/main.o
+	$(CC) -o bin/main bin/main.o $(OBJS) $(LIB)
 
 obj: $(OBJS)
+
+bin/main.o: src/main.cpp
+	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)
 
 run:
 	bin/main

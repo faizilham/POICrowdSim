@@ -2,3 +2,4 @@ bin/*.o
 bin/main
 bin/*.dll
 bin/*.exe
+*.stackdump
