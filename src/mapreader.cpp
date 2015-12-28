@@ -94,9 +94,11 @@ namespace POICS{
 		if ((elmt1 = doc.FirstChildElement( "environment" )) == NULL)
 			except("Expecting environment tag");
 
-		
-		doubleAttr(elmt1, "width", map.width);
-		doubleAttr(elmt1, "height", map.height);
+		double d1, d2;
+		doubleAttr(elmt1, "width", d1);
+		doubleAttr(elmt1, "height", d2);
+		map.width = d1;
+		map.height = d2;
 
 		/** read topic **/
 		elmt2 = readChildElement(elmt1, "topics");

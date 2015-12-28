@@ -3,3 +3,4 @@ bin/main
 bin/*.dll
 bin/*.exe
 *.stackdump
+tmp/

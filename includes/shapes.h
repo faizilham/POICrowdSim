@@ -8,17 +8,17 @@ namespace POICS {
 	static const double EPSILON = 1e-6;
 
 	class Point {
-		public:
-			double x, y;
-			Point(): x(0), y(0){}
-			Point(double _x, double _y): x(_x), y(_y){}
+	public:
+		double x, y;
+		Point(): x(0), y(0){}
+		Point(double _x, double _y): x(_x), y(_y){}
 
-			double squareDistanceTo(const Point& p2) const;
-			double distanceTo(const Point& p2) const;
-			bool operator==(const Point& p2) const;
+		double squareDistanceTo(const Point& p2) const;
+		double distanceTo(const Point& p2) const;
+		bool operator==(const Point& p2) const;
 
-			void setAsMiddle(const Point& p1, const Point& p2);
-			friend std::ostream& operator<<(std::ostream& os, const Point& dt);
+		void setAsMiddle(const Point& p1, const Point& p2);
+		friend std::ostream& operator<<(std::ostream& os, const Point& dt);
 	};
 
 	class Polygon;
@@ -58,7 +58,7 @@ namespace POICS {
 		void addPoint(Point point){ points.push_back(point);}
 		void addPoint(double x, double y){ points.push_back(Point(x,y));}
 
-		void addNeighbor(const Point& p1, const Point& p2, Polygon& poly){
+		void addNeighbor(Polygon& poly, const Point& p1, const Point& p2){
 			Portal portal(p1, p2, &poly);
 			neighbors.push_back(portal);
 		}

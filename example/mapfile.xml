@@ -28,7 +28,7 @@
 	</pois>
 
 	<obstacles>
-		<obstacle shape="poly">10,20.5 20,20.5 15.5,25</obstacle>
-		<obstacle shape="rect" x="25" y="25" width="5" height="10" />
+		<obstacle shape="poly">60,20 60,70 50,70 50,20</obstacle>
+		<obstacle shape="rect" x="5" y="5" width="10" height="10" />
 	</obstacles>
 </environment>

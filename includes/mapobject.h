@@ -54,14 +54,15 @@ namespace POICS {
 	};
 
 	class MapArea{
-	public:
+	private:
 		std::vector<POI> pois;
 		std::vector<SpawnPoint> spawns;
 		std::vector<ExitPoint> exits;
 		std::vector<Polygon> obstacles;
-		double width, height;
 		std::map<std::string, int> topic_ids;
-
+	public:
+		double width, height;
+		
 		MapArea(){}
 		MapArea(double w, double h): width(w), height(h){}
 		~MapArea(){}
@@ -82,6 +83,12 @@ namespace POICS {
 		int createObstacle();
 		int addObstacle(Polygon& polygon);
 		void addObstaclePoint(int id, double x, double y);
+
+		std::vector<Polygon>& getObstacles() { return obstacles;}
+		std::vector<POI>& getPois() {return pois;}
+		std::vector<SpawnPoint>& getSpawns() {return spawns;}
+		std::vector<ExitPoint>& getExits() {return exits;}
+		std::map<std::string, int>& getTopics() {return topic_ids;}
 
 		friend std::ostream& operator<<(std::ostream& os, const MapArea& m);
 	};

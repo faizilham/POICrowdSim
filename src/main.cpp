@@ -1,11 +1,22 @@
 #include "mapreader.h"
+#include "mapcompiler.h"
 #include  <iomanip>
+#include <exception>
 using namespace POICS;
 int main(){
-	std::cout << std::setprecision(5);
-	XMLMapReader xm("example/mapfile.xml");
-	MapArea m;
-	xm >> m;
-	std::cout << m;
+
+	try{
+		std::cout << std::setprecision(5);
+		XMLMapReader xm("example/mapfile.xml");
+		MapArea m;
+		xm >> m;
+		std::cout << m;
+
+		std::vector<Polygon> navmesh;
+		HMNavMeshGenerator hm(m);
+		hm.buildNavMesh(navmesh);
+	}catch (const std::exception& e){
+		std::cerr<<e.what();
+	}
 
 }

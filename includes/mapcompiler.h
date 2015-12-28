@@ -2,15 +2,15 @@
 #define MAPCOMPILER_H
 
 #include "shapes.h"
-#include "mapreader.h"
+#include "mapobject.h"
 
 namespace POICS {
 
 	class HMNavMeshGenerator {
 	private:
-		MapReader* mapreader
+		MapArea& maparea;
 	public:
-		HMNavMeshGenerator(MapReader& _mapreader): mapreader(&_mapreader){}
+		HMNavMeshGenerator(MapArea& _maparea): maparea(_maparea){}
 		~HMNavMeshGenerator(){}
 		void buildNavMesh(std::vector<Polygon>& result_navmesh);
 	};
