@@ -50,6 +50,12 @@ namespace POICS{
 		pl.addPoint(pos.x, pos.y + height);
 	}
 
+	Portal::Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to)
+	: p1(_p1), p2(_p2), from(_from), to(_to){
+		center.setAsMiddle(p1, p2);
+		roughDistance = from->center().squareDistanceTo(center) + center.squareDistanceTo(to->center());
+	}
+
 	bool Polygon::contains(const Point& tp) const{
 		// W. Randolph Franklin's PNPoly test
 		int num_nodes = points.size();

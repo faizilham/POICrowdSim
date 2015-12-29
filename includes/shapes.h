@@ -49,9 +49,9 @@ namespace POICS {
 
 	class Portal{
 	public:
-		Point p1; Point p2; Polygon* neighbor;
+		Point p1, p2, center; Polygon *from, *to; double roughDistance;
 		Portal(){}
-		Portal(const Point& _p1, const Point& _p2, Polygon* _neighbor): p1(_p1), p2(_p2), neighbor(_neighbor){}
+		Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to);
 	};
 
 	class Polygon {
@@ -74,7 +74,7 @@ namespace POICS {
 		void addPoint(double x, double y){ points.push_back(Point(x,y));}
 
 		void addNeighbor(Polygon& poly, const Point& p1, const Point& p2){
-			Portal portal(p1, p2, &poly);
+			Portal portal(p1, p2, this, &poly);
 			neighbors.push_back(portal);
 		}
 

@@ -6,9 +6,29 @@
 
 namespace POICS {
 
+	class AStarNode {
+	public:
+		int id;
+		bool closed, opened;
+		int from;
+		double gvalue;
+		double hvalue;
+		Polygon* polygon;
+
+		AStarNode(Polygon* _poly);
+
+		bool operator==(const AStarNode& rhs){
+			return id == rhs.id;
+		}
+
+	};
+
 	class PathFinder {
 	private:
 		std::vector<Polygon>* corridors;
+
+		bool corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Portal*>& result_corridor);
+
 	public:
 		PathFinder(){}
 		~PathFinder(){}

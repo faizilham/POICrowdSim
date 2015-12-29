@@ -95,7 +95,7 @@ namespace POICS {
 
 			std::cout<<pl.id<<":";
 			for (Portal& portal : pl.getNeighbors()){
-				std::cout<<portal.neighbor->id<<" ";
+				std::cout<<portal.to->id<<" ";
 			}
 			std::cout<<std::endl<<pl<<" : "<<pl.center()<<std::endl;
 		}
@@ -190,7 +190,7 @@ namespace POICS {
 		}
 
 		/** calculate distances **/
-		for (i = 0; i < num_nodes - 1; ++i){
+		/*for (i = 0; i < num_nodes - 1; ++i){
 			for (int j = i + 1; j < num_nodes; ++j){
 				double distance = hmnav.getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j]);
 				edges.addEdgeSymmetric(i, j, distance);
@@ -204,6 +204,6 @@ namespace POICS {
 			}
 
 			std::cout<<std::endl;
-		}
+		}*/
 	}
 }
