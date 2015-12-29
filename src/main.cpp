@@ -15,6 +15,8 @@ int main(){
 		PathFinder pf;
 		HMNavMesh hm(pf);
 		hm.build(m);
+
+		AStarAbstractGraph(m, hm);
 	}catch (const std::exception& e){
 		std::cerr<<e.what();
 	}

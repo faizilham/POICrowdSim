@@ -91,15 +91,20 @@ namespace POICS {
 		/** test print **/
 		std::cout<<n<<std::endl;
 		for (Polygon& pl: corridors){
+
 			std::cout<<pl.id<<":";
 			for (Portal& portal : pl.getNeighbors()){
 				std::cout<<portal.neighbor->id<<" ";
 			}
-			std::cout<<std::endl;
+			std::cout<<std::endl<<pl<<std::endl;
 		}
 	}
 
-	double HMNavMesh::getLength(const Point& start, const Point& end){
+	void HMNavMesh::getPath(const Point& start, const Point& end, std::vector<Point>& result_path) const{
+		pathfinder.getPath(start, end, result_path);
+	}
+
+	double HMNavMesh::getDistance(const Point& start, const Point& end) const{
 		std::vector<Point> path;
 
 		pathfinder.getPath(start, end, path);
@@ -115,6 +120,15 @@ namespace POICS {
 		}
 
 		return sum;
+	}
+
+
+	int HMNavMesh::findCorridor(const Point& p) const{
+		for (const Polygon& poly : corridors){
+			if (poly.contains(p)) return poly.id;
+		}
+
+		return -1;
 	}
 
 	AStarAbstractGraph::AStarAbstractGraph(MapArea& maparea, HMNavMesh& hmnav){
@@ -133,7 +147,63 @@ namespace POICS {
 		exitNodeIdStart = spawns.size();
 		poiNodeIdStart = exitNodeIdStart + exits.size();
 
-		std::vector<Point> nodePos;
+		nodePosition.reserve(num_nodes);
+		nodeCorridorId.reserve(num_nodes);
 
+		for (SpawnPoint& spawn : spawns){
+			Point center = spawn.border.center();
+			nodePosition.push_back(center);
+			nodeCorridorId.push_back(hmnav.findCorridor(center));
+		}
+
+		for (ExitPoint& ep : exits){
+			Point center = ep.border.center();
+			nodePosition.push_back(center);
+			nodeCorridorId.push_back(hmnav.findCorridor(center));
+		}
+
+		int i = poiNodeIdStart;
+		for (POI& poi : pois){
+			Point center = poi.border.center();
+			nodePosition.push_back(center);
+			nodeCorridorId.push_back(hmnav.findCorridor(center));
+
+			// set topic relevance
+			for (int j = 0; j < num_topic; ++j){
+				nodes.setScore(i, j, poi.topic_relevance[j]);
+			}
+
+			++i;
+		}
+
+		// print test
+		std::cout<<"AStarAbstractGraph nodes"<<std::endl;
+		for (int i = 0; i < num_nodes; ++i){
+			std::cout<<nodePosition[i]<<" "<<nodeCorridorId[i]<<std::endl;
+
+			for (int j = 0; j < num_topic; ++j){
+				std::cout<<nodes.getScoreElement(i, j)<<" ";
+			}
+
+			std::cout<<std::endl;
+		}
+
+		/** calculate distances **/
+		for (i = 0; i < num_nodes - 1; ++i){
+			for (int j = i + 1; j < num_nodes; ++j){
+				Point& p1 = nodePosition[i]; Point& p2 = nodePosition[j];
+				double distance = hmnav.getDistance(p1, p2);
+				edges.addEdgeSymmetric(i, j, distance);
+			}
+		}
+
+		std::cout<<"AStarAbstractGraph edges"<<std::endl;
+		for (int i = 0; i < num_nodes; ++i){
+			for (int j = 0; j < num_nodes; ++j){
+				std::cout<<edges.getLength(i, j)<<" ";
+			}
+
+			std::cout<<std::endl;
+		}
 	}
 }

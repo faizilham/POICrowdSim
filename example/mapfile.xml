@@ -14,13 +14,13 @@
 	</exits>
 
 	<pois>
-		<poi name="toko baju" duration="100" activity="" x="20" y="20" width="20" height="20">
+		<poi name="toko baju" duration="100" activity="" x="20" y="0" width="20" height="20">
 			<relevance>
 				<topic name="shoes" value="0.5"/>
 				<topic name="dress" value="0.7"/>
 			</relevance>
 		</poi>
-		<poi name="toko kopi" duration="30" activity="" x="20" y="20" width="20" height="20">
+		<poi name="toko kopi" duration="30" activity="" x="20" y="50" width="10" height="10">
 			<relevance>
 				<topic name="coffee" value="0.7"/>
 			</relevance>

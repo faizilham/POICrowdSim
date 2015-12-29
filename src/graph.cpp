@@ -58,6 +58,11 @@ namespace POICS{
 		edges[node1 * num_nodes + node2] = length;
 	}
 
+	void EdgeSet::addEdgeSymmetric(int node1, int node2, double length){
+		edges[node1 * num_nodes + node2] = length;
+		edges[node2 * num_nodes + node1] = length;
+	}
+
 	double EdgeSet::getLength(int node1, int node2) const{
 		return edges[node1 * num_nodes + node2];
 	}

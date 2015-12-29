@@ -50,6 +50,21 @@ namespace POICS{
 		pl.addPoint(pos.x, pos.y + height);
 	}
 
+	bool Polygon::contains(const Point& tp) const{
+		// W. Randolph Franklin's PNPoly test
+		int num_nodes = points.size();
+		bool c = false;
+
+		for (int i = 0, j = num_nodes-1; i < num_nodes; j = i++) {
+			const Point& pi = points[i]; const Point& pj = points[j];
+
+			if ( ((pi.y>tp.y) != (pj.y>tp.y)) && (tp.x < (pj.x-pi.x) * (tp.y-pi.y) / (pj.y-pi.y) + pi.x) )
+				c = !c;
+	  	}
+
+	  	return c;
+	}
+
 	bool Polygon::testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2) const{
 		int match = 0; auto pmatch = points.end();
 

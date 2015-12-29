@@ -78,6 +78,7 @@ namespace POICS {
 			neighbors.push_back(portal);
 		}
 
+		bool contains(const Point& p) const;
 		bool testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2) const;
 
 		friend std::ostream& operator<<(std::ostream& os, const Polygon& pl);

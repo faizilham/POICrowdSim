@@ -31,6 +31,7 @@ namespace POICS{
 
 		void init(int _num_nodes);
 		void addEdge(int node1, int node2, double length);
+		void addEdgeSymmetric(int node1, int node2, double length);
 		double getLength(int node1, int node2) const;
 	};
 }

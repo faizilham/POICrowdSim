@@ -4,23 +4,9 @@
 #include "shapes.h"
 #include "mapobject.h"
 #include "graph.h"
+#include "pathfinder.h"
 
 namespace POICS {
-
-	class PathFinder {
-	private:
-		std::vector<Polygon>* corridors;
-	public:
-		PathFinder(){}
-		~PathFinder(){}
-
-		void setCorridors(std::vector<Polygon>& _corridors){ corridors = &_corridors;}
-
-		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path){
-			// TODO pathfinding algo and move to other file
-		}
-	};
-
 	/* Hertel-Mehlhorn convex polygon partition based navigation mesh */
 	class HMNavMesh {
 	private:
@@ -34,11 +20,11 @@ namespace POICS {
 		~HMNavMesh(){}
 		void build(MapArea& maparea);
 
-		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path){
-			pathfinder.getPath(start, end, result_path);
-		}
+		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path) const;
+		
+		double getDistance(const Point& start, const Point& end) const;
 
-		double getLength(const Point& start, const Point& end);
+		int findCorridor(const Point& p) const;
 	};
 
 	class AStarAbstractGraph {
@@ -46,8 +32,11 @@ namespace POICS {
 		NodeSet nodes; EdgeSet edges;
 		int spawnNodeIdStart, exitNodeIdStart, poiNodeIdStart;
 
+		std::vector<Point> nodePosition;
+		std::vector<int> nodeCorridorId;
+
 		AStarAbstractGraph(MapArea& _maparea, HMNavMesh& hmnav);
-		~AStarAbstractGraph();
+		~AStarAbstractGraph(){}
 	};	
 }
 

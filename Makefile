@@ -4,12 +4,7 @@ CC = g++
 EXT = cpp
 HEXT = h
 
-# modules
-INCLUDE_DIR=includes
-THIRD_PARTY_DIR=tinyxml2 polypartition
-
-MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp polypartition.cpp mapcompiler.cpp graph.cpp
-
+# flags
 LIB = -lm
 INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
 
@@ -17,12 +12,17 @@ MODE = debug
 # release or debug
 
 FLAGS = -Wall -std=c++11
-
 ifeq ($(MODE), release)
 FLAGS += -O2
 else
 FLAGS += -O0 -g
 endif
+
+# modules
+INCLUDE_DIR=includes
+THIRD_PARTY_DIR=tinyxml2 polypartition
+
+MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp polypartition.cpp mapcompiler.cpp graph.cpp pathfinder.cpp
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
