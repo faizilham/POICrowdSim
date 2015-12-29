@@ -10,10 +10,11 @@ namespace POICS {
 	public:
 		int id;
 		bool closed, opened;
-		int from;
+		AStarNode* from;
 		double gvalue;
 		double hvalue;
 		Polygon* polygon;
+
 
 		AStarNode(Polygon* _poly);
 

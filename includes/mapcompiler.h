@@ -20,6 +20,8 @@ namespace POICS {
 		~HMNavMesh(){}
 		void build(MapArea& maparea);
 
+		std::vector<Polygon>& getCorridors(){ return corridors;}
+
 		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const;
 
 		double getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor) const;

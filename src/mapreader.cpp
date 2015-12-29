@@ -53,6 +53,8 @@ namespace POICS{
 		std::stringstream ss;
 
 		for (std::string& strp : tokens){
+			if (strp.length() == 0) continue;
+
 			ss.str(strp);
 			ss>>point.x>>buf>>point.y;
 			poly.addPoint(point);

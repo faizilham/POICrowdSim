@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<environment width="100" height="100" begin="09:00" end="19:00">
+<environment width="200" height="100" begin="09:00" end="19:00">
 	<topics>
 		shoes, electronics, dress, coffee
 	</topics>
@@ -28,7 +28,12 @@
 	</pois>
 
 	<obstacles>
-		<obstacle shape="poly">60,20 60,70 50,70 50,20</obstacle>
-		<obstacle shape="rect" x="5" y="5" width="10" height="10" />
+		<obstacle shape="poly">
+			20,55 45,55 45,80 55,80 55,55 80,55 80,45 55,45 55,20 45,20 45,45 20,45
+		</obstacle>
+		<obstacle shape="poly">
+			120,55 145,55 145,80 155,80 155,55 180,55 180,45 155,45 155,20 145,20 145,45 120,45
+		</obstacle>
+		<obstacle shape="rect" x="95" y="45" width="10" height="10" />
 	</obstacles>
 </environment>

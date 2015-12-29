@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include "imagehelper.h"
+
 using std::list;
 
 namespace POICS {
@@ -95,7 +97,7 @@ namespace POICS {
 
 			std::cout<<pl.id<<":";
 			for (Portal& portal : pl.getNeighbors()){
-				std::cout<<portal.to->id<<" ";
+				std::cout<<portal.to_id<<" ";
 			}
 			std::cout<<std::endl<<pl<<" : "<<pl.center()<<std::endl;
 		}
@@ -188,6 +190,32 @@ namespace POICS {
 
 			std::cout<<std::endl;
 		}
+
+		Painter painter(maparea.width, maparea.height, 3);
+
+		// test draw
+		painter.setColor(130, 130, 130);
+		for (Polygon& pl : hmnav.getCorridors()) {
+			painter.drawPoly(pl);
+		}
+
+		painter.setColor(255, 0, 0);
+		for (SpawnPoint& spawn : spawns){
+			painter.drawRect(spawn.border);
+		}
+
+		painter.setColor(0, 0, 255);
+		for (ExitPoint& ep : exits){
+			painter.drawRect(ep.border);
+		}
+
+		painter.setColor(0, 255, 0);
+		for (POI& poi : pois){
+			painter.drawRect(poi.border);
+		}
+
+		painter.save("tmp/test.bmp");
+
 
 		/** calculate distances **/
 		/*for (i = 0; i < num_nodes - 1; ++i){

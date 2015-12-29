@@ -1,17 +1,35 @@
 #include "pathfinder.h"
 
+#include <cstdlib>
 #include <cmath>
 #include "priority_queue.h"
 
 namespace POICS{
 
 	AStarNode::AStarNode(Polygon* _poly)
-	: closed(false), opened(false), from(-1), gvalue(INFINITY), hvalue(INFINITY), polygon(_poly) {
+	: closed(false), opened(false), from(NULL), gvalue(INFINITY), hvalue(INFINITY), polygon(_poly) {
 		id = polygon->id;
 	}
 
 	double heuristic(Polygon* current, Polygon* target){
 		return current->center().squareDistanceTo(target->center());
+	}
+
+	void buildPortal(AStarNode* last, std::vector<AStarNode>& anodes, std::vector<Portal*>& result_portal){
+		std::vector<Polygon*> reverse_route;
+	
+		while(last != NULL){
+			reverse_route.push_back(last->polygon);
+			last = last->from;
+		}
+
+		int n = reverse_route.size();
+
+		for (int i = n - 1; i > 0; --i){
+			Polygon *from = reverse_route[i], *to = reverse_route[i-1];
+
+			result_portal.push_back(from->getNeighbor(to->id));
+		}
 	}
 
 	bool PathFinder::corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Portal*>& result_portal){
@@ -38,6 +56,7 @@ namespace POICS{
 			
 			if (current->id == endCorridor){
 				// build path
+				buildPortal(current, anodes, result_portal);
 				return true;
 			}
 
@@ -45,7 +64,7 @@ namespace POICS{
 			current->closed = true;
 			closedset.push_back(current);
 			for (const Portal& portal : current->polygon->getNeighbors()){
-				AStarNode* neighbor = &(anodes[portal.to->id]);
+				AStarNode* neighbor = &(anodes[portal.to_id]);
 
 				if (neighbor->closed) continue;
 
@@ -58,7 +77,7 @@ namespace POICS{
 					continue;
 				}
 
-				neighbor->from = current->id;
+				neighbor->from = current;
 				neighbor->gvalue = curr_gvalue;
 				neighbor->hvalue = curr_gvalue + heuristic(neighbor->polygon, target);
 			}

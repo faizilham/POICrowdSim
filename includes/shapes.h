@@ -41,7 +41,8 @@ namespace POICS {
 		double y() const {return pos.y;}
 		double w() const {return width;}
 		double h() const {return height;}
-		Point center() const {return cpos;}
+		const Point& position() const {return pos;}
+		const Point& center() const {return cpos;}
 
 		void copyToPolygonCW(Polygon& pl) const;
 		void copyToPolygonCCW(Polygon& pl) const;
@@ -49,7 +50,7 @@ namespace POICS {
 
 	class Portal{
 	public:
-		Point p1, p2, center; Polygon *from, *to; double roughDistance;
+		Point p1, p2, center; int from_id, to_id; double roughDistance;
 		Portal(){}
 		Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to);
 	};
@@ -66,6 +67,9 @@ namespace POICS {
 		~Polygon(){}
 
 		std::vector<Portal>& getNeighbors() { return neighbors;}
+
+		Portal* getNeighbor(int to_id);
+
 		std::vector<Point>& getPoints() { return points;}
 
 		void reset(){points.clear(); neighbors.clear();}

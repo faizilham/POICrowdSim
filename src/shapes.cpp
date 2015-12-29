@@ -51,9 +51,20 @@ namespace POICS{
 	}
 
 	Portal::Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to)
-	: p1(_p1), p2(_p2), from(_from), to(_to){
+	: p1(_p1), p2(_p2){
+		from_id = _from->id;
+		to_id = _to->id;
 		center.setAsMiddle(p1, p2);
-		roughDistance = from->center().squareDistanceTo(center) + center.squareDistanceTo(to->center());
+		roughDistance = _from->center().squareDistanceTo(center) + center.squareDistanceTo(_to->center());
+	}
+
+	Portal* Polygon::getNeighbor(int to_id){
+		for(Portal& portal : neighbors){
+			if (portal.to_id == to_id)
+				return &portal;
+		}
+
+		return NULL;
 	}
 
 	bool Polygon::contains(const Point& tp) const{

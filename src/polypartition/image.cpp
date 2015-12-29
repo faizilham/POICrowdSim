@@ -239,14 +239,14 @@ Image Image::Resize(int factor) {
 Image Image::Filter(float *filter, long filterwidth, long filterheight) {
 	Image ret(width,height);
 	long i1,j1,i2,j2;
-	long fox,foy,filtersize;
+	long fox,foy;//,filtersize;
 	long x,y;
 	float sumr,sumg,sumb;
 	long offset1,offset2,offset3;
 	unsigned char *data1,*data2;
 	fox = filterwidth/2;
 	foy = filterheight/2;
-	filtersize = filterwidth*filterheight;
+	//filtersize = filterwidth*filterheight;
 	data1 = ret.GetData();
 	data2 = data;
 	for(i1=0;i1<height;i1++) {
