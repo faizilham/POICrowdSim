@@ -40,7 +40,7 @@ namespace POICS{
 			(elmt->QueryDoubleAttribute("height", &h) != XML_SUCCESS))
 			except("Expecting attributes x, y, width and height");
 
-		r.pos.x = x; r.pos.y = y; r.width = w; r.height = h;
+		r.set(x,y,w,h);
 	}
 
 	void readPoly(XMLElement *elmt, Polygon& poly){

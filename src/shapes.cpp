@@ -21,9 +21,17 @@ namespace POICS{
 		x = (p1.x + p2.x) / 2; y = (p1.y + p2.y) / 2;
 	}
 
+	void Rect::set(double x, double y, double w, double h){
+		pos.x = x; pos.y = y; width = w; height = h; calcCenterPoint();
+	}
+
+	void Rect::setPos(double x, double y){
+		pos.x = x; pos.y = y; calcCenterPoint();
+	}
+
 	void Rect::calcCenterPoint(){
-		center.x = pos.x + (width/2);
-		center.y = pos.y + (height/2);
+		cpos.x = pos.x + (width/2);
+		cpos.y = pos.y + (height/2);
 	}
 
 	void Rect::copyToPolygonCW(Polygon& pl) const{

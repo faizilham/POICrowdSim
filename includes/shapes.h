@@ -23,13 +23,26 @@ namespace POICS {
 
 	class Polygon;
 	class Rect {
+		Point pos, cpos; double width, height;
+		void calcCenterPoint();
 	public:
-		Point pos, center; double width, height;
+		
 		Rect(){}
-		Rect(double x, double y, double w, double h): pos(x,y), width(w), height(h) {}
+		Rect(double x, double y, double w, double h): pos(x,y), width(w), height(h) {
+			calcCenterPoint();
+		}
+
 		friend std::ostream& operator<<(std::ostream& os, const Rect& dt);
 
-		void calcCenterPoint();
+		void set(double x, double y, double w, double h);
+		void setPos(double x, double y);
+
+		double x() const {return pos.x;}
+		double y() const {return pos.y;}
+		double w() const {return width;}
+		double h() const {return height;}
+		Point center() const {return cpos;}
+
 		void copyToPolygonCW(Polygon& pl) const;
 		void copyToPolygonCCW(Polygon& pl) const;
 	};

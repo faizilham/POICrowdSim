@@ -11,8 +11,9 @@ int main(){
 		MapArea m;
 		xm >> m;
 		std::cout << m;
-		
-		HMNavMesh hm;
+
+		PathFinder pf;
+		HMNavMesh hm(pf);
 		hm.build(m);
 	}catch (const std::exception& e){
 		std::cerr<<e.what();
