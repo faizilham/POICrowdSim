@@ -14,8 +14,7 @@ namespace POICS {
 
 		int i = 0;
 		for (Point& p : points){
-			tpl[i].x = p.x;
-			tpl[i].y = p.y;
+			tpl[i].x = p.x; tpl[i].y = p.y;
 			++i;
 		}
 
@@ -53,12 +52,7 @@ namespace POICS {
 		}
 	}
 
-	void WritePoly(FILE *fp, TPPLPoly *poly);
-	void WritePoly(const char *filename, TPPLPoly *poly);
-	void WritePolyList(FILE *fp, list<TPPLPoly> *polys);
-	void WritePolyList(const char *filename, list<TPPLPoly> *polys);
-
-	void HMNavMeshGenerator::buildNavMesh(std::vector<Polygon>& result_navmesh){
+	void HMNavMesh::build(MapArea& maparea){
 
 		TPPLPartition pp;
 		std::list<TPPLPoly> input, output;
@@ -68,25 +62,24 @@ namespace POICS {
 
 		/* HM Partition */
 		if (!pp.ConvexPartition_HM(&input, &output)){
-			except("Invalid input polygon when building navmesh");
+			except("Invalid input polygon when building corridors");
 		}
 
-		WritePolyList("tmp/output.txt", &output);
-
 		/* convert back to POICS::Polygon */
+		corridors.clear();
 		int i = 0; Polygon poly;
 		for (TPPLPoly& tpl : output){
 			toPOICSPoly(tpl, poly);
-			poly.id = i; result_navmesh.push_back(poly); ++i;
+			poly.id = i; corridors.push_back(poly); ++i;
 		}
 
 		/* setup neighbor list */
 		Point p1, p2;
-		int n = result_navmesh.size();
+		int n = corridors.size();
 		for (int i = 0; i < n - 1; ++i){
 			for (int j = i + 1; j < n; ++j){
-				Polygon& poly1 = result_navmesh[i];
-				Polygon& poly2 = result_navmesh[j];
+				Polygon& poly1 = corridors[i];
+				Polygon& poly2 = corridors[j];
 
 				if (poly1.testNeighborhood(poly2, p1, p2)){
 					poly1.addNeighbor(poly2, p1, p2);
@@ -97,7 +90,7 @@ namespace POICS {
 
 		/** test print **/
 		std::cout<<n<<std::endl;
-		for (Polygon& pl: result_navmesh){
+		for (Polygon& pl: corridors){
 			std::cout<<pl.id<<":";
 			for (Portal& portal : pl.getNeighbors()){
 				std::cout<<portal.neighbor->id<<" ";
@@ -106,50 +99,41 @@ namespace POICS {
 		}
 	}
 
-	void WritePoly(FILE *fp, TPPLPoly *poly) {
-		int i,numpoints;
-		numpoints = poly->GetNumPoints();
+	double HMNavMesh::getLength(const Point& start, const Point& end){
+		std::vector<Point> path;
 
-		fprintf(fp,"%d\n",numpoints);
-		
-		if(poly->IsHole()) {
-			fprintf(fp,"1\n");
-		} else {
-			fprintf(fp,"0\n");
+		pathfinder.getPath(start, end, path);
+
+		if (path.size() < 2) return 0;
+
+		auto p1 = path.begin();
+		double sum = 0;
+
+		for (auto p2 = path.begin() + 1; p2 != path.end(); ++p2){
+			sum += p1->distanceTo(*p2);
+			p1 = p2;
 		}
 
-		for(i=0;i<numpoints;i++) {
-			fprintf(fp,"%g %g\n",(*poly)[i].x, (*poly)[i].y);
-		}
+		return sum;
 	}
 
-	void WritePoly(const char *filename, TPPLPoly *poly) {
-		FILE *fp = fopen(filename,"w");
-		if(!fp) {
-			printf("Error writing file %s\n", filename);
-			return;
-		}
-		WritePoly(fp,poly);
-		fclose(fp);	
-	}
+	AStarAbstractGraph::AStarAbstractGraph(MapArea& maparea, HMNavMesh& hmnav){
+		std::vector<POI>& pois = maparea.getPois();
+		std::vector<SpawnPoint>& spawns = maparea.getSpawns();
+		std::vector<ExitPoint>& exits = maparea.getExits();
 
-	void WritePolyList(FILE *fp, list<TPPLPoly> *polys) {
-		list<TPPLPoly>::iterator iter;
+		int num_topic = maparea.getTopics().size();
 
-		fprintf(fp,"%ld\n",polys->size());
+		/** build nodes **/
+		int num_nodes = pois.size() + spawns.size() + exits.size();
+		nodes.init(num_nodes, num_topic);
+		edges.init(num_nodes);
 
-		for(iter = polys->begin(); iter != polys->end(); iter++) {
-			WritePoly(fp,&(*iter));
-		}
-	}
+		spawnNodeIdStart = 0;
+		exitNodeIdStart = spawns.size();
+		poiNodeIdStart = exitNodeIdStart + exits.size();
 
-	void WritePolyList(const char *filename, list<TPPLPoly> *polys) {
-		FILE *fp = fopen(filename,"w");
-		if(!fp) {
-			printf("Error writing file %s\n", filename);
-			return;
-		}
-		WritePolyList(fp,polys);
-		fclose(fp);	
+		std::vector<Point> nodePos;
+
 	}
 }

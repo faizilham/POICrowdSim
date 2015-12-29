@@ -8,7 +8,7 @@ HEXT = h
 INCLUDE_DIR=includes
 THIRD_PARTY_DIR=tinyxml2 polypartition
 
-MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp polypartition.cpp mapcompiler.cpp
+MODULES = shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp polypartition.cpp mapcompiler.cpp graph.cpp
 
 LIB = -lm
 INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))

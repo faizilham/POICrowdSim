@@ -3,31 +3,50 @@
 
 #include "shapes.h"
 #include "mapobject.h"
+#include "graph.h"
 
 namespace POICS {
 
-	class HMNavMeshGenerator {
+	class PathFinder {
 	private:
-		MapArea& maparea;
+		std::vector<Polygon>* corridors;
 	public:
-		HMNavMeshGenerator(MapArea& _maparea): maparea(_maparea){}
-		~HMNavMeshGenerator(){}
-		void buildNavMesh(std::vector<Polygon>& result_navmesh);
+		PathFinder(){}
+		~PathFinder(){}
+
+		void setCorridors(std::vector<Polygon>& _corridors){ corridors = &_corridors;}
+
+		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path){
+			// TODO pathfinding algo and move to other file
+		}
 	};
 
-	/*class PathFinder {
+	/* Hertel-Mehlhorn convex polygon partition based navigation mesh */
+	class HMNavMesh {
+	private:
+		std::vector<Polygon> corridors;
+		PathFinder& pathfinder;
 	public:
-		std::vector<Polygon>& corridors;
-		PathFinder(std::vector<Polygon>& _corridors): corridors(_corridors){};
-		virtual ~PathFinder(){}
+		HMNavMesh(PathFinder& _pathfinder): pathfinder(_pathfinder){
+			pathfinder.setCorridors(corridors);
+		}
 
-		virtual void getPath(const Point& start, const Point& end, std::vector<Point>& result_path) = 0;
-		virtual double getLength(const Point& start, const Point& end) = 0;
-	};*/
+		~HMNavMesh(){}
+		void build(MapArea& maparea);
+
+		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path){
+			pathfinder.getPath(start, end, result_path);
+		}
+
+		double getLength(const Point& start, const Point& end);
+	};
 
 	class AStarAbstractGraph {
 	public:
-		AStarAbstractGraph(int num_poi, int num_spawn, int num_exit);
+		NodeSet nodes; EdgeSet edges;
+		int spawnNodeIdStart, exitNodeIdStart, poiNodeIdStart;
+
+		AStarAbstractGraph(MapArea& _maparea, HMNavMesh& hmnav);
 		~AStarAbstractGraph();
 	};	
 }

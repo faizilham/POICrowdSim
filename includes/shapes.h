@@ -24,10 +24,12 @@ namespace POICS {
 	class Polygon;
 	class Rect {
 	public:
-		Point pos; double width, height;
+		Point pos, center; double width, height;
 		Rect(){}
 		Rect(double x, double y, double w, double h): pos(x,y), width(w), height(h) {}
 		friend std::ostream& operator<<(std::ostream& os, const Rect& dt);
+
+		void calcCenterPoint();
 		void copyToPolygonCW(Polygon& pl) const;
 		void copyToPolygonCCW(Polygon& pl) const;
 	};

@@ -11,10 +11,9 @@ int main(){
 		MapArea m;
 		xm >> m;
 		std::cout << m;
-
-		std::vector<Polygon> navmesh;
-		HMNavMeshGenerator hm(m);
-		hm.buildNavMesh(navmesh);
+		
+		HMNavMesh hm;
+		hm.build(m);
 	}catch (const std::exception& e){
 		std::cerr<<e.what();
 	}

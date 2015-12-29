@@ -17,10 +17,18 @@ namespace POICS {
 		std::vector<double> topic_relevance;
 
 		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, double x, double y, double w, double h)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h), topic_relevance(num_topic, 0.0){}
+		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h), topic_relevance(num_topic, 0.0){
+			init();
+		}
 
 		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, Rect& _border)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border), topic_relevance(num_topic, 0.0){}
+		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border), topic_relevance(num_topic, 0.0){
+			init();
+		}
+
+		void init(){
+			border.calcCenterPoint();
+		}
 
 		friend std::ostream& operator<<(std::ostream& os, const POI& p);
 	};
@@ -31,10 +39,18 @@ namespace POICS {
 		Rect border;
 
 		SpawnPoint(int _id, double _dist, double x, double y, double w, double h)
-		: id(_id), dist(_dist), border(x,y,w,h){}
+		: id(_id), dist(_dist), border(x,y,w,h){
+			init();
+		}
 
 		SpawnPoint(int _id, double _dist, Rect& _border)
-		: id(_id), dist(_dist), border(_border){}
+		: id(_id), dist(_dist), border(_border){
+			init();
+		}
+
+		void init(){
+			border.calcCenterPoint();
+		}
 
 		friend std::ostream& operator<<(std::ostream& os, const SpawnPoint& sp);
 	};
@@ -45,10 +61,18 @@ namespace POICS {
 		Rect border;
 
 		ExitPoint(int _id, double x, double y, double w, double h)
-		: id(_id), border(x,y,w,h){}
+		: id(_id), border(x,y,w,h){
+			init();
+		}
 
 		ExitPoint(int _id, Rect& _border)
-		: id(_id), border(_border){}
+		: id(_id), border(_border){
+			init();
+		}
+
+		void init(){
+			border.calcCenterPoint();
+		}
 
 		friend std::ostream& operator<<(std::ostream& os, const ExitPoint& ep);
 	};
