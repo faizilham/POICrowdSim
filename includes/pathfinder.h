@@ -14,7 +14,7 @@ namespace POICS {
 		~PathFinder(){}
 
 		void setCorridors(std::vector<Polygon>& _corridors){ corridors = &_corridors;}
-		void getPath(const Point& start, const Point& end, std::vector<Point>& result_path);
+		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path);
 	};
 }
 

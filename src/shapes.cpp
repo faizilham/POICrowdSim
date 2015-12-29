@@ -86,6 +86,35 @@ namespace POICS{
 		return false;
 	}
 
+	void Polygon::calcCentroid(){
+		double Cx = 0.0, Cy = 0.0, A = 0.0;
+		double x, y, x1, y1, a; int n = points.size();
+
+		for (int i = 0; i < n - 1; ++i){
+			x = points[i].x; y = points[i].y;
+			x1 = points[i+1].x; y1 = points[i+1].y;
+
+			a = (x*y1 - x1*y);
+			Cx += (x + x1) * a;
+			Cy += (y + y1) * a;
+			A += a;
+		}
+
+		// last point & first, closed polygon
+		x = points[n-1].x; y = points[n-1].y;
+		x1 = points[0].x; y1 = points[0].y;
+
+		a = (x*y1 - x1*y);
+		Cx += (x + x1) * a;
+		Cy += (y + y1) * a;
+		A += a;
+
+		A = 0.5*A;
+		Cx = Cx / (6.0*A);
+		Cy = Cy / (6.0*A);
+		centroid.x = Cx; centroid.y = Cy;
+	}
+
 	std::ostream& operator<<(std::ostream& os, const Point& p){
 		return os<<"("<<p.x<<", "<<p.y<<")";
 	}

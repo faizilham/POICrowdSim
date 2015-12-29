@@ -70,6 +70,7 @@ namespace POICS {
 		int i = 0; Polygon poly;
 		for (TPPLPoly& tpl : output){
 			toPOICSPoly(tpl, poly);
+			poly.calcCentroid();
 			poly.id = i; corridors.push_back(poly); ++i;
 		}
 
@@ -96,18 +97,18 @@ namespace POICS {
 			for (Portal& portal : pl.getNeighbors()){
 				std::cout<<portal.neighbor->id<<" ";
 			}
-			std::cout<<std::endl<<pl<<std::endl;
+			std::cout<<std::endl<<pl<<" : "<<pl.center()<<std::endl;
 		}
 	}
 
-	void HMNavMesh::getPath(const Point& start, const Point& end, std::vector<Point>& result_path) const{
-		pathfinder.getPath(start, end, result_path);
+	void HMNavMesh::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const{
+		pathfinder.getPath(start, startCorridor, end, endCorridor, result_path);
 	}
 
-	double HMNavMesh::getDistance(const Point& start, const Point& end) const{
+	double HMNavMesh::getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor) const{
 		std::vector<Point> path;
 
-		pathfinder.getPath(start, end, path);
+		pathfinder.getPath(start, startCorridor, end, endCorridor, path);
 
 		if (path.size() < 2) return 0;
 
@@ -191,8 +192,7 @@ namespace POICS {
 		/** calculate distances **/
 		for (i = 0; i < num_nodes - 1; ++i){
 			for (int j = i + 1; j < num_nodes; ++j){
-				Point& p1 = nodePosition[i]; Point& p2 = nodePosition[j];
-				double distance = hmnav.getDistance(p1, p2);
+				double distance = hmnav.getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j]);
 				edges.addEdgeSymmetric(i, j, distance);
 			}
 		}
