@@ -1,9 +1,22 @@
 #include "helper.h"
 #include "mapobject.h"
+#include <algorithm>
 
 using std::endl;
 
 namespace POICS{
+
+	POI::POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, double x, double y, double w, double h)
+	: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h), topic_relevance(num_topic, 0.0) {
+		std::fill_n(topic_relevance.begin(), num_topic, 0.0);
+	}
+
+	POI::POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, Rect& _border)
+	: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border), topic_relevance(num_topic, 0.0) {
+		std::fill_n(topic_relevance.begin(), num_topic, 0.0);
+	}
+
+
 	void MapArea::addTopic(std::string name){
 		topic_ids.insert(make_pair(name, topic_ids.size()));
 	}

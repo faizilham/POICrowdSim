@@ -16,11 +16,8 @@ namespace POICS {
 		Rect border;
 		std::vector<double> topic_relevance;
 
-		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, double x, double y, double w, double h)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(x,y,w,h), topic_relevance(num_topic, 0.0){}
-
-		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, Rect& _border)
-		: id(_id), name(_name), activityType(_activityType), activityTime(_activityTime), border(_border), topic_relevance(num_topic, 0.0){}
+		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, double x, double y, double w, double h);
+		POI(int _id, std::string _name, int num_topic, int _activityType, int _activityTime, Rect& _border);
 
 		friend std::ostream& operator<<(std::ostream& os, const POI& p);
 	};
