@@ -68,6 +68,9 @@ namespace POICS {
 		}
 
 		/* convert back to POICS::Polygon */
+
+		// TPPL_CCW 1, TPPL_CW -1
+		
 		corridors.clear();
 		int i = 0; Polygon poly;
 		for (TPPLPoly& tpl : output){
@@ -84,15 +87,16 @@ namespace POICS {
 				Polygon& poly1 = corridors[i];
 				Polygon& poly2 = corridors[j];
 
-				if (poly1.testNeighborhood(poly2, p1, p2)){
+				// resulting polygon is CCW
+				if (poly1.testNeighborhood(poly2, p1, p2, true)){
 					poly1.addNeighbor(poly2, p1, p2);
-					poly2.addNeighbor(poly1, p1, p2);
+					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
 				}
 			}
 		}
 
 		/** test print **/
-		std::cout<<n<<std::endl;
+		/*std::cout<<n<<std::endl;
 		for (Polygon& pl: corridors){
 
 			std::cout<<pl.id<<":";
@@ -100,7 +104,7 @@ namespace POICS {
 				std::cout<<portal.to_id<<" ";
 			}
 			std::cout<<std::endl<<pl<<" : "<<pl.center()<<std::endl;
-		}
+		}*/
 	}
 
 	void HMNavMesh::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const{
@@ -180,7 +184,7 @@ namespace POICS {
 		}
 
 		// print test
-		std::cout<<"AStarAbstractGraph nodes"<<std::endl;
+		/*std::cout<<"AStarAbstractGraph nodes"<<std::endl;
 		for (int i = 0; i < num_nodes; ++i){
 			std::cout<<nodePosition[i]<<" "<<nodeCorridorId[i]<<std::endl;
 
@@ -189,7 +193,13 @@ namespace POICS {
 			}
 
 			std::cout<<std::endl;
-		}
+		}*/
+
+
+		// test pathfind
+		std::vector<Point> path;
+		int n1 = 2, n2 = 3;
+		hmnav.getPath(nodePosition[n1], nodeCorridorId[n1], nodePosition[n2], nodeCorridorId[n2], path);
 
 		Painter painter(maparea.width, maparea.height, 3);
 
@@ -212,6 +222,13 @@ namespace POICS {
 		painter.setColor(0, 255, 0);
 		for (POI& poi : pois){
 			painter.drawRect(poi.border);
+		}
+
+		painter.setColor(255, 150, 0);
+
+		int n  = path.size();
+		for (int i = 0; i < n-1; ++i){
+			painter.drawLine(path[i], path[i+1]);
 		}
 
 		painter.save("tmp/test.bmp");

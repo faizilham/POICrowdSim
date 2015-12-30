@@ -6,7 +6,7 @@ HEXT = h
 
 # flags
 LIB = -lm
-INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
+INCLUDE = -Isrc
 
 MODE = debug
 # release or debug
@@ -27,6 +27,7 @@ MODULES = 	shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp \
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
+INCLUDE+=$(addprefix -I,$(INCLUDE_DIR))
 SOURCES = $(MODULES)
 OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
@@ -45,6 +46,16 @@ run:
 	
 clean:
 	rm -f bin/main bin/*.o
+
+#dependency builder
+#depend: .depend
+
+#.depend: $(SOURCES)
+#	rm -f ./.depend
+#	$(CC) $(CFLAGS) -MM $^ -MF  ./.depend;
+
+#include .depend
+#dependency
 
 bin/%.o : %.$(EXT) %.$(HEXT)
 	$(CC) -c $< -o $@ $(FLAGS) $(INCLUDE)

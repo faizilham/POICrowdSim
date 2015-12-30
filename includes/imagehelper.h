@@ -9,12 +9,15 @@ namespace POICS{
 	class Painter{
 	private:
 		Image image;
+		int width, height;
 		double scale;
 		Image::Pixel color;
-
 	public:
-		Painter(double width, double height, double _scale = 1.0): scale(_scale){
-			image.Init((int) (width*scale), (int) (height*scale));
+		Painter(double w, double h, double _scale = 1.0): scale(_scale){
+			width = (int) (w*scale);
+			height = (int) (h*scale);
+
+			image.Init(width, height);
 
 			Image::Pixel white={255,255,255};
 			image.Clear(white);
@@ -62,9 +65,9 @@ namespace POICS{
 			int x1, y1, x2, y2;
 
 			x1 = (int) (p1.x * scale);
-			y1 = (int) (p1.y * scale);
+			y1 = height - (int) (p1.y * scale);
 			x2 = (int) (p2.x * scale);
-			y2 = (int) (p2.y * scale);
+			y2 = height - (int) (p2.y * scale);
 
 			image.DrawLine(x1,y1,x2,y2,color);
 		}

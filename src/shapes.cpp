@@ -82,8 +82,28 @@ namespace POICS{
 	  	return c;
 	}
 
-	bool Polygon::testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2) const{
-		int match = 0; auto pmatch = points.end();
+	void orderPoint(Point& p1, Point& p2, int i1, int i2, int size, bool CCW){
+		// p1 is left, p2 is right
+		bool test; int last = size - 1;
+
+		if (CCW){
+			test = (i1 - i2 == 1);
+			test = test || ((i1 == 0) && (i2 == last)); // edge case
+		} else {
+			test = (i2 - i1 == 1);
+			test = test || ((i2 == 0) && (i1 == last)); // edge case
+		}
+
+		if (!test){
+			Point temp = p1;
+			p1 = p2;
+			p2 = temp;
+		}
+	}
+
+	bool Polygon::testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2, bool CCW) const{
+		// TODO optimize this
+		int match = 0; auto pmatch = points.end(); int i = 0, i1 = 0, i2 = 0;
 
 		for (auto p1 = points.begin(); p1 != points.end(); ++p1){
 			for (auto p2 = poly.points.begin(); p2 != poly.points.end(); ++p2){
@@ -91,13 +111,17 @@ namespace POICS{
 					if (match == 0){
 						pmatch = p1;
 						match = 1;
+						i1 = i;
 					} else {
+						i2 = i;
 						result_p1 = *pmatch;
 						result_p2 = *p1;
+						orderPoint(result_p1, result_p2, i1, i2, points.size(), CCW);
 						return true;
 					}
 				}
 			}
+			++i;
 		}
 
 		return false;

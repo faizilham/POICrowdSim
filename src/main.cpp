@@ -10,7 +10,7 @@ int main(){
 		XMLMapReader xm("example/mapfile.xml");
 		MapArea m;
 		xm >> m;
-		std::cout << m;
+		//std::cout << m;
 
 		PathFinder pf;
 		HMNavMesh hm(pf);

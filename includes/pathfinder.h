@@ -28,14 +28,14 @@ namespace POICS {
 	private:
 		std::vector<Polygon>* corridors;
 
-		bool corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Portal*>& result_corridor);
+		bool corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Portal>& result_portal) const;
 
 	public:
 		PathFinder(){}
 		~PathFinder(){}
 
 		void setCorridors(std::vector<Polygon>& _corridors){ corridors = &_corridors;}
-		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path);
+		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const;
 	};
 }
 

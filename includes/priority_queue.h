@@ -28,7 +28,11 @@ namespace POICS{
 			void pop(){
 				auto itr = queuemap.begin();
 				itr->second.pop_front();
-				++count;
+
+				if (itr->second.empty()){
+					queuemap.erase(itr);
+				}
+				--count;
 			}
 
 			Value& front(){
@@ -48,6 +52,10 @@ namespace POICS{
 				if (pobj == itr->second.end()) return false;
 
 				itr->second.erase(pobj);
+
+				if (itr->second.empty()){
+					queuemap.erase(itr);
+				}
 
 				--count;
 				push(newPriority, obj);
