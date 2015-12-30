@@ -1,5 +1,5 @@
-#ifndef MAPCOMPILER_H
-#define MAPCOMPILER_H
+#ifndef COMPILEDMAP_H
+#define COMPILEDMAP_H
 
 #include "shapes.h"
 #include "mapobject.h"

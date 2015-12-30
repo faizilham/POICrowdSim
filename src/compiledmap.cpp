@@ -1,4 +1,4 @@
-#include "mapcompiler.h"
+#include "compiledmap.h"
 #include "polypartition/polypartition.h"
 #include "helper.h"
 #include <list>

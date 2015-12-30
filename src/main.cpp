@@ -1,5 +1,5 @@
 #include "mapreader.h"
-#include "mapcompiler.h"
+#include "compiledmap.h"
 #include  <iomanip>
 #include <exception>
 using namespace POICS;

@@ -23,7 +23,7 @@ INCLUDE_DIR=includes
 THIRD_PARTY_DIR=tinyxml2 polypartition
 
 MODULES = 	shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp \
-			polypartition.cpp mapcompiler.cpp graph.cpp pathfinder.cpp image.cpp imageio.cpp
+			polypartition.cpp compiledmap.cpp graph.cpp pathfinder.cpp image.cpp imageio.cpp
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
