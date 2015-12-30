@@ -3,6 +3,7 @@
 #include "helper.h"
 #include <list>
 #include <cstdio>
+#include <omp.h>
 #include <iostream>
 
 #include "imagehelper.h"
@@ -176,7 +177,7 @@ namespace POICS {
 			nodeCorridorId.push_back(hmnav.findCorridor(center));
 		}
 
-		int i = poiNodeIdStart;
+		int id = poiNodeIdStart;
 		for (POI& poi : pois){
 			Point center = poi.border.center();
 			nodePosition.push_back(center);
@@ -184,10 +185,10 @@ namespace POICS {
 
 			// set topic relevance
 			for (int j = 0; j < num_topic; ++j){
-				nodes.setScore(i, j, poi.topic_relevance[j]);
+				nodes.setScore(id, j, poi.topic_relevance[j]);
 			}
 
-			++i;
+			++id;
 		}
 
 		// print test
@@ -242,11 +243,12 @@ namespace POICS {
 			painter.drawRect(poi.border);
 		}
 
-		painter.setColor(255, 150, 0);
-
+		std::vector<std::vector<Point>> paths(num_nodes*num_nodes);
 
 		/** calculate distances **/
-		for (i = 0; i < num_nodes - 1; ++i){
+
+		#pragma omp parallel for firstprivate(num_nodes)
+		for (int i = 0; i < num_nodes - 1; ++i){
 			for (int j = i + 1; j < num_nodes; ++j){
 				std::vector<Point> path;
 				hmnav.getPath(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j], agentPathWidth, path);
@@ -254,13 +256,17 @@ namespace POICS {
 				double distance = calcDistance(path);
 				edges.addEdgeSymmetric(i, j, distance);
 
-				int n  = path.size();
-				for (int i = 0; i < n-1; ++i){
-					painter.drawLine(path[i], path[i+1]);
-				}		
+				paths.push_back(path);
 			}
 		}
 
+		painter.setColor(255, 150, 0);
+		for (std::vector<Point>& path : paths){
+			int n = path.size();
+			for (int i = 0; i < n-1; ++i){
+				painter.drawLine(path[i], path[i+1]);
+			}	
+		}
 		painter.save("tmp/test.bmp");
 	}
 }

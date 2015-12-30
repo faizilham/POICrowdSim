@@ -6,12 +6,11 @@ HEXT = h
 
 # flags
 LIB = -lm
-INCLUDE = -Isrc
+FLAGS = -Wall -std=c++11 -fopenmp
 
 MODE = debug
 # release or debug
 
-FLAGS = -Wall -std=c++11
 ifeq ($(MODE), release)
 FLAGS += -O2
 else
@@ -27,14 +26,14 @@ MODULES = 	shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp \
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
-INCLUDE+=$(addprefix -I,$(INCLUDE_DIR))
+INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
 SOURCES = $(MODULES)
 OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
 .PHONY: all run clean obj
   
 all: obj bin/main.o
-	$(CC) -o bin/main bin/main.o $(OBJS) $(LIB)
+	$(CC) -o bin/main bin/main.o $(OBJS) $(FLAGS) $(LIB)
 
 obj: $(OBJS)
 
