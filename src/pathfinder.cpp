@@ -129,34 +129,34 @@ namespace POICS{
 		portals.push_back(dummyEnd);
 
 		int numportal = portals.size();
-		Point currentRight, currentLeft, right, left, apex;
+		Point funnelRight, funnelLeft, right, left, apex;
 		int rightIdx = 0, leftIdx = 0, apexIdx = 0;
 
 		apex = start;
 		path.push_back(apex);
 
-		currentRight = portals[0].p2;
-		currentLeft = portals[0].p1;
+		funnelRight = portals[0].p2;
+		funnelLeft = portals[0].p1;
 
 		for (int i = 1; i < numportal; ++i) {
 			right = portals[i].p2;
 			left = portals[i].p1;
 
 			// update right
-			if (crossproduct(apex, currentRight, right) <= 0.0) {
-				if ((apex == currentRight) || (crossproduct(apex, currentLeft, right) > 0.0)) {
+			if (crossproduct(apex, funnelRight, right) <= 0.0) {
+				if ((apex == funnelRight) || (crossproduct(apex, funnelLeft, right) > 0.0)) {
 					// tighten funnel
-					currentRight = right;
+					funnelRight = right;
 					rightIdx = i;
 				} else {
 					// right cross left, so set left as new apex
-					apex = currentLeft;
+					apex = funnelLeft;
 					apexIdx = leftIdx;
 					path.push_back(apex);
 
 					// restart
-					currentLeft = apex;
-					currentRight = apex;
+					funnelLeft = apex;
+					funnelRight = apex;
 					leftIdx = apexIdx;
 					rightIdx = apexIdx;
 					i = apexIdx;
@@ -166,20 +166,20 @@ namespace POICS{
 			}
 
 			// update left
-			if (crossproduct(apex, currentLeft, left) >= 0.0) {
-				if ((apex == currentLeft) || (crossproduct(apex, currentRight, left) < 0.0)) {
+			if (crossproduct(apex, funnelLeft, left) >= 0.0) {
+				if ((apex == funnelLeft) || (crossproduct(apex, funnelRight, left) < 0.0)) {
 					// tighten funnel
-					currentLeft = left;
+					funnelLeft = left;
 					leftIdx = i;
 				} else {
 					// left cross right, so set right as new apex
-					apex = currentRight;
+					apex = funnelRight;
 					apexIdx = rightIdx;
 					path.push_back(apex);
 
 					// restart
-					currentLeft = apex;
-					currentRight = apex;
+					funnelLeft = apex;
+					funnelRight = apex;
 					leftIdx = apexIdx;
 					rightIdx = apexIdx;
 					i = apexIdx;
