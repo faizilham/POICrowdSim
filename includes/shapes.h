@@ -50,9 +50,11 @@ namespace POICS {
 
 	class Portal{
 	public:
-		Point p1, p2, center; int from_id, to_id; double roughDistance;
+		Point p1, p2, center, unit; int from_id, to_id; double roughDistance;
 		Portal(){}
 		Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to);
+
+		double squareWidth() const { return p1.squareDistanceTo(p2);}
 	};
 
 	class Polygon {

@@ -56,6 +56,10 @@ namespace POICS{
 		to_id = _to->id;
 		center.setAsMiddle(p1, p2);
 		roughDistance = _from->center().squareDistanceTo(center) + center.squareDistanceTo(_to->center());
+
+		double distance = p1.distanceTo(p2);
+		unit.x = (p2.x - p1.x) / distance;
+		unit.y = (p2.y - p1.y) / distance;
 	}
 
 	Portal* Polygon::getNeighbor(int to_id){

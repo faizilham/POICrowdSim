@@ -13,9 +13,15 @@ namespace POICS{
 	const char* POLY_SHAPE = "poly";
 	const char* RECT_SHAPE = "rect";
 
+	double scale(double& d){
+		return d *= 10;
+	}
+
 	void doubleAttr(XMLElement *elmt, const char* attr, double& d){
 		if (elmt->QueryDoubleAttribute(attr, &d) != XML_SUCCESS)
 			except(std::string("Expecting double attribute: ") + attr);
+
+		scale(d);
 	}
 
 	void intAttr(XMLElement *elmt, const char* attr, int& d){
@@ -40,11 +46,11 @@ namespace POICS{
 			(elmt->QueryDoubleAttribute("height", &h) != XML_SUCCESS))
 			except("Expecting attributes x, y, width and height");
 
-		r.set(x,y,w,h);
+		r.set(scale(x),scale(y),scale(w),scale(h));
 	}
 
 	void readPoly(XMLElement *elmt, Polygon& poly){
-		std::string s; char buf; poly.reset(); Point point;
+		std::string s; char buf; poly.reset(); Point point; double x, y;
 		trim(s.assign(elmt->GetText()));
 
 		token_t tokens;
@@ -56,7 +62,11 @@ namespace POICS{
 			if (strp.length() == 0) continue;
 
 			ss.str(strp);
-			ss>>point.x>>buf>>point.y;
+			ss >> x >> buf >> y;
+
+			point.x = scale(x);
+			point.y = scale(y);
+
 			poly.addPoint(point);
 			ss.clear();
 		}

@@ -15,7 +15,7 @@ namespace POICS{
 		return current->center().squareDistanceTo(target->center());
 	}
 
-	void buildPortal(AStarNode* last, std::vector<AStarNode>& anodes, std::vector<Portal>& result_portal){
+	void buildPortal(AStarNode* last, std::vector<AStarNode>& anodes, double agentWidth, std::vector<Portal>& result_portal){
 		std::vector<Polygon*> reverse_route;
 	
 		while(last != NULL){
@@ -28,12 +28,18 @@ namespace POICS{
 		for (int i = n - 1; i > 0; --i){
 			Polygon *from = reverse_route[i], *to = reverse_route[i-1];
 			Portal portal = *from->getNeighbor(to->id);
+			Point& unit = portal.unit;
+
+			portal.p1.x += unit.x * agentWidth;
+			portal.p1.y += unit.y * agentWidth;
+			portal.p2.x -= unit.x * agentWidth;
+			portal.p2.y -= unit.y * agentWidth;
 
 			result_portal.push_back(portal);
 		}
 	}
 
-	bool PathFinder::corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Portal>& result_portal) const{
+	bool PathFinder::corridorAStar(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth, std::vector<Portal>& result_portal) const{
 		std::vector<Polygon>& corridors = *(this->corridors);
 
 		std::vector<AStarNode> anodes;
@@ -57,7 +63,7 @@ namespace POICS{
 			
 			if (current->id == endCorridor){
 				// build portal
-				buildPortal(current, anodes, result_portal);
+				buildPortal(current, anodes, agentWidth, result_portal);
 				return true;
 			}
 
@@ -71,7 +77,11 @@ namespace POICS{
 
 				double curr_gvalue = current->gvalue + portal.roughDistance;
 
-				if (!neighbor->opened){
+				if (!neighbor->opened){	
+					if (portal.squareWidth() < agentWidth*agentWidth){
+						continue;
+					}
+
 					openset.push(neighbor->hvalue, neighbor);
 					neighbor->opened = true;
 				} else if (curr_gvalue >= neighbor->gvalue){
@@ -90,7 +100,7 @@ namespace POICS{
 	void edgeMidPoint(const Point& start, const Point& end, std::vector<Portal>& portals, std::vector<Point>& path);
 	void simpleFunnel(const Point& start, const Point& end, std::vector<Portal>& portals, std::vector<Point>& path);
 
-	void PathFinder::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const{
+	void PathFinder::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth, std::vector<Point>& result_path) const{
 		// if same corridor, return
 		if (startCorridor == endCorridor){
 			result_path.push_back(start); result_path.push_back(end);
@@ -98,7 +108,7 @@ namespace POICS{
 		}
 
 		std::vector<Portal> result_portal;
-		corridorAStar(start, startCorridor, end, endCorridor, result_portal);
+		corridorAStar(start, startCorridor, end, endCorridor, agentWidth, result_portal);
 
 		result_path.reserve(result_portal.size() + 2);
 		simpleFunnel(start, end, result_portal, result_path);

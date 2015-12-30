@@ -22,9 +22,9 @@ namespace POICS {
 
 		std::vector<Polygon>& getCorridors(){ return corridors;}
 
-		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const;
+		void getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth, std::vector<Point>& result_path) const;
 
-		double getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor) const;
+		double getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth) const;
 
 		int findCorridor(const Point& p) const;
 	};

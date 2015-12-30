@@ -107,19 +107,15 @@ namespace POICS {
 		}*/
 	}
 
-	void HMNavMesh::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const{
-		pathfinder.getPath(start, startCorridor, end, endCorridor, result_path);
+	void HMNavMesh::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth, std::vector<Point>& result_path) const{
+		pathfinder.getPath(start, startCorridor, end, endCorridor, agentWidth, result_path);
 	}
 
-	double HMNavMesh::getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor) const{
-		std::vector<Point> path;
-
-		pathfinder.getPath(start, startCorridor, end, endCorridor, path);
-
-		if (path.size() < 2) return 0;
+	double calcDistance(std::vector<Point>& path){
+		if (path.size() < 2) return 0.0;
 
 		auto p1 = path.begin();
-		double sum = 0;
+		double sum = 0.0;
 
 		for (auto p2 = path.begin() + 1; p2 != path.end(); ++p2){
 			sum += p1->distanceTo(*p2);
@@ -127,6 +123,14 @@ namespace POICS {
 		}
 
 		return sum;
+	}
+
+	double HMNavMesh::getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth) const{
+		std::vector<Point> path;
+
+		pathfinder.getPath(start, startCorridor, end, endCorridor, agentWidth, path);
+
+		return calcDistance(path);
 	}
 
 
@@ -144,6 +148,9 @@ namespace POICS {
 		std::vector<ExitPoint>& exits = maparea.getExits();
 
 		int num_topic = maparea.getTopics().size();
+
+		// TODO set from agent manager object
+		double agentPathWidth = 10.0; // actual agent width + some margin
 
 		/** build nodes **/
 		int num_nodes = pois.size() + spawns.size() + exits.size();
@@ -195,13 +202,24 @@ namespace POICS {
 			std::cout<<std::endl;
 		}*/
 
+		/** calculate distances **/
+		/*for (i = 0; i < num_nodes - 1; ++i){
+			for (int j = i + 1; j < num_nodes; ++j){
+				double distance = hmnav.getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j]);
+				edges.addEdgeSymmetric(i, j, distance);
+			}
+		}
 
-		// test pathfind
-		std::vector<Point> path;
-		int n1 = 2, n2 = 3;
-		hmnav.getPath(nodePosition[n1], nodeCorridorId[n1], nodePosition[n2], nodeCorridorId[n2], path);
+		std::cout<<"AStarAbstractGraph edges"<<std::endl;
+		for (int i = 0; i < num_nodes; ++i){
+			for (int j = 0; j < num_nodes; ++j){
+				std::cout<<edges.getLength(i, j)<<" ";
+			}
 
-		Painter painter(maparea.width, maparea.height, 3);
+			std::cout<<std::endl;
+		}*/
+
+		Painter painter(maparea.width, maparea.height, 0.5);
 
 		// test draw
 		painter.setColor(130, 130, 130);
@@ -226,29 +244,23 @@ namespace POICS {
 
 		painter.setColor(255, 150, 0);
 
-		int n  = path.size();
-		for (int i = 0; i < n-1; ++i){
-			painter.drawLine(path[i], path[i+1]);
+
+		/** calculate distances **/
+		for (i = 0; i < num_nodes - 1; ++i){
+			for (int j = i + 1; j < num_nodes; ++j){
+				std::vector<Point> path;
+				hmnav.getPath(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j], agentPathWidth, path);
+				
+				double distance = calcDistance(path);
+				edges.addEdgeSymmetric(i, j, distance);
+
+				int n  = path.size();
+				for (int i = 0; i < n-1; ++i){
+					painter.drawLine(path[i], path[i+1]);
+				}		
+			}
 		}
 
 		painter.save("tmp/test.bmp");
-
-
-		/** calculate distances **/
-		/*for (i = 0; i < num_nodes - 1; ++i){
-			for (int j = i + 1; j < num_nodes; ++j){
-				double distance = hmnav.getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j]);
-				edges.addEdgeSymmetric(i, j, distance);
-			}
-		}
-
-		std::cout<<"AStarAbstractGraph edges"<<std::endl;
-		for (int i = 0; i < num_nodes; ++i){
-			for (int j = 0; j < num_nodes; ++j){
-				std::cout<<edges.getLength(i, j)<<" ";
-			}
-
-			std::cout<<std::endl;
-		}*/
 	}
 }

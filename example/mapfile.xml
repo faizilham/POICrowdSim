@@ -33,6 +33,6 @@
 		<obstacle shape="poly">
 			120,55 145,55 145,80 155,80 155,55 180,55 180,45 155,45 155,20 145,20 145,45 120,45
 		</obstacle>
-		<obstacle shape="rect" x="90" y="45" width="10" height="10" />
+		<obstacle shape="rect" x="80.5" y="45" width="10" height="10" />
 	</obstacles>
 </environment>
