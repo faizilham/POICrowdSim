@@ -27,8 +27,9 @@ namespace POICS{
 
 		for (int i = n - 1; i > 0; --i){
 			Polygon *from = reverse_route[i], *to = reverse_route[i-1];
+			Portal portal = *from->getNeighbor(to->id);
 
-			result_portal.push_back(*from->getNeighbor(to->id));
+			result_portal.push_back(portal);
 		}
 	}
 
@@ -55,7 +56,7 @@ namespace POICS{
 			AStarNode* current = openset.front();
 			
 			if (current->id == endCorridor){
-				// build path
+				// build portal
 				buildPortal(current, anodes, result_portal);
 				return true;
 			}
@@ -90,8 +91,6 @@ namespace POICS{
 	void simpleFunnel(const Point& start, const Point& end, std::vector<Portal>& portals, std::vector<Point>& path);
 
 	void PathFinder::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, std::vector<Point>& result_path) const{
-			// TODO pathfinding algo and move to other file
-
 		// if same corridor, return
 		if (startCorridor == endCorridor){
 			result_path.push_back(start); result_path.push_back(end);
@@ -102,10 +101,7 @@ namespace POICS{
 		corridorAStar(start, startCorridor, end, endCorridor, result_portal);
 
 		result_path.reserve(result_portal.size() + 2);
-		// edge middle point
-
 		simpleFunnel(start, end, result_portal, result_path);
-		
 	}
 
 	double crossproduct(const Point& base, const Point& p1, const Point& p2) {
@@ -117,8 +113,6 @@ namespace POICS{
 	}
 
 	void edgeMidPoint(const Point& start, const Point& end, std::vector<Portal>& portals, std::vector<Point>& path){
-
-
 		path.push_back(start);
 
 		for (Portal& portal : portals){
@@ -131,6 +125,8 @@ namespace POICS{
 	void simpleFunnel(const Point& start, const Point& end, std::vector<Portal>& portals, std::vector<Point>& path){
 		/** ASSUMPTION: portal.p1 is right and p2 is left.
 			It will be true as long as the portal constructed with points from testNeighborhood() **/
+		Portal dummyEnd; dummyEnd.p1 = end; dummyEnd.p2 = end;
+		portals.push_back(dummyEnd);
 
 		int numportal = portals.size();
 		Point currentRight, currentLeft, right, left, apex;
@@ -148,7 +144,7 @@ namespace POICS{
 
 			// update right
 			if (crossproduct(apex, currentRight, right) <= 0.0) {
-				if ((apex == currentRight) || (crossproduct(apex, currentLeft, right) > 0.0f)) {
+				if ((apex == currentRight) || (crossproduct(apex, currentLeft, right) > 0.0)) {
 					// tighten funnel
 					currentRight = right;
 					rightIdx = i;
@@ -170,8 +166,8 @@ namespace POICS{
 			}
 
 			// update left
-			if (crossproduct(apex, currentLeft, left) >= 0.0f) {
-				if ((apex == currentLeft) || (crossproduct(apex, currentRight, left) < 0.0f)) {
+			if (crossproduct(apex, currentLeft, left) >= 0.0) {
+				if ((apex == currentLeft) || (crossproduct(apex, currentRight, left) < 0.0)) {
 					// tighten funnel
 					currentLeft = left;
 					leftIdx = i;

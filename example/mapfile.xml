@@ -13,13 +13,13 @@
 	</exits>
 
 	<pois>
-		<poi name="toko baju" duration="100" activity="" x="25" y="25" width="15" height="15">
+		<poi name="toko baju" duration="100" activity="" x="60" y="25" width="15" height="15">
 			<relevance>
 				<topic name="shoes" value="0.5"/>
 				<topic name="dress" value="0.7"/>
 			</relevance>
 		</poi>
-		<poi name="toko kopi" duration="30" activity="" x="160" y="60" width="15" height="15">
+		<poi name="toko kopi" duration="30" activity="" x="60" y="60" width="15" height="15">
 			<relevance>
 				<topic name="coffee" value="0.7"/>
 			</relevance>
@@ -33,6 +33,6 @@
 		<obstacle shape="poly">
 			120,55 145,55 145,80 155,80 155,55 180,55 180,45 155,45 155,20 145,20 145,45 120,45
 		</obstacle>
-		<obstacle shape="rect" x="95" y="45" width="10" height="10" />
+		<obstacle shape="rect" x="90" y="45" width="10" height="10" />
 	</obstacles>
 </environment>
