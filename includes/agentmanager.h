@@ -3,8 +3,14 @@
 
 #include <vector>
 #include <map>
+#include "shapes.h"
+#include "mapobject.h"
+#include <memory>
 
 namespace POICS{
+
+	enum class AgentState {INIT, TO_POI, IN_POI, EXITING};
+
 	class Profile{
 	public:
 		std::string name;
@@ -30,25 +36,63 @@ namespace POICS{
 
 	class Agent{
 	public:
+		
+
+		int id;
 		std::vector<double> topic_interest;
+		std::vector<int> POIPlan;
+		std::vector<Point> current_route;
+
+		double nextUpdate;
 		int duration;
 		std::string profile_name;
+		AgentState state;
 
-		Agent(Profile& profile, int num_topic);
+		Agent(int _id, Profile& profile, double entryTime, int num_topic);
 		~Agent(){}
+
+		AgentState nextState();
 
 	};
 
+	typedef std::unique_ptr<Agent> AgentPtr;
 
-	class AgentManager{
+	class AgentSimulator{
+	private:
+		void generateAgents();
 	public:
 		std::vector<Profile> profiles;
 		std::map<std::string, int> topic_ids;
+		std::vector<AgentPtr> initialAgents;
+		std::vector<AgentPtr> activeAgents;
+		std::vector<AgentPtr> exitAgents;
 
-		AgentManager();
-		~AgentManager();
+		MapArea* maparea;
+		int num_agent;
 
-		Profile& addProfile (std::string _name, double _dist);
+		double currentTimestep;
+
+		/* building phase */
+		AgentSimulator(MapArea& _maparea): maparea(&_maparea){}
+		~AgentSimulator(){}
+
+		void setTopicIds(std::map<std::string, int>& _topic_ids){
+			topic_ids = _topic_ids;
+		}
+		void setNumAgents(int num){
+			num_agent = num;
+			initialAgents.reserve(num); activeAgents.reserve(num); exitAgents.reserve(num);
+		}
+		int addProfile (std::string _name, double _dist);
+		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
+
+		void initialize();
+
+		void update(double timestep);
+
+		void generatePlan();
+
+
 	};
 }
 
