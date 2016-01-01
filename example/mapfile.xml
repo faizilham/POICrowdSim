@@ -5,11 +5,15 @@
 	</topics>
 
 	<spawns>
-		<spawn x="0" y="0" width="10" height="10" />
+		<spawn dist="0.2" x="0" y="0" width="10" height="10" />
+		<spawn dist="0.5" x="30" y="0" width="10" height="10" />
+		<spawn dist="0.3" x="60" y="0" width="10" height="10" />
 	</spawns>
 
 	<exits>
 		<exit x="190" y="90" width="10" height="10" />
+		<exit x="190" y="70" width="10" height="10" />
+		<exit x="190" y="50" width="10" height="10" />
 	</exits>
 
 	<pois>

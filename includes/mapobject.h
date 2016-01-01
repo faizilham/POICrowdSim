@@ -58,13 +58,17 @@ namespace POICS {
 		std::vector<Polygon> obstacles;
 		std::map<std::string, int> topic_ids;
 	public:
+		double agentPathWidth = 10.0; // actual agent width + some margin. TODO maybe dynamic setting
 		double width, height;
+		int startTime, endTime; double timesteps = 1000;
 		
 		MapArea(){}
 		MapArea(double w, double h): width(w), height(h){}
 		~MapArea(){}
 
 		void addTopic(std::string name);
+
+		std::map<std::string, int>& getTopicIds(){ return topic_ids;};
 
 		int addPOI(std::string name, int activityType, int activityTime, double x, double y, double w, double h);
 		int addPOI(std::string name, int activityType, int activityTime, Rect& r);

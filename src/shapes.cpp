@@ -1,8 +1,12 @@
 #include "shapes.h"
 #include <cmath>
 #include <cstdlib>
+#include <random>
 
 namespace POICS{
+	static std::random_device rd;
+	static std::mt19937 sp_rng(rd());
+
 	double Point::squareDistanceTo(const Point& p2) const{
 		double dx = x-p2.x, dy = y - p2.y;
 
@@ -48,6 +52,13 @@ namespace POICS{
 		pl.addPoint(pos.x + width, pos.y);
 		pl.addPoint(pos.x + width, pos.y + height);
 		pl.addPoint(pos.x, pos.y + height);
+	}
+
+	Point Rect::getRandomPoint() const{
+		std::uniform_real_distribution<double> rx(pos.x, pos.x + width);
+		std::uniform_real_distribution<double> ry(pos.y, pos.y + height);
+
+		return Point(rx(sp_rng), ry(sp_rng));
 	}
 
 	Portal::Portal(const Point& _p1, const Point& _p2, Polygon *_from, Polygon *_to)

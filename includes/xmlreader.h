@@ -2,6 +2,7 @@
 #define MAPREADER_HPP
 
 #include "mapobject.h"
+#include "agentbuilder.h"
 #include "tinyxml2/tinyxml2.h"
 
 namespace POICS {
@@ -14,6 +15,16 @@ namespace POICS {
 		~XMLMapReader(){}
 
 		XMLMapReader& operator>> (MapArea& map);
+	};
+
+	class XMLAgentReader {
+	private:
+		tinyxml2::XMLDocument doc;
+	public:
+		XMLAgentReader(const char* _filepath);
+		~XMLAgentReader(){}
+
+		XMLAgentReader& operator>> (AgentBuilder& ab);
 	};
 }
 

@@ -6,6 +6,7 @@
 #include "shapes.h"
 #include "mapobject.h"
 #include <memory>
+#include <list>
 
 namespace POICS{
 
@@ -16,7 +17,7 @@ namespace POICS{
 		std::string name;
 		double dist;
 		int min_duration, max_duration;
-		std::map<int, std::pair<double, double>> topic_interest_range;
+		std::map<int, std::pair<double, double>> topicInterestRange;
 
 		Profile(std::string _name, double _dist)
 		: name(_name), dist(_dist){}
@@ -26,25 +27,26 @@ namespace POICS{
 		void setDuration(int _min, int _max){min_duration = _min; max_duration = _max;}
 
 		void addInterestRange(int topic_id, double _min, double _max){
-			topic_interest_range.insert(std::make_pair(topic_id, std::make_pair(_min, _max)));
+			topicInterestRange.insert(std::make_pair(topic_id, std::make_pair(_min, _max)));
 		}
 
 		std::map<int, std::pair<double, double>>& getInterestRanges(){
-			return topic_interest_range;
+			return topicInterestRange;
 		}
 	};
 
 	class Agent{
 	public:
-		
-
 		int id;
-		std::vector<double> topic_interest;
-		std::vector<int> POIPlan;
-		std::vector<Point> current_route;
+		std::vector<double> topicInterest;
+		std::list<int> plan; // POI plan
+		std::list<Point> route; // route, list of points
 
-		double nextUpdate;
+		Point position;
+
 		int duration;
+		double nextUpdate;
+		
 		std::string profile_name;
 		AgentState state;
 
@@ -57,42 +59,24 @@ namespace POICS{
 
 	typedef std::unique_ptr<Agent> AgentPtr;
 
-	class AgentSimulator{
+	class AgentBuilder{
 	private:
-		void generateAgents();
-	public:
-		std::vector<Profile> profiles;
-		std::map<std::string, int> topic_ids;
-		std::vector<AgentPtr> initialAgents;
-		std::vector<AgentPtr> activeAgents;
-		std::vector<AgentPtr> exitAgents;
-
-		MapArea* maparea;
 		int num_agent;
-
-		double currentTimestep;
-
+		std::vector<Profile> profiles;
+		std::map<std::string, int>* topic_ids;
+	public:
 		/* building phase */
-		AgentSimulator(MapArea& _maparea): maparea(&_maparea){}
-		~AgentSimulator(){}
+		AgentBuilder(std::map<std::string, int>& _topic_ids): topic_ids(&_topic_ids){}
+		~AgentBuilder(){}
 
-		void setTopicIds(std::map<std::string, int>& _topic_ids){
-			topic_ids = _topic_ids;
-		}
-		void setNumAgents(int num){
-			num_agent = num;
-			initialAgents.reserve(num); activeAgents.reserve(num); exitAgents.reserve(num);
-		}
+		void setNumAgents(int num){	num_agent = num;}
+		int getNumAgents() const { return num_agent;}
+
 		int addProfile (std::string _name, double _dist);
+		void setProfileDuration(int id, int _min, int _max);
 		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
 
-		void initialize();
-
-		void update(double timestep);
-
-		void generatePlan();
-
-
+		void generateAgents(double totalTimesteps, std::vector<AgentPtr>& result_agents);
 	};
 }
 

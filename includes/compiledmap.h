@@ -5,6 +5,7 @@
 #include "mapobject.h"
 #include "graph.h"
 #include "pathfinder.h"
+#include <list>
 
 namespace POICS {
 	/* Hertel-Mehlhorn convex polygon partition based navigation mesh */
@@ -29,16 +30,27 @@ namespace POICS {
 		int findCorridor(const Point& p) const;
 	};
 
-	class AStarAbstractGraph {
-	public:
+	class PlanManager {
+	private:
+		MapArea *maparea; HMNavMesh *hmnav;
 		NodeSet nodes; EdgeSet edges;
+		double agentPathWidth;
+	public:
 		int spawnNodeIdStart, exitNodeIdStart, poiNodeIdStart;
 
+		std::vector<double> startDistribution;
 		std::vector<Point> nodePosition;
 		std::vector<int> nodeCorridorId;
 
-		AStarAbstractGraph(MapArea& _maparea, HMNavMesh& hmnav);
-		~AStarAbstractGraph(){}
+		PlanManager(MapArea& _maparea, HMNavMesh& _hmnav);
+		~PlanManager(){}
+
+		void buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const;
+
+		// build route from Point a to b, without a in the resulting list
+		void buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const;
+		void buildNextRoute(Point& from, Point& to, std::list<Point>& result_path) const;
+		Point getRandomPoint(int node) const;
 	};	
 }
 

@@ -1,16 +1,18 @@
 #include "compiledmap.h"
 #include "polypartition/polypartition.h"
-#include "helper.h"
-#include <list>
-#include <cstdio>
+#include <random>
+#include <algorithm>
 #include <omp.h>
+#include "helper.h"
+#include "imagehelper.h"
+#include "gop.h"
+
 #include <iostream>
 
-#include "imagehelper.h"
-
-using std::list;
-
 namespace POICS {
+	static std::random_device rd;
+	static std::mt19937 cm_rng(rd());
+
 	void toTPPLPoly(Polygon& poly, bool hole, TPPLPoly& tpl){
 		std::vector<Point>& points = poly.getPoints();
 		tpl.Init(points.size());
@@ -69,9 +71,7 @@ namespace POICS {
 		}
 
 		/* convert back to POICS::Polygon */
-
 		// TPPL_CCW 1, TPPL_CW -1
-		
 		corridors.clear();
 		int i = 0; Polygon poly;
 		for (TPPLPoly& tpl : output){
@@ -95,17 +95,6 @@ namespace POICS {
 				}
 			}
 		}
-
-		/** test print **/
-		/*std::cout<<n<<std::endl;
-		for (Polygon& pl: corridors){
-
-			std::cout<<pl.id<<":";
-			for (Portal& portal : pl.getNeighbors()){
-				std::cout<<portal.to_id<<" ";
-			}
-			std::cout<<std::endl<<pl<<" : "<<pl.center()<<std::endl;
-		}*/
 	}
 
 	void HMNavMesh::getPath(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth, std::vector<Point>& result_path) const{
@@ -143,15 +132,14 @@ namespace POICS {
 		return -1;
 	}
 
-	AStarAbstractGraph::AStarAbstractGraph(MapArea& maparea, HMNavMesh& hmnav){
-		std::vector<POI>& pois = maparea.getPois();
-		std::vector<SpawnPoint>& spawns = maparea.getSpawns();
-		std::vector<ExitPoint>& exits = maparea.getExits();
+	PlanManager::PlanManager(MapArea& _maparea, HMNavMesh& _hmnav): maparea(&_maparea), hmnav(&_hmnav){
+		std::vector<POI>& pois = maparea->getPois();
+		std::vector<SpawnPoint>& spawns = maparea->getSpawns();
+		std::vector<ExitPoint>& exits = maparea->getExits();
 
-		int num_topic = maparea.getTopics().size();
+		int num_topic = maparea->getTopics().size();
 
-		// TODO set from agent manager object
-		double agentPathWidth = 10.0; // actual agent width + some margin
+		agentPathWidth = maparea->agentPathWidth; // actual agent width + some margin
 
 		/** build nodes **/
 		int num_nodes = pois.size() + spawns.size() + exits.size();
@@ -162,26 +150,29 @@ namespace POICS {
 		exitNodeIdStart = spawns.size();
 		poiNodeIdStart = exitNodeIdStart + exits.size();
 
+		startDistribution.reserve(spawns.size());
 		nodePosition.reserve(num_nodes);
 		nodeCorridorId.reserve(num_nodes);
 
 		for (SpawnPoint& spawn : spawns){
 			Point center = spawn.border.center();
 			nodePosition.push_back(center);
-			nodeCorridorId.push_back(hmnav.findCorridor(center));
+			startDistribution.push_back(spawn.dist);
+			std::cout<<spawn<<std::endl;
+			nodeCorridorId.push_back(hmnav->findCorridor(center));
 		}
 
 		for (ExitPoint& ep : exits){
 			Point center = ep.border.center();
 			nodePosition.push_back(center);
-			nodeCorridorId.push_back(hmnav.findCorridor(center));
+			nodeCorridorId.push_back(hmnav->findCorridor(center));
 		}
 
 		int id = poiNodeIdStart;
 		for (POI& poi : pois){
 			Point center = poi.border.center();
 			nodePosition.push_back(center);
-			nodeCorridorId.push_back(hmnav.findCorridor(center));
+			nodeCorridorId.push_back(hmnav->findCorridor(center));
 
 			// set topic relevance
 			for (int j = 0; j < num_topic; ++j){
@@ -191,82 +182,99 @@ namespace POICS {
 			++id;
 		}
 
-		// print test
-		/*std::cout<<"AStarAbstractGraph nodes"<<std::endl;
-		for (int i = 0; i < num_nodes; ++i){
-			std::cout<<nodePosition[i]<<" "<<nodeCorridorId[i]<<std::endl;
-
-			for (int j = 0; j < num_topic; ++j){
-				std::cout<<nodes.getScoreElement(i, j)<<" ";
-			}
-
-			std::cout<<std::endl;
-		}*/
-
-		/** calculate distances **/
-		/*for (i = 0; i < num_nodes - 1; ++i){
-			for (int j = i + 1; j < num_nodes; ++j){
-				double distance = hmnav.getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j]);
-				edges.addEdgeSymmetric(i, j, distance);
-			}
-		}
-
-		std::cout<<"AStarAbstractGraph edges"<<std::endl;
-		for (int i = 0; i < num_nodes; ++i){
-			for (int j = 0; j < num_nodes; ++j){
-				std::cout<<edges.getLength(i, j)<<" ";
-			}
-
-			std::cout<<std::endl;
-		}*/
-
-		Painter painter(maparea.width, maparea.height, 0.5);
-
-		// test draw
-		painter.setColor(130, 130, 130);
-		for (Polygon& pl : hmnav.getCorridors()) {
-			painter.drawPoly(pl);
-		}
-
-		painter.setColor(255, 0, 0);
-		for (SpawnPoint& spawn : spawns){
-			painter.drawRect(spawn.border);
-		}
-
-		painter.setColor(0, 0, 255);
-		for (ExitPoint& ep : exits){
-			painter.drawRect(ep.border);
-		}
-
-		painter.setColor(0, 255, 0);
-		for (POI& poi : pois){
-			painter.drawRect(poi.border);
-		}
-
-		std::vector<std::vector<Point>> paths(num_nodes*num_nodes);
-
-		/** calculate distances **/
-
 		#pragma omp parallel for firstprivate(num_nodes)
 		for (int i = 0; i < num_nodes - 1; ++i){
 			for (int j = i + 1; j < num_nodes; ++j){
-				std::vector<Point> path;
-				hmnav.getPath(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j], agentPathWidth, path);
-				
-				double distance = calcDistance(path);
+				double distance = hmnav->getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j], agentPathWidth);
 				edges.addEdgeSymmetric(i, j, distance);
+			}
+		}		
+	}
 
-				paths.push_back(path);
+	float scoreWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path){
+		float sum  = 0;
+
+		for (int i = 0; i < nodes.num_nodes; ++i){
+			int node = path[i];
+
+			for (int j = 0; j < nodes.num_score_elmts; ++j){
+				sum += nodes.getScoreElement(node,j) * topic_param[j];
 			}
 		}
 
-		painter.setColor(255, 150, 0);
-		for (std::vector<Point>& path : paths){
-			int n = path.size();
-			for (int i = 0; i < n-1; ++i){
-				painter.drawLine(path[i], path[i+1]);
-			}	
+		return sum;
+	}
+
+	float spWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path, int newNode){
+		float sum  = 0;
+
+		for (int i = 0; i < nodes.num_nodes; ++i){
+			int node = path[i];
+
+			for (int j = 0; j < nodes.num_score_elmts; ++j){
+				sum += nodes.getScoreElement(node,j) * topic_param[j];
+			}
 		}
-		painter.save("tmp/test.bmp");
+
+		for (int j = 0; j < nodes.num_score_elmts; ++j){
+			sum += nodes.getScoreElement(newNode,j) * topic_param[j];
+		}
+
+		return sum;
+	}
+
+	int getRandomId(const std::vector<double>& distribution, double randomNum){
+		double sum = 0; int i = 0;
+		for (const double& d : distribution){
+			sum += d;
+			if (randomNum < sum) return i;
+			++i;
+		}
+
+		return -1;
+	}
+
+	void PlanManager::buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const{
+		int pi = 3, pt = 2000;
+
+		// select start and end
+		std::uniform_real_distribution<double> rnd(0.0, 1.0);
+
+		int start = getRandomId(startDistribution, rnd(cm_rng));
+		int end = (int) (rnd(cm_rng) * (poiNodeIdStart - exitNodeIdStart)) + exitNodeIdStart;
+
+		two_param_iterative_gop(pi, pt, distance_budget, topic_interest, nodes, edges, start, end, scoreWFunc, spWFunc, result_plan);
+	}
+
+	void PlanManager::buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const{
+		Point to = getRandomPoint(nodeTo);
+		buildNextRoute(from, to, result_path);
+	}
+
+	void PlanManager::buildNextRoute(Point& from, Point& to, std::list<Point>& result_path) const{
+		int corridorFrom = hmnav->findCorridor(from);
+		int corridorTo = hmnav->findCorridor(to);
+
+		std::vector<Point> vectorpath;
+
+		hmnav->getPath(from, corridorFrom, to, corridorTo, agentPathWidth, vectorpath);
+
+		result_path.clear();
+		std::copy(vectorpath.begin(), vectorpath.end(), std::back_inserter(result_path));
+
+		result_path.pop_front(); // remove start point from route
+	}
+
+	Point PlanManager::getRandomPoint(int node) const{
+		if (node < exitNodeIdStart){ // spawn node
+			SpawnPoint& sp = maparea->getSpawns()[node];
+			return sp.border.getRandomPoint();
+		} else if (node < poiNodeIdStart){
+			ExitPoint& ep = maparea->getExits()[node - exitNodeIdStart];
+			return ep.border.getRandomPoint();
+		} else {
+			POI& poi = maparea->getPois()[node - poiNodeIdStart];
+			return poi.border.getRandomPoint();
+		}
 	}
 }

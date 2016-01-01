@@ -17,6 +17,8 @@ namespace POICS {
 		double distanceTo(const Point& p2) const;
 		bool operator==(const Point& p2) const;
 
+		void set(double _x, double _y) { x = _x; y = _y;}
+
 		void setAsMiddle(const Point& p1, const Point& p2);
 		friend std::ostream& operator<<(std::ostream& os, const Point& dt);
 	};
@@ -46,6 +48,8 @@ namespace POICS {
 
 		void copyToPolygonCW(Polygon& pl) const;
 		void copyToPolygonCCW(Polygon& pl) const;
+
+		Point getRandomPoint() const;
 	};
 
 	class Portal{

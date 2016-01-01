@@ -1,4 +1,4 @@
-#include "mapreader.h"
+#include "xmlreader.h"
 #include "helper.h"
 #include <cstdlib>
 
@@ -20,8 +20,6 @@ namespace POICS{
 	void doubleAttr(XMLElement *elmt, const char* attr, double& d){
 		if (elmt->QueryDoubleAttribute(attr, &d) != XML_SUCCESS)
 			except(std::string("Expecting double attribute: ") + attr);
-
-		scale(d);
 	}
 
 	void intAttr(XMLElement *elmt, const char* attr, int& d){
@@ -103,14 +101,13 @@ namespace POICS{
 	XMLMapReader& XMLMapReader::operator>> (MapArea& map){
 		XMLElement *elmt1, *elmt2, *elmt3; std::string s1; Rect rect;
 
-		if ((elmt1 = doc.FirstChildElement( "environment" )) == NULL)
-			except("Expecting environment tag");
+		elmt1 = readChildElement(&doc, "environment");
 
 		double d1, d2;
 		doubleAttr(elmt1, "width", d1);
 		doubleAttr(elmt1, "height", d2);
-		map.width = d1;
-		map.height = d2;
+		map.width = scale(d1);
+		map.height = scale(d2);
 
 		/** read topic **/
 		elmt2 = readChildElement(elmt1, "topics");
@@ -128,8 +125,9 @@ namespace POICS{
 		elmt3 = readChildElement(elmt2, "spawn");
 
 		do{
+			doubleAttr(elmt3, "dist", d1);
 			readRect(elmt3, rect);
-			map.addSpawnPoint(0, rect);
+			map.addSpawnPoint(d1, rect);
 			elmt3 = elmt3->NextSiblingElement("spawn");
 		}while(elmt3 != NULL);
 
@@ -180,6 +178,48 @@ namespace POICS{
 			map.addObstacle(poly);
 			elmt3 = elmt3->NextSiblingElement("obstacle");
 		}
+
+		return *this;
+	}
+
+	XMLAgentReader::XMLAgentReader(const char* _filepath) {
+		doc.LoadFile(_filepath);
+	}
+
+	void readMinMax(XMLElement *elmt, double& min, double& max){
+		doubleAttr(elmt, "min", min); doubleAttr(elmt, "max", max);
+	}
+
+	XMLAgentReader& XMLAgentReader::operator>> (AgentBuilder& as){
+		XMLElement *elmt1, *elmt2, *elmt3, *elmt4, *elmt5; std::string s1; int n; double d1, d2;
+
+		elmt1 = readChildElement(&doc, "agents");
+
+		intAttr(elmt1, "count", n); as.setNumAgents(n);
+		elmt2 = readChildElement(elmt1, "profiles");
+
+		elmt3 = readChildElement(elmt2, "profile");
+		do{
+			strAttr(elmt3, "name", s1);
+			doubleAttr(elmt3, "dist", d1);
+			int id = as.addProfile (s1, d1);
+
+			elmt4 = readChildElement(elmt3, "maxTime");
+			readMinMax(elmt4, d1, d2);
+			as.setProfileDuration(id, d1, d2);
+
+			elmt4 = readChildElement(elmt3, "interest");
+
+			elmt5 = readChildElement(elmt4, "topic");
+			do {
+				strAttr(elmt5, "name", s1);
+				readMinMax(elmt5, d1, d2);
+				as.addInterestRange(id, s1, d1, d2);
+				elmt5 = elmt5->NextSiblingElement("topic");
+			} while (elmt5 != NULL);
+
+			elmt3 = elmt3->NextSiblingElement("profile");
+		}while(elmt3 != NULL);
 
 		return *this;
 	}

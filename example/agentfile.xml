@@ -6,7 +6,7 @@
 			<interest>
 				<topic name="shoes" min="0.2" max="0.3"/>
 				<topic name="dress" min="0.7" max="1"/>
-				<topic name="electronic" min="0.1" max="0.9"/>
+				<topic name="electronics" min="0.1" max="0.9"/>
 			</interest>
 		</profile>
 		<profile name="Profile 2" dist="0.3">
@@ -14,7 +14,7 @@
 			<interest>
 				<topic name="shoes" min="0.2" max="0.3"/>
 				<topic name="dress" min="0.7" max="1"/>
-				<topic name="electronic" min="0.1" max="0.9"/>
+				<topic name="electronics" min="0.1" max="0.9"/>
 			</interest>
 		</profile>
 		<profile name="Profile 3" dist="0.2">
@@ -22,7 +22,7 @@
 			<interest>
 				<topic name="shoes" min="0.2" max="0.3"/>
 				<topic name="dress" min="0.7" max="1"/>
-				<topic name="electronic" min="0.1" max="0.9"/>
+				<topic name="electronics" min="0.1" max="0.9"/>
 			</interest>
 		</profile>
 	</profiles>

@@ -1,35 +1,31 @@
-#ifndef GOP_DLL_H
-#define GOP_DLL_H
+#ifndef GOP_H
+#define GOP_H
 
 #include <vector>
 #include <functional>
+#include <list>
+#include "graph.h"
 
-#ifdef BUILD_GOP_DLL
-#define GOP2PIADLL_API __declspec(dllexport)
-#else
-#define GOP2PIADLL_API __declspec(dllimport)
-#endif
+/**
+	Custom implementation of Two-Parameter Iterative Algorithm for Generalized Orienteering Problem (Silberholz & Golden, 2009)
+**/
 
-namespace GOP {
-	typedef GOP2PIADLL_API std::function<int(const NodeSet&, const std::vector<int>&)> scorefunc_t;
-	typedef GOP2PIADLL_API std::function<int(const NodeSet&, const std::vector<int>&,int)> spfunc_t;
+namespace POICS {
+	typedef std::function<int(const NodeSet&, const std::vector<double>&, const std::vector<int>&)> scorefunc_t;
+	typedef std::function<int(const NodeSet&, const std::vector<double>&, const std::vector<int>&, int)> spfunc_t;
 
-	struct GOP2PIADLL_API ScoreFunction{
-		std::function<float(const std::vector<int>&)> score; // NodeSet N, vector<int> path -> float score
-		std::function<float(const std::vector<int>&,int)> sp; // NodeSet N, vector<int> path, int newNode -> float projectedScore
-	};
-
-	class GOP2PIADLL_API Solution{
+	class Solution{
 	public:
 		float score, distance;
 		int distance_budget;
-		NodeSet *nodes;
-		EdgeSet *edges;
+		const NodeSet *nodes;
+		const EdgeSet *edges;
+		std::vector<double>& topic_param;
 		std::vector<int> path;
 		scorefunc_t scorefunc;
 		spfunc_t spfunc;
 
-		Solution(int budget, NodeSet* _nodes, EdgeSet* _edges, scorefunc_t _scorefunc, spfunc_t _spfunc);
+		Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, scorefunc_t _scorefunc, spfunc_t _spfunc);
 		~Solution();
 		Solution(const Solution& sol);
 		void operator= (const Solution& sol);
@@ -49,7 +45,7 @@ namespace GOP {
 		void pathTightening(std::vector<int>& unused_nodes, bool* used);
 	};
 
-	Solution GOP2PIADLL_API two_param_iterative_gop(int par_i, int par_t, int distance_budget, NodeSet& nodes, EdgeSet& edges, int start, int end, scorefunc_t scorefunc, spfunc_t spfunc);
+	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int start, int end, scorefunc_t scorefunc, spfunc_t spfunc, std::list<int>& result);
 }
 
 #endif

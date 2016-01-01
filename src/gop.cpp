@@ -1,16 +1,15 @@
-#include "gop.hpp"
+#include "gop.h"
 #include <memory>
 #include <random>
 #include <algorithm> 
 #include <set>
 
-
-namespace GOP{
-	Solution::Solution(int budget, NodeSet* _nodes, EdgeSet* _edges, scorefunc_t _scorefunc, spfunc_t _spfunc)
-	: score(0), distance(0), distance_budget(budget), nodes(_nodes), edges(_edges), scorefunc(_scorefunc), spfunc(_spfunc){}
+namespace POICS{
+	Solution::Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, scorefunc_t _scorefunc, spfunc_t _spfunc)
+	: score(0), distance(0), distance_budget(budget), nodes(_nodes), edges(_edges), topic_param(_topic_param), scorefunc(_scorefunc), spfunc(_spfunc){}
 
 	Solution::~Solution(){}
-	Solution::Solution(const Solution& sol){
+	Solution::Solution(const Solution& sol): topic_param(sol.topic_param){
 		nodes = sol.nodes;
 		edges = sol.edges;
 		scorefunc = sol.scorefunc;
@@ -32,11 +31,11 @@ namespace GOP{
 	}
 
 	float Solution::countScore(){
-		return scorefunc(*nodes, path);
+		return scorefunc(*nodes, topic_param, path);
 	}
 
 	float Solution::countSP(int newNode){
-		return spfunc(*nodes, path, newNode);
+		return spfunc(*nodes, topic_param, path, newNode);
 	}
 
 	float Solution::countDistance(){
@@ -317,14 +316,17 @@ namespace GOP{
 		return -1;
 	}
 
-	Solution two_param_iterative_gop(int par_i, int par_t, int distance_budget, NodeSet& nodes, EdgeSet& edges, int start, int end, scorefunc_t scorefunc, spfunc_t spfunc){
-		Solution old(distance_budget, &nodes, &edges, scorefunc, spfunc), current(distance_budget, &nodes, &edges, scorefunc, spfunc);
+	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int start, int end, scorefunc_t scorefunc, spfunc_t spfunc, std::list<int>& result){
+		Solution old(distance_budget, topic_param, &nodes, &edges, scorefunc, spfunc), current(distance_budget, topic_param, &nodes, &edges, scorefunc, spfunc);
 
 		do{
 			old = current;
 			current.process_gop(par_i, par_t, start, end);
 		}while (old.score < current.score);
 
-		return old;
+		result.clear();
+		for (int p : old.path){
+			result.push_back(p);
+		}
 	}
 }

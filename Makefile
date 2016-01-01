@@ -19,15 +19,17 @@ endif
 
 # modules
 INCLUDE_DIR=includes
-THIRD_PARTY_DIR=tinyxml2 polypartition
+THIRD_PARTY_DIR=tinyxml2 polypartition RVO2
 
-MODULES = 	shapes.cpp mapobject.cpp tinyxml2.cpp mapreader.cpp polypartition.cpp compiledmap.cpp \
-			graph.cpp pathfinder.cpp image.cpp imageio.cpp agentmanager.cpp
+MODULES = 	tinyxml2 polypartition \
+			Agent KdTree Obstacle RVOSimulator \
+			shapes mapobject xmlreader compiledmap \
+			graph pathfinder image imageio agentbuilder gop
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
 INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
-SOURCES = $(MODULES)
+SOURCES = $(addsuffix .$(EXT),$(MODULES))
 OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
 .PHONY: all run clean obj

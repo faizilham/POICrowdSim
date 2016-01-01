@@ -91,7 +91,7 @@ namespace POICS{
 
 	}
 	std::ostream& operator<<(std::ostream& os, const SpawnPoint& sp){
-		return os<<sp.border;
+		return os<<sp.border<<" : "<<sp.dist;
 	}
 
 	std::ostream& operator<<(std::ostream& os, const ExitPoint& ep){
