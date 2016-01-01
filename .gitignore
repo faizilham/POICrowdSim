@@ -4,3 +4,4 @@ bin/*.dll
 bin/*.exe
 *.stackdump
 tmp/
+*.gdb

@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <omp.h>
 #include "helper.h"
-#include "imagehelper.h"
 #include "gop.h"
 
 namespace POICS {

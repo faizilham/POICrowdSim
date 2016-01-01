@@ -33,7 +33,7 @@ namespace POICS {
 	AgentState Agent::nextState(){
 		switch(state){
 			case AgentState::INIT: state = AgentState::TO_POI; break;
-			case AgentState::TO_POI: state = plan.empty() ? AgentState::EXITING : AgentState::TO_POI; break;
+			case AgentState::TO_POI: state = plan.empty() ? AgentState::EXITING : AgentState::IN_POI; break;
 			case AgentState::IN_POI: state = AgentState::TO_POI; break;
 			default: break;
 		}
@@ -77,7 +77,7 @@ namespace POICS {
 		for (int i = 0; i < num_agent; ++i){
 			// select profile
 			int profile_id = getRandomId(profiles, rnd(am_rng));
-			double entryTime = rnd(am_rng) * (totalTimesteps / 10);
+			double entryTime = rnd(am_rng) * (totalTimesteps / 10); // TODO
 
 			Agent* agent = new Agent(i, profiles[profile_id], entryTime, num_topic);
 

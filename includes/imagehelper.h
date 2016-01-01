@@ -72,6 +72,16 @@ namespace POICS{
 			image.DrawLine(x1,y1,x2,y2,color);
 		}
 
+		void drawPoint(Point& p){
+			/*int x = (int) (p.x * scale);
+			int y = height - (int) (p.y * scale);
+
+			image.SetPixelColor(x, y, color);*/
+
+			Rect r (p.x-0.5, p.y-0.5, 1, 1);
+			drawRect(r);
+		}
+
 		void save(const char* filename){
 			ImageIO io;
 			io.SaveImage(filename, &image);

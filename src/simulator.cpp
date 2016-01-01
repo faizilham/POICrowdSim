@@ -2,12 +2,14 @@
 #include <random>
 #include <cmath>
 
+#include <iostream>
+
 namespace POICS{
 	static std::random_device rd;
 	static std::mt19937 sim_rng(rd());
 	static const double PI = 3.14159265358979323846;
 	static const double AGENT_RADIUS = 2.0;
-	static const double AGENT_GOAL_SQUARE = 5.0 * 5.0;
+	static const double AGENT_GOAL_SQUARE = 2.5 * 2.5;
 	static const double AGENT_MAXSPEED = 2.0;
 	static const RVO::Vector2 IDENTITY(0.0, 0.0);
 
@@ -26,10 +28,10 @@ namespace POICS{
 	}
 
 	void Simulator::buildObstacles(){
-		std::vector<RVO::Vector2> rvoobstacle;
+		
 
 		for (Polygon& obstacle : maparea->getObstacles()){
-			rvoobstacle.clear();
+			std::vector<RVO::Vector2> rvoobstacle;
 			for (Point& point : obstacle.getPoints()){
 				rvoobstacle.emplace_back(point.x, point.y);
 			}
@@ -68,7 +70,7 @@ namespace POICS{
 
 		// neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed
 		// from ExampleRoadmap: 15.0f, 10, 5.0f, 5.0f, 2.0f, 2.0f
-		rvo.setAgentDefaults(37.5f, 10, 5.0f, 5.0f, AGENT_RADIUS, AGENT_MAXSPEED);
+		rvo.setAgentDefaults(20.0f, 10, 5.0f, 2.0f, AGENT_RADIUS, AGENT_MAXSPEED);
 
 		for (Agent* agent : initialAgents){
 			rvo.addAgent(initPos(agent->id));
@@ -107,8 +109,8 @@ namespace POICS{
 
 		 			if (agent->position.squareDistanceTo(agent->route.front()) < AGENT_GOAL_SQUARE){
 		 				agent->route.pop_front();
-
 		 				if (!agent->route.empty()){
+
 		 					// set velocity to the next point in route
 		 					RVO::Vector2 currPos = toRVOVector(agent->position);
 							RVO::Vector2 nextPos = toRVOVector(agent->route.front());
@@ -126,8 +128,9 @@ namespace POICS{
 		 			} else {
 		 				RVO::Vector2 currPos = toRVOVector(agent->position);
 						RVO::Vector2 nextPos = toRVOVector(agent->route.front());
+						RVO::Vector2 prefV = prefVelocity(currPos, nextPos);
 
-		 				rvo.setAgentPrefVelocity (agent->id, prefVelocity(currPos, nextPos));
+		 				rvo.setAgentPrefVelocity (agent->id, prefV);
 		 			}
 		 		} break;
 		 		case AgentState::IN_POI: {
@@ -179,6 +182,6 @@ namespace POICS{
 	}
 
 	bool Simulator::finished(){
-		return (currentTimestep >= maxTimestep);// && (activeAgents.empty());
+		return (currentTimestep >= maxTimestep); // && (activeAgents.empty());
 	}
 }

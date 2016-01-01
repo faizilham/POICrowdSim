@@ -5,8 +5,8 @@ EXT = cpp
 HEXT = h
 
 # flags
-LIB = -lm
-FLAGS = -Wall -std=c++11 -fopenmp
+LIB = -lm 
+FLAGS = -Wall -std=c++11 -fopenmp -D_WIN32
 
 MODE = debug
 # release or debug

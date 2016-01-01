@@ -4,6 +4,9 @@
 #include <iostream>
 #include <iomanip>
 #include <exception>
+#include <cstdlib>
+#include "imagehelper.h"
+
 using namespace POICS;
 using namespace std;
 int main(){
@@ -27,11 +30,37 @@ int main(){
 		HMNavMesh hm(pf);
 		hm.build(m);
 
+		Painter painter(m.width, m.height, 3);
+
+		painter.setColor(255, 0, 0);
+		for (SpawnPoint& spawn : m.getSpawns()){
+			painter.drawRect(spawn.border);
+		}
+
+		painter.setColor(0, 0, 255);
+		for (ExitPoint& ex : m.getExits()){
+			painter.drawRect(ex.border);
+		}
+
+		painter.setColor(0, 255, 0);
+		for (POI& poi : m.getPois()){
+			painter.drawRect(poi.border);
+		}
+
+		painter.setColor(150, 150, 150);
+		for (Polygon& pl : hm.getCorridors()){
+			painter.drawPoly(pl);
+		}
+
+
+
 		PlanManager pm(m, hm);
 
 		Simulator sim(m, as, pm);
 
 		sim.initialize(2);
+
+		
 
 		while (!sim.finished()){
 			double timestep = sim.getTimestep();
@@ -40,15 +69,27 @@ int main(){
 				cout<<agent->id<<" "<<(int)(agent->state)<<"/"<<agent->position<<endl;
 
 				if (agent->state == AgentState::INIT){
+					painter.setColor(255, 150, 0);
 					cout<<"route:";
+					Point prev = agent->position;
 					for (Point& point : agent->route){
 						cout<<" "<<point;
+
+						
+						painter.drawLine(prev, point);
+
+						prev = point;
 					}
 					cout<<endl;
 				}
+
+				painter.setColor(255, 150, 150);
+				painter.drawPoint(agent->position);
 			}
 			sim.update();
 		}
+
+		painter.save("tmp/tes.bmp");
 
 		/*AgentPtr& agent = sim.initialAgents.front();
 
