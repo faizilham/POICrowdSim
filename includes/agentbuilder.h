@@ -5,7 +5,6 @@
 #include <map>
 #include "shapes.h"
 #include "mapobject.h"
-#include <memory>
 #include <list>
 
 namespace POICS{
@@ -57,7 +56,7 @@ namespace POICS{
 
 	};
 
-	typedef std::unique_ptr<Agent> AgentPtr;
+	typedef std::list<Agent*> AgentList;
 
 	class AgentBuilder{
 	private:
@@ -76,7 +75,7 @@ namespace POICS{
 		void setProfileDuration(int id, int _min, int _max);
 		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
 
-		void generateAgents(double totalTimesteps, std::list<AgentPtr>& result_agents);
+		void generateAgents(double totalTimesteps, AgentList& result_agents);
 	};
 }
 

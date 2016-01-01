@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<agents count="10">
+<agents count="2">
 	<profiles>
 		<profile name="Profile 1" dist="0.5">
 			<maxTime min="120" max="150" />

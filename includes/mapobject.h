@@ -58,7 +58,7 @@ namespace POICS {
 		std::vector<Polygon> obstacles;
 		std::map<std::string, int> topic_ids;
 	public:
-		double agentPathWidth = 10.0; // actual agent width + some margin. TODO maybe dynamic setting
+		double agentPathWidth = 4.0; // actual agent width + some margin. TODO maybe dynamic setting
 		double width, height;
 		int startTime, endTime; double timesteps;
 		

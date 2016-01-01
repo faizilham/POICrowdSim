@@ -7,8 +7,6 @@
 #include "imagehelper.h"
 #include "gop.h"
 
-#include <iostream>
-
 namespace POICS {
 	static std::random_device rd;
 	static std::mt19937 cm_rng(rd());
@@ -158,7 +156,6 @@ namespace POICS {
 			Point center = spawn.border.center();
 			nodePosition.push_back(center);
 			startDistribution.push_back(spawn.dist);
-			std::cout<<spawn<<std::endl;
 			nodeCorridorId.push_back(hmnav->findCorridor(center));
 		}
 
@@ -191,39 +188,43 @@ namespace POICS {
 		}		
 	}
 
-	float scoreWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path){
-		float sum  = 0;
+	class WScoreFunction : public ScoreFunc{
+	public:
+		virtual double scorefunc(const NodeSet& nodes, std::vector<double>& topic_param, const std::vector<int>& path){
+			double sum  = 1.0;
 		
-		int n = path.size();
-		for (int i = 0; i < n; ++i){
-			int node = path[i];
+			int n = path.size();
+			for (int i = 0; i < n; ++i){
+				int node = path[i];
+
+				for (int j = 0; j < nodes.num_score_elmts; ++j){
+					sum += nodes.getScoreElement(node,j) * topic_param[j];
+				}
+			}
+
+			return sum;
+		}
+
+		virtual double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std::vector<int>& path, int newNode){
+			double sum  = 1.0;
+
+			int n = path.size();
+			for (int i = 0; i < n; ++i){
+				int node = path[i];
+
+				for (int j = 0; j < nodes.num_score_elmts; ++j){
+					sum += nodes.getScoreElement(node,j) * topic_param[j];
+				}
+			}
 
 			for (int j = 0; j < nodes.num_score_elmts; ++j){
-				sum += nodes.getScoreElement(node,j) * topic_param[j];
+				sum += nodes.getScoreElement(newNode,j) * topic_param[j];
 			}
+
+			return sum;
 		}
+	};
 
-		return sum;
-	}
-
-	float spWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path, int newNode){
-		float sum  = 0;
-
-		int n = path.size();
-		for (int i = 0; i < n; ++i){
-			int node = path[i];
-
-			for (int j = 0; j < nodes.num_score_elmts; ++j){
-				sum += nodes.getScoreElement(node,j) * topic_param[j];
-			}
-		}
-
-		for (int j = 0; j < nodes.num_score_elmts; ++j){
-			sum += nodes.getScoreElement(newNode,j) * topic_param[j];
-		}
-
-		return sum;
-	}
 
 	int getRandomId(const std::vector<double>& distribution, double randomNum){
 		double sum = 0; int i = 0;
@@ -245,7 +246,9 @@ namespace POICS {
 		int start = getRandomId(startDistribution, rnd(cm_rng));
 		int end = (int) (rnd(cm_rng) * (poiNodeIdStart - exitNodeIdStart)) + exitNodeIdStart;
 
-		two_param_iterative_gop(pi, pt, distance_budget, topic_interest, nodes, edges, start, end, scoreWFunc, spWFunc, result_plan);
+		WScoreFunction wsf;
+
+		two_param_iterative_gop(pi, pt, distance_budget, topic_interest, nodes, edges, poiNodeIdStart, start, end, wsf, result_plan);
 	}
 
 	void PlanManager::buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const{

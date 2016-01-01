@@ -14,7 +14,7 @@ namespace POICS{
 	const char* RECT_SHAPE = "rect";
 
 	double scale(double& d){
-		return d *= 10;
+		return d *= 1;
 	}
 
 	void doubleAttr(XMLElement *elmt, const char* attr, double& d){

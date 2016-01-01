@@ -15,6 +15,8 @@ int main(){
 		MapArea m;
 		xm >> m;
 
+		m.timesteps = 10000;
+
 		XMLAgentReader xa("example/agentfile.xml");
 		AgentBuilder as(m.getTopicIds());
 		xa >> as;
@@ -29,17 +31,31 @@ int main(){
 
 		Simulator sim(m, as, pm);
 
-		sim.initialize(0.5);
+		sim.initialize(2);
 
 		while (!sim.finished()){
 			double timestep = sim.getTimestep();
 			cout<<timestep<<endl;
-			for (const AgentPtr& agent : sim.getActiveAgents()){
-				cout<<agent->position<<endl;
+			for (Agent *agent : sim.getActiveAgents()){
+				cout<<agent->id<<" "<<(int)(agent->state)<<"/"<<agent->position<<endl;
+
+				if (agent->state == AgentState::INIT){
+					cout<<"route:";
+					for (Point& point : agent->route){
+						cout<<" "<<point;
+					}
+					cout<<endl;
+				}
 			}
 			sim.update();
 		}
 
+		/*AgentPtr& agent = sim.initialAgents.front();
+
+		pm.buildPlan(agent->duration * 60 * 5.0, agent->topicInterest, agent->plan);
+
+		cout<<pm.poiNodeIdStart<<" "<<agent->plan.size()<<endl;
+*/
 	}catch (const exception& e){
 		cerr<<e.what();
 	}

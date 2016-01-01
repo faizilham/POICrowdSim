@@ -7,8 +7,6 @@
 #include "RVO2/RVO.h"
 
 namespace POICS{
-	typedef std::list<AgentPtr> AgentList;
-
 	class Simulator{
 	private:
 		RVO::RVOSimulator rvo;
@@ -18,15 +16,15 @@ namespace POICS{
 		double currentTimestep, maxTimestep, deltaTimestep;
 		int num_agents;
 
-		AgentList initialAgents, activeAgents, exitAgents;
+		
 		void buildObstacles();
 	public:
+		AgentList initialAgents, activeAgents, exitAgents;
 		
-
 		Simulator(MapArea& _maparea, AgentBuilder& _agentbuilder, PlanManager& _planner)
 		: maparea(&_maparea), agentbuilder(&_agentbuilder), planner(&_planner){}
 
-		~Simulator(){}
+		~Simulator();
 
 		double getTimestep() const { return currentTimestep;}
 		const AgentList& getActiveAgents() const {return activeAgents;}

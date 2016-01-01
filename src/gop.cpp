@@ -5,15 +5,15 @@
 #include <set>
 
 namespace POICS{
-	Solution::Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, scorefunc_t _scorefunc, spfunc_t _spfunc)
-	: score(0), distance(0), distance_budget(budget), nodes(_nodes), edges(_edges), topic_param(_topic_param), scorefunc(_scorefunc), spfunc(_spfunc){}
+	Solution::Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, ScoreFunc& _SF)
+	: score(0), distance(0), distance_budget(budget), nodes(_nodes), edges(_edges), topic_param(&_topic_param), SF(&_SF){}
 
 	Solution::~Solution(){}
-	Solution::Solution(const Solution& sol): topic_param(sol.topic_param){
+	Solution::Solution(const Solution& sol){
 		nodes = sol.nodes;
 		edges = sol.edges;
-		scorefunc = sol.scorefunc;
-		spfunc = sol.spfunc;
+		topic_param = sol.topic_param;
+		SF = sol.SF;
 		copy(sol);
 	}
 
@@ -30,17 +30,17 @@ namespace POICS{
 		}
 	}
 
-	float Solution::countScore(){
-		return scorefunc(*nodes, topic_param, path);
+	double Solution::countScore(){
+		return SF->scorefunc(*nodes, *topic_param, path);
 	}
 
-	float Solution::countSP(int newNode){
-		return spfunc(*nodes, topic_param, path, newNode);
+	double Solution::countSP(int newNode){
+		return SF->spfunc(*nodes, *topic_param, path, newNode);
 	}
 
-	float Solution::countDistance(){
+	double Solution::countDistance(){
 		// for debugging only
-		float sum = 0;
+		double sum = 0;
 		int n = path.size();
 		for (int i = 0; i < n - 1; ++i){
 			sum += edges->getLength(path[i], path[i+1]);
@@ -53,7 +53,7 @@ namespace POICS{
 		/* (2-opt algorithm) While there exist edges (a,b), (c,d) in S s.t. d(a,b) + d(c,d) > d(a,c) + d(b,d), 
 			remove edges (a,b) and (c,d) from S and add edges (a,c) and (b,d) to S. */
 
-		int a, b, c, d; float dab, dcd, dac, dbd; bool changed; int n = path.size();
+		int a, b, c, d; double dab, dcd, dac, dbd; bool changed; int n = path.size();
 		do {
 			changed = false;
 			for (int i = 0; i < n - 2; ++i){
@@ -86,7 +86,7 @@ namespace POICS{
 		} while(changed);
 	}
 
-	void Solution::process_gop(int par_i, int par_t, int start, int end){
+	void Solution::process_gop(int par_i, int par_t, int POIIdx, int start, int end){
 		/*
 		Input: Parameters i and t, graph G = (V,E), distance matrix d for which dab is
 		the distance between vertices a and b, start node s, destination node e, distance
@@ -95,25 +95,27 @@ namespace POICS{
 
 		std::random_device rd;
 	    std::mt19937 generator(rd());
-	    std::uniform_int_distribution<> random_node(0, nodes->num_nodes - 1);
+	    std::uniform_int_distribution<> random_node(POIIdx, nodes->num_nodes - 1);
 
 		/** INITIALIZATION PHASE **/
 		score = 0.0; distance = 0.0; path.clear(); std::set<int> R, L; bool used[nodes->num_nodes];
-		std::fill_n(used, nodes->num_nodes, 0);
+		std::fill_n(used, POIIdx, true);
+		std::fill_n(used + POIIdx, nodes->num_nodes - POIIdx, false);
 
 		// 2. Initialize solution S to contain the single node s
 		path.push_back(start); used[start] = true;
-		float last_distance = 0.0; 
-		int available_nodes = nodes->num_nodes - 1;
+		double last_distance = 0.0; 
+		int available_nodes = nodes->num_nodes - POIIdx;
 
 		// 3. While adding node e to the end of S would not cause the length of S to exceed the distance limit l.
 		while (distance + edges->getLength(path.back(), end) <= distance_budget){
 			int node;
 			/* (a) Randomly select i nodes (with repeats allowed), s.t. each is not in S and each is not e.
 			 	Store these i nodes in set L. If all nodes except e have been added	to S, then add e to the end and return the final solution.*/
-			if (available_nodes == 1){
+			if (available_nodes == 0){
 				path.push_back(end);
 				distance += edges->getLength(path.back(), end);
+				score = countScore();
 				return;
 			} else {
 				L.clear();
@@ -128,9 +130,9 @@ namespace POICS{
 
 			/* (b) If z is the last vertex in S, then select b in L s.t. for all q in L, d(z,b) + d(b,e) <= d(z,q) + d(q,e). */
 			auto b = L.begin(); node = *b;
-			float min_dis = edges->getLength(path.back(), node) + edges->getLength(node, end); ++b;
+			double min_dis = edges->getLength(path.back(), node) + edges->getLength(node, end); ++b;
 			while (b != L.end()){
-				float dis = edges->getLength(path.back(), *b) + edges->getLength(*b, end);
+				double dis = edges->getLength(path.back(), *b) + edges->getLength(*b, end);
 				if (dis < min_dis){
 					min_dis = dis;
 					node = *b;
@@ -146,7 +148,7 @@ namespace POICS{
 		}
 
 		// 4. Replace the last vertex in S with e.
-		path.pop_back(); used[end] = true;
+		used[path.back()] = false; path.pop_back(); 
 		distance = distance - last_distance + edges->getLength(path.back(), end);
 		path.push_back(end); used[end] = true;
 
@@ -250,12 +252,12 @@ namespace POICS{
 			int lb = T;
 
 			// (b) Select edge (v,w) in S s.t. dvLb +dLbw − dvw ≤ dxLb +dLby − dxy for all (x,y) in S
-			int n = path.size(); int a, b; float dal, dlb, dab, dmin = 0; int imin;
+			int n = path.size(); int a, b; double dal, dlb, dab, dmin = 0; int imin;
 
 			for (int i = 0; i < n - 1; ++i){
 				a = path[i]; b = path[i+1];
 				dab = edges->getLength(a,b); dal = edges->getLength(a,lb); dlb = edges->getLength(lb,b);
-				float dnew = dal + dlb - dab;
+				double dnew = dal + dlb - dab;
 
 				if (dmin > dnew || i == 0){
 					dmin = dnew; imin = i + 1;
@@ -298,7 +300,7 @@ namespace POICS{
 			edge (a,b) is removed from S and edges (a,Lm) and (Lm,b) are added to S}.
 		*/
 
-		int n = path.size(); int a, b, lm; float dab, dal, dlb;
+		int n = path.size(); int a, b, lm; double dab, dal, dlb;
 		for (auto it = unused_nodes.begin(); it != unused_nodes.end(); ++it){
 			lm = *it;
 			for (int i = 0; i < n - 1; ++i){
@@ -316,12 +318,12 @@ namespace POICS{
 		return -1;
 	}
 
-	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int start, int end, scorefunc_t scorefunc, spfunc_t spfunc, std::list<int>& result){
-		Solution old(distance_budget, topic_param, &nodes, &edges, scorefunc, spfunc), current(distance_budget, topic_param, &nodes, &edges, scorefunc, spfunc);
+	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int POIIdx, int start, int end, ScoreFunc& SF, std::list<int>& result){
+		Solution old(distance_budget, topic_param, &nodes, &edges, SF), current(distance_budget, topic_param, &nodes, &edges, SF);
 
 		do{
 			old = current;
-			current.process_gop(par_i, par_t, start, end);
+			current.process_gop(par_i, par_t, POIIdx, start, end);
 		}while (old.score < current.score);
 
 		result.clear();
