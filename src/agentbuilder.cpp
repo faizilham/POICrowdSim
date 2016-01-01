@@ -34,7 +34,7 @@ namespace POICS {
 		switch(state){
 			case AgentState::INIT: state = AgentState::TO_POI; break;
 			case AgentState::TO_POI: state = plan.empty() ? AgentState::EXITING : AgentState::TO_POI; break;
-			case AgentState::IN_POI: state = AgentState::IN_POI; break;
+			case AgentState::IN_POI: state = AgentState::TO_POI; break;
 			default: break;
 		}
 
@@ -69,7 +69,7 @@ namespace POICS {
 		return -1;
 	}
 
-	void AgentBuilder::generateAgents(double totalTimesteps, std::vector<AgentPtr>& result_agents){
+	void AgentBuilder::generateAgents(double totalTimesteps, std::list<AgentPtr>& result_agents){
 		int num_topic = topic_ids->size();
 
 		std::uniform_real_distribution<double> rnd(0.0, 1.0);

@@ -60,7 +60,7 @@ namespace POICS {
 	public:
 		double agentPathWidth = 10.0; // actual agent width + some margin. TODO maybe dynamic setting
 		double width, height;
-		int startTime, endTime; double timesteps = 1000;
+		int startTime, endTime; double timesteps;
 		
 		MapArea(){}
 		MapArea(double w, double h): width(w), height(h){}

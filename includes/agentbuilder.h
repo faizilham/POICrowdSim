@@ -43,7 +43,7 @@ namespace POICS{
 		std::list<Point> route; // route, list of points
 
 		Point position;
-
+		int currentNode = -1;
 		int duration;
 		double nextUpdate;
 		
@@ -76,7 +76,7 @@ namespace POICS{
 		void setProfileDuration(int id, int _min, int _max);
 		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
 
-		void generateAgents(double totalTimesteps, std::vector<AgentPtr>& result_agents);
+		void generateAgents(double totalTimesteps, std::list<AgentPtr>& result_agents);
 	};
 }
 

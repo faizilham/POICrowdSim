@@ -109,6 +109,8 @@ namespace POICS{
 		map.width = scale(d1);
 		map.height = scale(d2);
 
+		map.timesteps = 100; // TODO set from start & end time attribute
+
 		/** read topic **/
 		elmt2 = readChildElement(elmt1, "topics");
 

@@ -4,9 +4,10 @@
 #include "mapobject.h"
 #include "agentbuilder.h"
 #include "compiledmap.h"
-#include "RVO.h"
+#include "RVO2/RVO.h"
 
 namespace POICS{
+	typedef std::list<AgentPtr> AgentList;
 
 	class Simulator{
 	private:
@@ -16,16 +17,19 @@ namespace POICS{
 		PlanManager* planner;
 		double currentTimestep, maxTimestep, deltaTimestep;
 		int num_agents;
+
+		AgentList initialAgents, activeAgents, exitAgents;
 		void buildObstacles();
 	public:
-		std::vector<AgentPtr> initialAgents;
-		std::vector<AgentPtr> activeAgents;
-		std::vector<AgentPtr> exitAgents;
+		
 
 		Simulator(MapArea& _maparea, AgentBuilder& _agentbuilder, PlanManager& _planner)
 		: maparea(&_maparea), agentbuilder(&_agentbuilder), planner(&_planner){}
 
 		~Simulator(){}
+
+		double getTimestep() const { return currentTimestep;}
+		const AgentList& getActiveAgents() const {return activeAgents;}
 
 		void initialize(double deltaTimestep);
 		void update();

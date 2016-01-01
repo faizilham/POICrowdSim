@@ -193,8 +193,9 @@ namespace POICS {
 
 	float scoreWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path){
 		float sum  = 0;
-
-		for (int i = 0; i < nodes.num_nodes; ++i){
+		
+		int n = path.size();
+		for (int i = 0; i < n; ++i){
 			int node = path[i];
 
 			for (int j = 0; j < nodes.num_score_elmts; ++j){
@@ -208,7 +209,8 @@ namespace POICS {
 	float spWFunc (const NodeSet& nodes, const std::vector<double>& topic_param, const std::vector<int>& path, int newNode){
 		float sum  = 0;
 
-		for (int i = 0; i < nodes.num_nodes; ++i){
+		int n = path.size();
+		for (int i = 0; i < n; ++i){
 			int node = path[i];
 
 			for (int j = 0; j < nodes.num_score_elmts; ++j){

@@ -21,10 +21,10 @@ endif
 INCLUDE_DIR=includes
 THIRD_PARTY_DIR=tinyxml2 polypartition RVO2
 
-MODULES = 	tinyxml2 polypartition \
+MODULES = 	tinyxml2 polypartition image imageio \
 			Agent KdTree Obstacle RVOSimulator \
 			shapes mapobject xmlreader compiledmap \
-			graph pathfinder image imageio agentbuilder gop
+			graph pathfinder agentbuilder gop simulator
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
