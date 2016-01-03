@@ -67,7 +67,6 @@ namespace POICS{
 		startNode.hvalue = 0;
 
 		openset.push(startNode.hvalue, &startNode);
-		double margin = agentWidth*agentWidth;
 
 		while (!openset.empty()){
 			AStarNode* current = openset.front();
@@ -89,7 +88,7 @@ namespace POICS{
 				double curr_gvalue = current->gvalue + portal.roughDistance;
 
 				if (!neighbor->opened){	
-					if (portal.width < margin){
+					if (portal.width < agentWidth){
 						continue;
 					}
 

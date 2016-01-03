@@ -23,6 +23,12 @@ namespace POICS {
 		if(hole) {
 			tpl.SetHole(true);
 			tpl.SetOrientation(TPPL_CW);
+
+			// flip the saved obstacle points to CCW
+			int n = tpl.GetNumPoints();
+			for (i = 0; i < n; ++i){
+				points[i].set(tpl[n - i - 1].x, tpl[n - i - 1].y);
+			}
 		} else {
 			tpl.SetOrientation(TPPL_CCW);
 		}

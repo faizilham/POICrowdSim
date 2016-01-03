@@ -49,12 +49,12 @@ int main(){
 		height = (scale * m.height);
 
 		xm->build(m);
-		m.agentPathWidth = 5.0;
+		m.agentPathWidth = 6.0;
 		Simulator::AGENT_RADIUS = 1.0;
-		Simulator::AGENT_GOAL_SQUARE = 3.0; // 2.5 * 2.5
-		Simulator::AGENT_MAXSPEED = 1.5;
+		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
+		Simulator::AGENT_MAXSPEED = 1.0;
 		Simulator::AGENT_TIMEHORIZON = 5.0;
-		Simulator::AGENT_TIMEHORIZONOBS = 1.25;
+		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
 		Simulator::AGENT_NEIGHBORDIST = 10.0;
 		
 		m.timesteps = 10000;
@@ -72,7 +72,7 @@ int main(){
 		PlanManager pm(m, hm);
 		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
 
-		sim->initialize(2);
+		sim->initialize(1);
 
 		sf::RenderWindow window(sf::VideoMode(640, 480), "POICrowdSim");
 
@@ -118,6 +118,26 @@ int main(){
 				rect.setFillColor(sf::Color(200, 200, 255));
 				window.draw(rect);
 			}
+
+			/*std::list<Point> path;
+			Point start = m.getSpawns()[0].border.center();
+			int nodeTo = 7;
+			pm.buildNextRoute(start, nodeTo, path);
+
+			Point prv = start;
+			for (Point& point : path){
+				sf::Vertex line[2];
+
+				toSFVertex(prv, line[0]); toSFVertex(point, line[1]);
+
+				line[0].color = sf::Color(255, 150, 0);
+				line[1].color = sf::Color(255, 150, 0);
+				
+				window.draw(line, 2, sf::Lines);
+				prv = point;
+			}*/
+
+			// test
 
 			for (Agent *agent : sim->getActiveAgents()){
 				if (!agent->route.empty()){
