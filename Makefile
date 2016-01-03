@@ -21,9 +21,9 @@ endif
 
 # modules
 INCLUDE_DIR=includes
-THIRD_PARTY_DIR=tinyxml2 polypartition RVO2
+THIRD_PARTY_DIR=tinyxml2 polypartition RVO2 clipper
 
-MODULES = 	tinyxml2 polypartition image imageio \
+MODULES = 	tinyxml2 polypartition image imageio clipper \
 			Agent KdTree Obstacle RVOSimulator \
 			shapes mapobject xmlreader compiledmap \
 			graph pathfinder agentbuilder gop simulator imagehelper
