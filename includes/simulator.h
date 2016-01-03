@@ -13,6 +13,9 @@ namespace POICS{
 		static double AGENT_RADIUS;
 		static double AGENT_GOAL_SQUARE;
 		static double AGENT_MAXSPEED;
+		static double AGENT_TIMEHORIZON;
+		static double AGENT_TIMEHORIZONOBS;
+		static double AGENT_NEIGHBORDIST;
 		
 		Simulator(){}
 		virtual ~Simulator(){}

@@ -13,6 +13,10 @@ namespace POICS{
 	double Simulator::AGENT_RADIUS = 2.0;
 	double Simulator::AGENT_GOAL_SQUARE = 6.25; // 2.5 * 2.5
 	double Simulator::AGENT_MAXSPEED = 2.0;
+	double Simulator::AGENT_TIMEHORIZON = 2.0;
+	double Simulator::AGENT_TIMEHORIZONOBS = 1.0;
+	double Simulator::AGENT_NEIGHBORDIST = 15.0;
+
 
 	class POICS_API SimulatorImpl : public Simulator{
 	private:
@@ -102,7 +106,7 @@ namespace POICS{
 
 		// neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed
 		// from ExampleRoadmap: 15.0f, 10, 5.0f, 5.0f, 2.0f, 2.0f
-		rvo.setAgentDefaults(20.0f, 10, 5.0f, 2.0f, AGENT_RADIUS, AGENT_MAXSPEED);
+		rvo.setAgentDefaults(AGENT_NEIGHBORDIST, 10, AGENT_TIMEHORIZON, AGENT_TIMEHORIZONOBS, AGENT_RADIUS, AGENT_MAXSPEED);
 
 		for (Agent* agent : initialAgents){
 			rvo.addAgent(initPos(agent->id));

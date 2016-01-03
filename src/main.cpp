@@ -5,21 +5,58 @@
 #include <iomanip>
 #include <exception>
 #include <cstdlib>
-#include "imagehelper.h"
 
 #include <memory>
 
+#include <SFML/Graphics.hpp>
+
 using namespace POICS;
 using namespace std;
-int main(){
 
+static double scale = 2.5;
+static double width;
+static double height;
+
+void toSFVertex (Point& in, sf::Vertex& out){
+	out.position = sf::Vector2f(in.x * scale, in.y * scale);
+}
+
+void toSFConvex(Polygon& in, sf::ConvexShape& out){
+	std::vector<Point>& points = in.getPoints();
+	int n = points.size();
+	out.setPointCount(n);
+
+
+	for (int i = 0; i < n; ++i){
+		Point& p = points[i];
+		out.setPoint(i, sf::Vector2f(p.x * scale, p.y * scale));
+	}
+}
+
+void toSFRect(Rect& in, sf::RectangleShape& out){
+	out.setSize(sf::Vector2f(in.w() * scale, in.h() * scale));
+	out.setPosition(in.x() * scale, in.y() * scale);
+}
+
+int main(){
 	try{
 		cout << setprecision(5);
 		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
 
 		MapArea m;
-		xm->build(m);
+		scale = 3.0;
+		width = (scale * m.width);
+		height = (scale * m.height);
 
+		xm->build(m);
+		m.agentPathWidth = 5.0;
+		Simulator::AGENT_RADIUS = 1.0;
+		Simulator::AGENT_GOAL_SQUARE = 3.0; // 2.5 * 2.5
+		Simulator::AGENT_MAXSPEED = 1.5;
+		Simulator::AGENT_TIMEHORIZON = 5.0;
+		Simulator::AGENT_TIMEHORIZONOBS = 1.25;
+		Simulator::AGENT_NEIGHBORDIST = 10.0;
+		
 		m.timesteps = 10000;
 
 		std::unique_ptr<XMLAgentReader> xa(XMLAgentReader::create("example/agentfile.xml"));
@@ -32,7 +69,96 @@ int main(){
 		HMNavMesh hm(pf);
 		hm.build(m);
 
-		std::unique_ptr<Painter> painter(Painter::create(m.width, m.height, 3));
+		PlanManager pm(m, hm);
+		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
+
+		sim->initialize(2);
+
+		sf::RenderWindow window(sf::VideoMode(640, 480), "POICrowdSim");
+
+		while (window.isOpen())	{
+			sf::Event event;
+			while (window.pollEvent(event)) {		
+				if (event.type == sf::Event::Closed)
+				window.close();
+			}
+
+			window.clear(sf::Color::Black);
+
+			// draw navmesh
+			for (Polygon& poly : hm.getCorridors()){
+				sf::ConvexShape cv;
+				toSFConvex(poly, cv);
+				cv.setFillColor(sf::Color::White);
+
+				cv.setOutlineThickness(1);
+				cv.setOutlineColor(sf::Color(160, 160, 160));
+
+				window.draw(cv);
+			}
+
+			// draw spawns
+			for (SpawnPoint& spawn : m.getSpawns()){
+				sf::RectangleShape rect;
+				toSFRect(spawn.border, rect);
+				rect.setFillColor(sf::Color(255, 200, 200));
+				window.draw(rect);
+			}
+
+			for (ExitPoint& ex : m.getExits()){
+				sf::RectangleShape rect;
+				toSFRect(ex.border, rect);
+				rect.setFillColor(sf::Color(200, 255, 200));
+				window.draw(rect);
+			}
+
+			for (POI& poi : m.getPois()){
+				sf::RectangleShape rect;
+				toSFRect(poi.border, rect);
+				rect.setFillColor(sf::Color(200, 200, 255));
+				window.draw(rect);
+			}
+
+			for (Agent *agent : sim->getActiveAgents()){
+				if (!agent->route.empty()){
+
+					Point prev = agent->position;
+					for (Point& point : agent->route){
+						sf::Vertex line[2];
+
+						toSFVertex(prev, line[0]); toSFVertex(point, line[1]);
+
+						line[0].color = sf::Color(255, 150, 0);
+						line[1].color = sf::Color(255, 150, 0);
+						
+						window.draw(line, 2, sf::Lines);
+						prev = point;
+					}
+				}
+
+				//cout<<sim->getTimestep()<<" "<<agent->id<<" "<<agent->position<<endl;
+				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);
+				circ.setFillColor(sf::Color::Red);
+				circ.setPosition((agent->position.x - Simulator::AGENT_RADIUS) * scale, (agent->position.y - Simulator::AGENT_RADIUS) * scale);
+				window.draw(circ);
+			}
+
+
+			// end the current frame
+			window.display();
+
+			// update
+			if (!sim->finished()){
+				sim->update();
+			}
+
+			sf::sleep(sf::milliseconds(50));
+		}
+
+		return 0;
+
+
+		/*std::unique_ptr<Painter> painter(Painter::create(m.width, m.height, 3));
 
 		painter->setColor(255, 0, 0);
 		for (SpawnPoint& spawn : m.getSpawns()){
@@ -89,7 +215,7 @@ int main(){
 			sim->update();
 		}
 
-		painter->save("tmp/tes.bmp");
+		painter->save("tmp/tes.bmp");*/
 
 		/*AgentPtr& agent = sim->initialAgents.front();
 

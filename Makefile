@@ -5,9 +5,10 @@ EXT = cpp
 HEXT = h
 
 # flags
-LIB = -lm 
+LIB = -lm
+MAINLIB = -lsfml-graphics -lsfml-window -lsfml-system
 FLAGS = -Wall -std=c++11 -fopenmp
-DLL_FLAGS = -DBUILD_POICS_DLL
+DLL_FLAGS = -fPIC -DBUILD_POICS_DLL
 
 MODE = debug
 # release or debug
@@ -35,11 +36,11 @@ OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
 .PHONY: all run clean
   
-all: bin/libpoics.dll bin/main.o
-	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Lbin -lpoics
+all: bin/libpoics.so bin/main.o
+	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Lbin -lpoics $(MAINLIB)
 
-bin/libpoics.dll: $(OBJS)
-	$(CC) -shared -o bin/libpoics.dll $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
+bin/libpoics.so: $(OBJS)
+	$(CC) -shared -o bin/libpoics.so $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
 
 bin/main.o: src/main.cpp
 	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)

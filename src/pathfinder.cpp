@@ -2,9 +2,12 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <random>
 #include "priority_queue.h"
 
 namespace POICS{
+	static std::random_device rd;
+	static std::mt19937 pt_rng(rd());
 
 	AStarNode::AStarNode(Polygon* _poly)
 	: closed(false), opened(false), from(NULL), gvalue(INFINITY), hvalue(INFINITY), polygon(_poly) {
@@ -30,10 +33,17 @@ namespace POICS{
 			Portal portal = *from->getNeighbor(to->id);
 			Point& unit = portal.unit;
 
-			portal.p1.x += unit.x * agentWidth;
-			portal.p1.y += unit.y * agentWidth;
-			portal.p2.x -= unit.x * agentWidth;
-			portal.p2.y -= unit.y * agentWidth;
+			//double halfMargin = (agentWidth + (portal.width / 2)) / 2;
+
+			//std::uniform_real_distribution<double> randw(agentWidth, halfMargin);
+
+			//double r1 = randw(pt_rng), r2 = randw(pt_rng);
+			double r1 = agentWidth, r2 = agentWidth;
+
+			portal.p1.x += unit.x * r1;
+			portal.p1.y += unit.y * r1;
+			portal.p2.x -= unit.x * r2;
+			portal.p2.y -= unit.y * r2;
 
 			result_portal.push_back(portal);
 		}
@@ -57,6 +67,7 @@ namespace POICS{
 		startNode.hvalue = 0;
 
 		openset.push(startNode.hvalue, &startNode);
+		double margin = agentWidth*agentWidth;
 
 		while (!openset.empty()){
 			AStarNode* current = openset.front();
@@ -78,7 +89,7 @@ namespace POICS{
 				double curr_gvalue = current->gvalue + portal.roughDistance;
 
 				if (!neighbor->opened){	
-					if (portal.squareWidth() < agentWidth*agentWidth){
+					if (portal.width < margin){
 						continue;
 					}
 
