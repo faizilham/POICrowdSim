@@ -93,7 +93,7 @@ namespace POICS {
 		for (int i = 0; i < num_agent; ++i){
 			// select profile
 			int profile_id = getRandomId(profiles, rnd(am_rng));
-			double entryTime = rnd(am_rng) * (totalTimesteps / 10); // TODO
+			double entryTime = rnd(am_rng) * (totalTimesteps / 2); // TODO
 
 			Agent* agent = new Agent(i, profiles[profile_id], entryTime, num_topic);
 

@@ -5,15 +5,13 @@
 	</topics>
 
 	<spawns>
-		<spawn dist="0.2" x="0" y="0" width="10" height="10" />
-		<spawn dist="0.5" x="30" y="0" width="10" height="10" />
-		<spawn dist="0.3" x="60" y="0" width="10" height="10" />
+		<spawn dist="0.5" x="1" y="1" width="10" height="10" />
+		<spawn dist="0.5" x="189" y="69" width="10" height="10" />
 	</spawns>
 
 	<exits>
-		<exit x="190" y="90" width="10" height="10" />
-		<exit x="190" y="70" width="10" height="10" />
-		<exit x="190" y="50" width="10" height="10" />
+		<exit x="189" y="89" width="10" height="10" />
+		<exit x="29" y="1" width="10" height="10" />
 	</exits>
 
 	<pois>
@@ -37,6 +35,6 @@
 		<obstacle shape="poly">
 			120,55 145,55 145,80 155,80 155,55 180,55 180,45 155,45 155,20 145,20 145,45 120,45
 		</obstacle>
-		<obstacle shape="rect" x="80.5" y="45" width="10" height="5" />
+		<obstacle shape="rect" x="90" y="45" width="20" height="10" />
 	</obstacles>
 </environment>

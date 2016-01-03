@@ -41,6 +41,8 @@ void toSFRect(Rect& in, sf::RectangleShape& out){
 int main(){
 	try{
 		cout << setprecision(5);
+		bool showroute = true;
+
 		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
 
 		MapArea m;
@@ -49,7 +51,7 @@ int main(){
 		height = (scale * m.height);
 
 		xm->build(m);
-		m.agentPathWidth = 6.0;
+		m.agentPathWidth = 2.0;
 		Simulator::AGENT_RADIUS = 1.0;
 		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
 		Simulator::AGENT_MAXSPEED = 1.0;
@@ -119,28 +121,8 @@ int main(){
 				window.draw(rect);
 			}
 
-			/*std::list<Point> path;
-			Point start = m.getSpawns()[0].border.center();
-			int nodeTo = 7;
-			pm.buildNextRoute(start, nodeTo, path);
-
-			Point prv = start;
-			for (Point& point : path){
-				sf::Vertex line[2];
-
-				toSFVertex(prv, line[0]); toSFVertex(point, line[1]);
-
-				line[0].color = sf::Color(255, 150, 0);
-				line[1].color = sf::Color(255, 150, 0);
-				
-				window.draw(line, 2, sf::Lines);
-				prv = point;
-			}*/
-
-			// test
-
 			for (Agent *agent : sim->getActiveAgents()){
-				if (!agent->route.empty()){
+				if (showroute && !agent->route.empty()){
 
 					Point prev = agent->position;
 					for (Point& point : agent->route){
@@ -156,7 +138,6 @@ int main(){
 					}
 				}
 
-				//cout<<sim->getTimestep()<<" "<<agent->id<<" "<<agent->position<<endl;
 				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);
 				circ.setFillColor(sf::Color::Red);
 				circ.setPosition((agent->position.x - Simulator::AGENT_RADIUS) * scale, (agent->position.y - Simulator::AGENT_RADIUS) * scale);

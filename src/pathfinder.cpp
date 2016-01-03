@@ -33,12 +33,12 @@ namespace POICS{
 			Portal portal = *from->getNeighbor(to->id);
 			Point& unit = portal.unit;
 
-			//double halfMargin = (agentWidth + (portal.width / 2)) / 2;
+			double halfMargin = (agentWidth + (portal.width / 2)) / 2;
 
-			//std::uniform_real_distribution<double> randw(agentWidth, halfMargin);
+			std::uniform_real_distribution<double> randw(agentWidth, std::min(3*agentWidth, halfMargin));
 
-			//double r1 = randw(pt_rng), r2 = randw(pt_rng);
-			double r1 = agentWidth, r2 = agentWidth;
+			double r1 = randw(pt_rng), r2 = randw(pt_rng);
+			//double r1 = agentWidth, r2 = agentWidth;
 
 			portal.p1.x += unit.x * r1;
 			portal.p1.y += unit.y * r1;

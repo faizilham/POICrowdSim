@@ -43,7 +43,7 @@ namespace POICS {
 		}
 	}
 
-	void createTPPList(MapArea& maparea, std::list<TPPLPoly>& tpls){
+	void createTPPList(MapArea& maparea, std::list<TPPLPoly>& tpls, std::vector<Polygon>& specials){
 		TPPLPoly tpl; tpls.clear();
 
 		/** add map area polygon **/
@@ -58,15 +58,37 @@ namespace POICS {
 			toTPPLPoly(poly, true, tpl);
 			tpls.push_back(tpl);
 		}
+
+		for (SpawnPoint& special : maparea.getSpawns()){
+			special.border.copyToPolygonCW(parea);
+			toTPPLPoly(parea, true, tpl);
+			tpls.push_back(tpl);
+			specials.push_back(parea);
+		}
+
+		for (ExitPoint& special : maparea.getExits()){
+			special.border.copyToPolygonCW(parea);
+			toTPPLPoly(parea, true, tpl);
+			tpls.push_back(tpl);
+			specials.push_back(parea);
+		}
+
+		for (POI& special : maparea.getPois()){
+			special.border.copyToPolygonCW(parea);
+			toTPPLPoly(parea, true, tpl);
+			tpls.push_back(tpl);
+			specials.push_back(parea);
+		}
 	}
 
 	void HMNavMesh::build(MapArea& maparea){
 
 		TPPLPartition pp;
 		std::list<TPPLPoly> input, output;
+		std::vector<Polygon> specials;
 
 		/* convert to TPPLPoly */
-		createTPPList(maparea, input);
+		createTPPList(maparea, input, specials);
 
 		/* HM Partition */
 		if (!pp.ConvexPartition_HM(&input, &output)){
@@ -81,6 +103,11 @@ namespace POICS {
 			toPOICSPoly(tpl, poly);
 			poly.calcCentroid();
 			poly.id = i; corridors.push_back(poly); ++i;
+		}
+
+		for (Polygon& special : specials){
+			special.calcCentroid();
+			special.id = i; corridors.push_back(special); ++i;
 		}
 
 		/* setup neighbor list */
