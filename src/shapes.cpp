@@ -169,6 +169,17 @@ namespace POICS{
 		Cx = Cx / (6.0*A);
 		Cy = Cy / (6.0*A);
 		centroid.x = Cx; centroid.y = Cy;
+		area = A; densityWeight = 0;
+	}
+
+
+	void Polygon::calcDensityWeight(int numAgent, double radius){
+		//double areaUse = numAgent * radius * radius;
+		//densityWeight = areaUse / (area - areaUse); // == density / (1 - density)
+		double density = (numAgent * 3.14 * radius * radius) / area;
+		densityWeight = density / (1 - density);
+
+
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Point& p){

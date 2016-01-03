@@ -67,8 +67,10 @@ namespace POICS {
 		std::vector<Point> points;
 		std::vector<Portal> neighbors;
 		Point centroid;
+		double area, densityWeight;
 	public: 
 		int id;
+
 		Polygon(){}
 		Polygon(int _id) : id(_id){}
 		~Polygon(){}
@@ -90,12 +92,16 @@ namespace POICS {
 		}
 
 		Point center() const{ return centroid;}
+		double getDensityWeight() const{ return densityWeight;}
 
 		bool contains(const Point& p) const;
 		bool testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2, bool CCW) const;
 		void calcCentroid();
+		void calcDensityWeight(int numAgent, double radius);
 
 		friend std::ostream& POICS_API operator<<(std::ostream& os, const Polygon& pl);
+
+		double getArea() const {return area;}
 	};
 }
 

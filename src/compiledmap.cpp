@@ -6,6 +6,8 @@
 #include "helper.h"
 #include "gop.h"
 
+#include <iostream>
+
 namespace POICS {
 	static std::random_device rd;
 	static std::mt19937 cm_rng(rd());
@@ -122,6 +124,15 @@ namespace POICS {
 				if (poly1.testNeighborhood(poly2, p1, p2, true)){
 					poly1.addNeighbor(poly2, p1, p2);
 					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
+
+					// shrink neighbor portal for making simple lane
+					/*Portal& portal = poly2.getNeighbors().back();
+					double laneDiff = 0.5;
+
+					portal.p1.x += portal.unit.x * laneDiff;
+					portal.p1.y += portal.unit.y * laneDiff;
+					portal.p2.x -= portal.unit.x * laneDiff;
+					portal.p2.y -= portal.unit.y * laneDiff;*/
 				}
 			}
 		}
@@ -160,6 +171,29 @@ namespace POICS {
 		}
 
 		return -1;
+	}
+
+	void HMNavMesh::calculateDensity(AgentList& agents, double radius){
+		int num_corridors = corridors.size();
+		std::vector<int> num_agents(num_corridors);
+		std::fill_n(num_agents.begin(), num_corridors, 0);
+
+		for (Agent* agent : agents){
+			if (agent->state != AgentState::TO_POI) continue;
+
+			int c = findCorridor(agent->position);
+			if (c == -1) continue;
+
+			num_agents[c] += 1;
+		}
+
+
+		std::cout<<"dense ";
+		for (int i = 0; i < num_corridors; ++i){
+			corridors[i].calcDensityWeight(num_agents[i], radius);
+			std::cout<<num_agents[i]<<":"<<corridors[i].getDensityWeight()<<" ";
+		}
+		std::cout<<std::endl;
 	}
 
 	PlanManager::PlanManager(MapArea& _maparea, HMNavMesh& _hmnav): maparea(&_maparea), hmnav(&_hmnav){

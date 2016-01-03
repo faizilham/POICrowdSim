@@ -15,7 +15,7 @@ namespace POICS{
 	}
 
 	double heuristic(Polygon* current, Polygon* target){
-		return current->center().squareDistanceTo(target->center());
+		return current->center().squareDistanceTo(target->center()) + target->getDensityWeight();
 	}
 
 	void buildPortal(AStarNode* last, std::vector<AStarNode>& anodes, double agentWidth, std::vector<Portal>& result_portal){
@@ -33,12 +33,12 @@ namespace POICS{
 			Portal portal = *from->getNeighbor(to->id);
 			Point& unit = portal.unit;
 
-			double halfMargin = (agentWidth + (portal.width / 2)) / 2;
+			//double halfMargin = (agentWidth + (portal.width / 2)) / 2;
 
-			std::uniform_real_distribution<double> randw(agentWidth, std::min(3*agentWidth, halfMargin));
+			//std::uniform_real_distribution<double> randw(agentWidth, std::min(3*agentWidth, halfMargin));
 
-			double r1 = randw(pt_rng), r2 = randw(pt_rng);
-			//double r1 = agentWidth, r2 = agentWidth;
+			//double r1 = randw(pt_rng), r2 = randw(pt_rng);
+			double r1 = agentWidth, r2 = agentWidth;
 
 			portal.p1.x += unit.x * r1;
 			portal.p1.y += unit.y * r1;
@@ -94,13 +94,21 @@ namespace POICS{
 
 					openset.push(neighbor->hvalue, neighbor);
 					neighbor->opened = true;
+
+					neighbor->from = current;
+					neighbor->gvalue = curr_gvalue;
+					neighbor->hvalue = curr_gvalue + heuristic(neighbor->polygon, target);
 				} else if (curr_gvalue >= neighbor->gvalue){
 					continue;
+				} else {
+					neighbor->from = current;
+					neighbor->gvalue = curr_gvalue;
+					double oldHVal = neighbor->hvalue;
+					neighbor->hvalue = curr_gvalue + heuristic(neighbor->polygon, target);
+					openset.update(oldHVal, neighbor->hvalue, neighbor);
 				}
 
-				neighbor->from = current;
-				neighbor->gvalue = curr_gvalue;
-				neighbor->hvalue = curr_gvalue + heuristic(neighbor->polygon, target);
+				
 			}
 		}
 

@@ -51,7 +51,7 @@ int main(){
 		height = (scale * m.height);
 
 		xm->build(m);
-		m.agentPathWidth = 2.0;
+		m.agentPathWidth = 3.0;
 		Simulator::AGENT_RADIUS = 1.0;
 		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
 		Simulator::AGENT_MAXSPEED = 1.0;

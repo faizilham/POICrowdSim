@@ -1,6 +1,7 @@
 #ifndef COMPILEDMAP_H
 #define COMPILEDMAP_H
 
+#include "agentbuilder.h"
 #include "dllmacro.h"
 #include "shapes.h"
 #include "mapobject.h"
@@ -29,6 +30,8 @@ namespace POICS {
 		double getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth) const;
 
 		int findCorridor(const Point& p) const;
+
+		void calculateDensity(AgentList& agents, double radius);
 	};
 
 	class POICS_API PlanManager {
@@ -52,6 +55,7 @@ namespace POICS {
 		void buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const;
 		void buildNextRoute(Point& from, Point& to, std::list<Point>& result_path) const;
 		Point getRandomPoint(int node) const;
+		HMNavMesh* getNavMesh(){return hmnav;}
 	};	
 }
 

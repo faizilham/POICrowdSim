@@ -24,7 +24,7 @@ namespace POICS{
 		MapArea* maparea;
 		AgentBuilder* agentbuilder;
 		PlanManager* planner;
-		double currentTimestep, maxTimestep, deltaTimestep;
+		double currentTimestep, maxTimestep, deltaTimestep, recalcTimestep, maxRecalcTimestep;
 		int num_agents;
 
 		
@@ -93,7 +93,9 @@ namespace POICS{
 	void SimulatorImpl::initialize(double _deltaTimestep){
 		deltaTimestep = _deltaTimestep;
 		maxTimestep = maparea->timesteps;
-		
+		maxRecalcTimestep = 10.0;
+
+		recalcTimestep = 0.0;
 		currentTimestep = 0.0;
 		rvo.setTimeStep(deltaTimestep);
 
@@ -125,6 +127,7 @@ namespace POICS{
 
 	void SimulatorImpl::update(){
 		currentTimestep += deltaTimestep;
+		recalcTimestep += deltaTimestep;
 
 		rvo.doStep();
 
@@ -188,7 +191,10 @@ namespace POICS{
 		 		default: break;
 		 	}
 
-
+		 	if (recalcTimestep > maxRecalcTimestep){
+		 		recalcTimestep = 0;
+		 		//planner->getNavMesh()->calculateDensity(activeAgents, Simulator::AGENT_RADIUS);
+		 	}
 		}
 
 		// agents that aren't yet enter simulation
