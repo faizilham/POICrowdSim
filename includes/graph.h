@@ -1,10 +1,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include "dllmacro.h"
 #include <cstdlib>
 
 namespace POICS{
-	class NodeSet{
+	class POICS_API NodeSet{
 	private:
 		double *scores = NULL; // scores[node_id][score_elmt_id]
 	public:
@@ -20,7 +21,7 @@ namespace POICS{
 		void setScore(int node_id, int score_elmt_id, double score);
 	};
 
-	class EdgeSet{
+	class POICS_API EdgeSet{
 	private:
 		int num_nodes;
 		double* edges = NULL;

@@ -1,37 +1,30 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+#include "dllmacro.h"
 #include "mapobject.h"
 #include "agentbuilder.h"
 #include "compiledmap.h"
 #include "RVO2/RVO.h"
 
 namespace POICS{
-	class Simulator{
-	private:
-		RVO::RVOSimulator rvo;
-		MapArea* maparea;
-		AgentBuilder* agentbuilder;
-		PlanManager* planner;
-		double currentTimestep, maxTimestep, deltaTimestep;
-		int num_agents;
-
-		
-		void buildObstacles();
+	class POICS_API Simulator{
 	public:
-		AgentList initialAgents, activeAgents, exitAgents;
+		static double AGENT_RADIUS;
+		static double AGENT_GOAL_SQUARE;
+		static double AGENT_MAXSPEED;
 		
-		Simulator(MapArea& _maparea, AgentBuilder& _agentbuilder, PlanManager& _planner)
-		: maparea(&_maparea), agentbuilder(&_agentbuilder), planner(&_planner){}
+		Simulator(){}
+		virtual ~Simulator(){}
 
-		~Simulator();
+		virtual double getTimestep() const = 0;
+		virtual const AgentList& getActiveAgents() const = 0;
 
-		double getTimestep() const { return currentTimestep;}
-		const AgentList& getActiveAgents() const {return activeAgents;}
+		virtual void initialize(double deltaTimestep) = 0;
+		virtual void update() = 0;
+		virtual bool finished() = 0;
 
-		void initialize(double deltaTimestep);
-		void update();
-		bool finished();
+		static Simulator* create (MapArea& _maparea, AgentBuilder& _agentbuilder, PlanManager& _planner);
 	};
 }
 

@@ -1,6 +1,7 @@
 #ifndef COMPILEDMAP_H
 #define COMPILEDMAP_H
 
+#include "dllmacro.h"
 #include "shapes.h"
 #include "mapobject.h"
 #include "graph.h"
@@ -9,7 +10,7 @@
 
 namespace POICS {
 	/* Hertel-Mehlhorn convex polygon partition based navigation mesh */
-	class HMNavMesh {
+	class POICS_API HMNavMesh {
 	private:
 		std::vector<Polygon> corridors;
 		PathFinder& pathfinder;
@@ -30,7 +31,7 @@ namespace POICS {
 		int findCorridor(const Point& p) const;
 	};
 
-	class PlanManager {
+	class POICS_API PlanManager {
 	private:
 		MapArea *maparea; HMNavMesh *hmnav;
 		NodeSet nodes; EdgeSet edges;

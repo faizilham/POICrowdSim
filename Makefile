@@ -6,7 +6,8 @@ HEXT = h
 
 # flags
 LIB = -lm 
-FLAGS = -Wall -std=c++11 -fopenmp -D_WIN32
+FLAGS = -Wall -std=c++11 -fopenmp
+DLL_FLAGS = -DBUILD_POICS_DLL
 
 MODE = debug
 # release or debug
@@ -24,7 +25,7 @@ THIRD_PARTY_DIR=tinyxml2 polypartition RVO2
 MODULES = 	tinyxml2 polypartition image imageio \
 			Agent KdTree Obstacle RVOSimulator \
 			shapes mapobject xmlreader compiledmap \
-			graph pathfinder agentbuilder gop simulator
+			graph pathfinder agentbuilder gop simulator imagehelper
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
@@ -32,12 +33,13 @@ INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
 SOURCES = $(addsuffix .$(EXT),$(MODULES))
 OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
-.PHONY: all run clean obj
+.PHONY: all run clean
   
-all: obj bin/main.o
-	$(CC) -o bin/main bin/main.o $(OBJS) $(FLAGS) $(LIB)
+all: bin/libpoics.dll bin/main.o
+	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Lbin -lpoics
 
-obj: $(OBJS)
+bin/libpoics.dll: $(OBJS)
+	$(CC) -shared -o bin/libpoics.dll $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
 
 bin/main.o: src/main.cpp
 	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)
@@ -59,4 +61,4 @@ clean:
 #dependency
 
 bin/%.o : %.$(EXT) %.$(HEXT)
-	$(CC) -c $< -o $@ $(FLAGS) $(INCLUDE)
+	$(CC) -c $< -o $@ $(DLL_FLAGS) $(FLAGS) $(INCLUDE)

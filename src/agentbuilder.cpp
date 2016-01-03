@@ -8,6 +8,19 @@ namespace POICS {
 	static std::random_device rd;
 	static std::mt19937 am_rng(rd());
 
+	Profile::Profile(std::string _name, double _dist): name(_name), dist(_dist){}
+	Profile::~Profile(){}
+
+	void Profile::setDuration(int _min, int _max){min_duration = _min; max_duration = _max;}
+
+	void Profile::addInterestRange(int topic_id, double _min, double _max){
+		topicInterestRange.insert(std::make_pair(topic_id, std::make_pair(_min, _max)));
+	}
+
+	std::map<int, std::pair<double, double>>& Profile::getInterestRanges(){
+		return topicInterestRange;
+	}
+
 	Agent::Agent(int _id, Profile& profile, double entryTime, int num_topic)
 	: id(_id), topicInterest(num_topic), nextUpdate(entryTime), state(AgentState::INIT){
 
@@ -68,6 +81,9 @@ namespace POICS {
 
 		return -1;
 	}
+
+	void AgentBuilder::setNumAgents(int num){ num_agent = num;}
+	int AgentBuilder::getNumAgents() const { return num_agent;}
 
 	void AgentBuilder::generateAgents(double totalTimesteps, AgentList& result_agents){
 		int num_topic = topic_ids->size();

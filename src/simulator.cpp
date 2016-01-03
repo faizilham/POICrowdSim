@@ -8,10 +8,42 @@ namespace POICS{
 	static std::random_device rd;
 	static std::mt19937 sim_rng(rd());
 	static const double PI = 3.14159265358979323846;
-	static const double AGENT_RADIUS = 2.0;
-	static const double AGENT_GOAL_SQUARE = 2.5 * 2.5;
-	static const double AGENT_MAXSPEED = 2.0;
 	static const RVO::Vector2 IDENTITY(0.0, 0.0);
+
+	double Simulator::AGENT_RADIUS = 2.0;
+	double Simulator::AGENT_GOAL_SQUARE = 6.25; // 2.5 * 2.5
+	double Simulator::AGENT_MAXSPEED = 2.0;
+
+	class POICS_API SimulatorImpl : public Simulator{
+	private:
+		RVO::RVOSimulator rvo;
+		MapArea* maparea;
+		AgentBuilder* agentbuilder;
+		PlanManager* planner;
+		double currentTimestep, maxTimestep, deltaTimestep;
+		int num_agents;
+
+		
+		void buildObstacles();
+	public:
+		AgentList initialAgents, activeAgents, exitAgents;
+		
+		SimulatorImpl(MapArea* _maparea, AgentBuilder* _agentbuilder, PlanManager* _planner)
+		: maparea(_maparea), agentbuilder(_agentbuilder), planner(_planner){}
+
+		virtual ~SimulatorImpl();
+
+		virtual double getTimestep() const { return currentTimestep;}
+		virtual const AgentList& getActiveAgents() const {return activeAgents;}
+
+		virtual void initialize(double deltaTimestep);
+		virtual void update();
+		virtual bool finished();
+	};
+
+	Simulator* Simulator::create (MapArea& _maparea, AgentBuilder& _agentbuilder, PlanManager& _planner){
+		return new SimulatorImpl(&_maparea, &_agentbuilder, &_planner);
+	}
 
 	void agentCleaner(AgentList& agents){
 		for (auto itr = agents.begin(); itr != agents.end(); ++itr){
@@ -21,13 +53,13 @@ namespace POICS{
 		agents.clear();
 	}
 
-	Simulator::~Simulator(){
+	SimulatorImpl::~SimulatorImpl(){
 		agentCleaner(initialAgents);
 		agentCleaner(activeAgents);
 		agentCleaner(exitAgents);
 	}
 
-	void Simulator::buildObstacles(){
+	void SimulatorImpl::buildObstacles(){
 		
 
 		for (Polygon& obstacle : maparea->getObstacles()){
@@ -54,7 +86,7 @@ namespace POICS{
 		return RVO::Vector2(-100.0 - (id * 10.0), -100);
 	}
 
-	void Simulator::initialize(double _deltaTimestep){
+	void SimulatorImpl::initialize(double _deltaTimestep){
 		deltaTimestep = _deltaTimestep;
 		maxTimestep = maparea->timesteps;
 		
@@ -87,7 +119,7 @@ namespace POICS{
 		return RVO::normalize(next - curr) + dist * RVO::Vector2(std::cos(angle), std::sin(angle));
 	}
 
-	void Simulator::update(){
+	void SimulatorImpl::update(){
 		currentTimestep += deltaTimestep;
 
 		rvo.doStep();
@@ -181,7 +213,7 @@ namespace POICS{
 		}
 	}
 
-	bool Simulator::finished(){
-		return (currentTimestep >= maxTimestep); // && (activeAgents.empty());
+	bool SimulatorImpl::finished(){
+		return (currentTimestep >= maxTimestep) || (activeAgents.empty() && initialAgents.empty());
 	}
 }

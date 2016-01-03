@@ -1,5 +1,6 @@
 #include "xmlreader.h"
 #include "helper.h"
+#include "tinyxml2/tinyxml2.h"
 #include <cstdlib>
 
 using tinyxml2::XML_SUCCESS; 
@@ -8,13 +9,43 @@ using tinyxml2::XMLNode;
 
 namespace POICS{
 
+	class POICS_API XMLMapReaderImpl : public XMLMapReader {
+	private:
+		tinyxml2::XMLDocument doc;
+	public:
+		XMLMapReaderImpl(const char* _filepath);
+		virtual ~XMLMapReaderImpl(){}
+
+		virtual void build (MapArea& map);
+	};
+
+	class POICS_API XMLAgentReaderImpl : public XMLAgentReader {
+	private:
+		tinyxml2::XMLDocument doc;
+	public:
+		XMLAgentReaderImpl(const char* _filepath);
+		virtual ~XMLAgentReaderImpl(){}
+
+		virtual void build (AgentBuilder& ab);
+	};
+
+	XMLMapReader* XMLMapReader::create(const char* filepath){
+		return new XMLMapReaderImpl(filepath);
+	}
+
+	XMLAgentReader* XMLAgentReader::create(const char* filepath){
+		return new XMLAgentReaderImpl(filepath);
+	}
+
 	typedef std::vector<std::string> token_t;
 
 	const char* POLY_SHAPE = "poly";
 	const char* RECT_SHAPE = "rect";
 
+	double XMLMapReader::MAP_SCALE = 1.0;
+
 	double scale(double& d){
-		return d *= 1;
+		return d *= XMLMapReader::MAP_SCALE;
 	}
 
 	void doubleAttr(XMLElement *elmt, const char* attr, double& d){
@@ -70,7 +101,7 @@ namespace POICS{
 		}
 	}
 
-	XMLMapReader::XMLMapReader(const char* _filepath) {
+	XMLMapReaderImpl::XMLMapReaderImpl(const char* _filepath) {
 		doc.LoadFile(_filepath);
 	}
 
@@ -98,7 +129,7 @@ namespace POICS{
 	}
 
 
-	XMLMapReader& XMLMapReader::operator>> (MapArea& map){
+	void XMLMapReaderImpl::build (MapArea& map){
 		XMLElement *elmt1, *elmt2, *elmt3; std::string s1; Rect rect;
 
 		elmt1 = readChildElement(&doc, "environment");
@@ -109,7 +140,7 @@ namespace POICS{
 		map.width = scale(d1);
 		map.height = scale(d2);
 
-		map.timesteps = 100; // TODO set from start & end time attribute
+		map.timesteps = 1000; // TODO set from start & end time attribute
 
 		/** read topic **/
 		elmt2 = readChildElement(elmt1, "topics");
@@ -180,11 +211,9 @@ namespace POICS{
 			map.addObstacle(poly);
 			elmt3 = elmt3->NextSiblingElement("obstacle");
 		}
-
-		return *this;
 	}
 
-	XMLAgentReader::XMLAgentReader(const char* _filepath) {
+	XMLAgentReaderImpl::XMLAgentReaderImpl(const char* _filepath) {
 		doc.LoadFile(_filepath);
 	}
 
@@ -192,7 +221,7 @@ namespace POICS{
 		doubleAttr(elmt, "min", min); doubleAttr(elmt, "max", max);
 	}
 
-	XMLAgentReader& XMLAgentReader::operator>> (AgentBuilder& as){
+	void XMLAgentReaderImpl::build (AgentBuilder& as){
 		XMLElement *elmt1, *elmt2, *elmt3, *elmt4, *elmt5; std::string s1; int n; double d1, d2;
 
 		elmt1 = readChildElement(&doc, "agents");
@@ -222,7 +251,5 @@ namespace POICS{
 
 			elmt3 = elmt3->NextSiblingElement("profile");
 		}while(elmt3 != NULL);
-
-		return *this;
 	}
 }

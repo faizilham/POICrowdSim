@@ -1,6 +1,7 @@
 #ifndef AGENTMANAGER_H
 #define AGENTMANAGER_H
 
+#include "dllmacro.h"
 #include <vector>
 #include <map>
 #include "shapes.h"
@@ -11,30 +12,24 @@ namespace POICS{
 
 	enum class AgentState {INIT, TO_POI, IN_POI, EXITING};
 
-	class Profile{
+	class POICS_API Profile{
 	public:
 		std::string name;
 		double dist;
 		int min_duration, max_duration;
 		std::map<int, std::pair<double, double>> topicInterestRange;
 
-		Profile(std::string _name, double _dist)
-		: name(_name), dist(_dist){}
+		Profile(std::string _name, double _dist);
+		~Profile();
 
-		~Profile(){}
+		void setDuration(int _min, int _max);
 
-		void setDuration(int _min, int _max){min_duration = _min; max_duration = _max;}
+		void addInterestRange(int topic_id, double _min, double _max);
 
-		void addInterestRange(int topic_id, double _min, double _max){
-			topicInterestRange.insert(std::make_pair(topic_id, std::make_pair(_min, _max)));
-		}
-
-		std::map<int, std::pair<double, double>>& getInterestRanges(){
-			return topicInterestRange;
-		}
+		std::map<int, std::pair<double, double>>& getInterestRanges();
 	};
 
-	class Agent{
+	class POICS_API Agent{
 	public:
 		int id;
 		std::vector<double> topicInterest;
@@ -56,9 +51,9 @@ namespace POICS{
 
 	};
 
-	typedef std::list<Agent*> AgentList;
+	typedef POICS_API std::list<Agent*> AgentList;
 
-	class AgentBuilder{
+	class POICS_API AgentBuilder{
 	private:
 		int num_agent;
 		std::vector<Profile> profiles;
@@ -68,8 +63,8 @@ namespace POICS{
 		AgentBuilder(std::map<std::string, int>& _topic_ids): topic_ids(&_topic_ids){}
 		~AgentBuilder(){}
 
-		void setNumAgents(int num){	num_agent = num;}
-		int getNumAgents() const { return num_agent;}
+		void setNumAgents(int num);
+		int getNumAgents() const;
 
 		int addProfile (std::string _name, double _dist);
 		void setProfileDuration(int id, int _min, int _max);

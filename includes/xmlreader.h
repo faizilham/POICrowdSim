@@ -1,30 +1,32 @@
 #ifndef MAPREADER_H
 #define MAPREADER_HPP
 
+#include "dllmacro.h"
 #include "mapobject.h"
 #include "agentbuilder.h"
-#include "tinyxml2/tinyxml2.h"
 
 namespace POICS {
 
-	class XMLMapReader {
-	private:
-		tinyxml2::XMLDocument doc;
+	class POICS_API XMLMapReader {
 	public:
-		XMLMapReader(const char* _filepath);
-		~XMLMapReader(){}
+		static double MAP_SCALE; // default is 1
 
-		XMLMapReader& operator>> (MapArea& map);
+		XMLMapReader(){}
+		virtual ~XMLMapReader(){}
+
+		virtual void build (MapArea& map) = 0;
+
+		static XMLMapReader* create(const char* filepath);
 	};
 
-	class XMLAgentReader {
-	private:
-		tinyxml2::XMLDocument doc;
+	class POICS_API XMLAgentReader {
 	public:
-		XMLAgentReader(const char* _filepath);
-		~XMLAgentReader(){}
+		XMLAgentReader(){}
+		virtual ~XMLAgentReader(){}
 
-		XMLAgentReader& operator>> (AgentBuilder& ab);
+		virtual void build (AgentBuilder& ab) = 0;
+
+		static XMLAgentReader* create(const char* filepath);
 	};
 }
 

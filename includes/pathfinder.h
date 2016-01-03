@@ -1,6 +1,7 @@
 #ifndef PATHFINDER_H
 #define PATHFINDER_H
 
+#include "dllmacro.h"
 #include "shapes.h"
 #include <vector>
 
@@ -24,7 +25,7 @@ namespace POICS {
 
 	};
 
-	class PathFinder {
+	class POICS_API PathFinder {
 	private:
 		std::vector<Polygon>* corridors;
 

@@ -1,13 +1,14 @@
 #ifndef MAPOBJECT_H
 #define MAPOBJECT_H
 
+#include "dllmacro.h"
 #include "shapes.h"
 #include <map>
 #include <vector>
 #include <iostream>
 
 namespace POICS {
-	class POI {
+	class POICS_API POI {
 	public:
 		int id;
 		std::string name;
@@ -22,7 +23,7 @@ namespace POICS {
 		friend std::ostream& operator<<(std::ostream& os, const POI& p);
 	};
 
-	class SpawnPoint {
+	class POICS_API SpawnPoint {
 	public:
 		int id; double dist;
 		Rect border;
@@ -36,7 +37,7 @@ namespace POICS {
 		friend std::ostream& operator<<(std::ostream& os, const SpawnPoint& sp);
 	};
 
-	class ExitPoint {
+	class POICS_API ExitPoint {
 	public:
 		int id;
 		Rect border;
@@ -50,7 +51,7 @@ namespace POICS {
 		friend std::ostream& operator<<(std::ostream& os, const ExitPoint& ep);
 	};
 
-	class MapArea{
+	class POICS_API MapArea{
 	private:
 		std::vector<POI> pois;
 		std::vector<SpawnPoint> spawns;
@@ -59,8 +60,10 @@ namespace POICS {
 		std::map<std::string, int> topic_ids;
 	public:
 		double agentPathWidth = 3.0; // actual agent width + some margin. TODO maybe dynamic setting
+		double timesteps;
+		
 		double width, height;
-		int startTime, endTime; double timesteps;
+		int startTime, endTime;
 		
 		MapArea(){}
 		MapArea(double w, double h): width(w), height(h){}

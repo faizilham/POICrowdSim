@@ -1,13 +1,14 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
+#include "dllmacro.h"
 #include <iostream>
 #include <vector>
 
 namespace POICS {
 	static const double EPSILON = 1e-6;
 
-	class Point {
+	class POICS_API Point {
 	public:
 		double x, y;
 		Point(): x(0), y(0){}
@@ -20,11 +21,11 @@ namespace POICS {
 		void set(double _x, double _y) { x = _x; y = _y;}
 
 		void setAsMiddle(const Point& p1, const Point& p2);
-		friend std::ostream& operator<<(std::ostream& os, const Point& dt);
+		friend std::ostream& POICS_API operator<<(std::ostream& os, const Point& dt);
 	};
 
-	class Polygon;
-	class Rect {
+	class POICS_API Polygon;
+	class POICS_API Rect {
 		Point pos, cpos; double width, height;
 		void calcCenterPoint();
 	public:
@@ -34,7 +35,7 @@ namespace POICS {
 			calcCenterPoint();
 		}
 
-		friend std::ostream& operator<<(std::ostream& os, const Rect& dt);
+		friend std::ostream& POICS_API operator<<(std::ostream& os, const Rect& dt);
 
 		void set(double x, double y, double w, double h);
 		void setPos(double x, double y);
@@ -52,7 +53,7 @@ namespace POICS {
 		Point getRandomPoint() const;
 	};
 
-	class Portal{
+	class POICS_API Portal{
 	public:
 		Point p1, p2, center, unit; int from_id, to_id; double roughDistance;
 		Portal(){}
@@ -61,7 +62,7 @@ namespace POICS {
 		double squareWidth() const { return p1.squareDistanceTo(p2);}
 	};
 
-	class Polygon {
+	class POICS_API Polygon {
 	private:
 		std::vector<Point> points;
 		std::vector<Portal> neighbors;
@@ -94,7 +95,7 @@ namespace POICS {
 		bool testNeighborhood(const Polygon& poly, Point& result_p1, Point& result_p2, bool CCW) const;
 		void calcCentroid();
 
-		friend std::ostream& operator<<(std::ostream& os, const Polygon& pl);
+		friend std::ostream& POICS_API operator<<(std::ostream& os, const Polygon& pl);
 	};
 }
 
