@@ -7,6 +7,8 @@
 
 namespace POICS {
 	static const double EPSILON = 1e-6;
+	static const int ORIENTATION_CCW = 1;
+	static const int ORIENTATION_CW = -1;
 
 	class POICS_API Point {
 	public:
@@ -67,7 +69,7 @@ namespace POICS {
 		std::vector<Point> points;
 		std::vector<Portal> neighbors;
 		Point centroid;
-		double area, densityWeight;
+		double area, densityWeight; int orientation = 0;
 	public: 
 		int id;
 
@@ -102,6 +104,8 @@ namespace POICS {
 		friend std::ostream& POICS_API operator<<(std::ostream& os, const Polygon& pl);
 
 		double getArea() const {return area;}
+		int getOrientation() const { return orientation;}
+		void setOrientation(int _orientation);
 	};
 }
 

@@ -203,10 +203,12 @@ namespace POICS{
 				readPoly(elmt3, poly);
 			} else if (s1 == RECT_SHAPE){
 				readRect(elmt3, rect);
-				rect.copyToPolygonCW(poly);
+				rect.copyToPolygonCCW(poly);
 			} else {
 				except("Unknown shape type attribute");
 			}
+
+			poly.calcCentroid(); poly.setOrientation(ORIENTATION_CCW);
 
 			map.addObstacle(poly);
 			elmt3 = elmt3->NextSiblingElement("obstacle");

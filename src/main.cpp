@@ -1,5 +1,6 @@
 #include "xmlreader.h"
-#include "compiledmap.h"
+#include "navmesh.h"
+#include "planmanager.h"
 #include "simulator.h"
 #include <iostream>
 #include <iomanip>
@@ -38,6 +39,21 @@ void toSFRect(Rect& in, sf::RectangleShape& out){
 	out.setPosition(in.x() * scale, in.y() * scale);
 }
 
+void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
+	Point prev = poly.getPoints().back();
+	for (Point& point : poly.getPoints()){
+		sf::Vertex line[2];
+
+		toSFVertex(prev, line[0]); toSFVertex(point, line[1]);
+
+		line[0].color = color;
+		line[1].color = color;
+		
+		window.draw(line, 2, sf::Lines);
+		prev = point;
+	}
+}
+
 int main(){
 	try{
 		cout << setprecision(5);
@@ -55,7 +71,7 @@ int main(){
 		Simulator::AGENT_RADIUS = 1.0;
 		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
 		Simulator::AGENT_MAXSPEED = 1.0;
-		Simulator::AGENT_TIMEHORIZON = 5.0;
+		Simulator::AGENT_TIMEHORIZON = 2.0;
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
 		Simulator::AGENT_NEIGHBORDIST = 10.0;
 		
@@ -78,6 +94,10 @@ int main(){
 
 		sf::RenderWindow window(sf::VideoMode(640, 480), "POICrowdSim");
 
+		Rect area(0, 0, m.width, m.height);
+		sf::RectangleShape rectArea;
+		toSFRect(area, rectArea); rectArea.setFillColor(sf::Color::White);
+
 		while (window.isOpen())	{
 			sf::Event event;
 			while (window.pollEvent(event)) {		
@@ -86,15 +106,21 @@ int main(){
 			}
 
 			window.clear(sf::Color::Black);
+			window.draw(rectArea);
+
+			// draw obstacle
+			for (Polygon& poly : m.getObstacles()){
+				drawPoly(window, poly, sf::Color::Black);
+			}
 
 			// draw navmesh
 			for (Polygon& poly : hm.getCorridors()){
 				sf::ConvexShape cv;
 				toSFConvex(poly, cv);
-				cv.setFillColor(sf::Color::White);
+				//cv.setFillColor(sf::Color::White);
 
 				cv.setOutlineThickness(1);
-				cv.setOutlineColor(sf::Color(160, 160, 160));
+				cv.setOutlineColor(sf::Color(255, 255, 0));
 
 				window.draw(cv);
 			}

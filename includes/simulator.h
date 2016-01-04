@@ -4,7 +4,7 @@
 #include "dllmacro.h"
 #include "mapobject.h"
 #include "agentbuilder.h"
-#include "compiledmap.h"
+#include "planmanager.h"
 #include "RVO2/RVO.h"
 
 namespace POICS{

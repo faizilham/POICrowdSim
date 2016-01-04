@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <random>
+#include <iostream>
 
 namespace POICS{
 	static std::random_device rd;
@@ -170,16 +171,36 @@ namespace POICS{
 		Cy = Cy / (6.0*A);
 		centroid.x = Cx; centroid.y = Cy;
 		area = A; densityWeight = 0;
+
+		if (area < 0){
+			area = -area;
+			orientation = ORIENTATION_CW;
+		} else if (area > 0){
+			orientation = ORIENTATION_CCW;
+		} else {
+			orientation = 0;
+		}
+
 	}
 
+	void Polygon::setOrientation(int _orientation){
+		if (orientation == _orientation) return;
+
+		const int n = points.size();
+		for (int i = 0; i < n / 2; ++i){
+			Point temp = points[i];
+			points[i] = points[n-i-1];
+			points[n-i-1] = temp;
+		}
+
+		orientation = _orientation;
+	}
 
 	void Polygon::calcDensityWeight(int numAgent, double radius){
 		//double areaUse = numAgent * radius * radius;
 		//densityWeight = areaUse / (area - areaUse); // == density / (1 - density)
 		double density = (numAgent * 3.14 * radius * radius) / area;
 		densityWeight = density / (1 - density);
-
-
 	}
 
 	std::ostream& operator<<(std::ostream& os, const Point& p){
