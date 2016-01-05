@@ -15,11 +15,10 @@ using namespace POICS;
 using namespace std;
 
 static double scale = 2.5;
-static double width;
-static double height;
+static double dx, dy;
 
 void toSFVertex (Point& in, sf::Vertex& out){
-	out.position = sf::Vector2f(in.x * scale, in.y * scale);
+	out.position = sf::Vector2f(dx + in.x * scale, dy + in.y * scale);
 }
 
 void toSFConvex(Polygon& in, sf::ConvexShape& out){
@@ -30,13 +29,13 @@ void toSFConvex(Polygon& in, sf::ConvexShape& out){
 
 	for (int i = 0; i < n; ++i){
 		Point& p = points[i];
-		out.setPoint(i, sf::Vector2f(p.x * scale, p.y * scale));
+		out.setPoint(i, sf::Vector2f(dx + p.x * scale, dy + p.y * scale));
 	}
 }
 
 void toSFRect(Rect& in, sf::RectangleShape& out){
 	out.setSize(sf::Vector2f(in.w() * scale, in.h() * scale));
-	out.setPosition(in.x() * scale, in.y() * scale);
+	out.setPosition(dx + in.x() * scale, dy + in.y() * scale);
 }
 
 void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
@@ -60,13 +59,24 @@ int main(){
 		bool showroute = true;
 
 		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
-
+		XMLMapReader::MAP_SCALE = 1.0;
 		MapArea m;
-		scale = 3.0;
-		width = (scale * m.width);
-		height = (scale * m.height);
-
 		xm->build(m);
+
+		int windowWidth = 800, windowHeight = 600;
+
+		if (m.width > m.height){
+			scale = windowWidth / m.width; 
+			dx = 0;
+			dy = (windowHeight - (m.height * scale)) / 2;
+		} else {
+			scale = windowHeight / m.height; 
+			dy = 0;
+			dx = (windowWidth - (m.width * scale)) / 2;
+		}
+
+		std::cout<<scale<<" "<<dx<<" "<<dy<<std::endl;
+
 		m.agentPathWidth = 3.0;
 		Simulator::AGENT_RADIUS = 1.0;
 		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
@@ -92,7 +102,7 @@ int main(){
 
 		sim->initialize(1);
 
-		sf::RenderWindow window(sf::VideoMode(640, 480), "POICrowdSim");
+		sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "POICrowdSim");
 
 		Rect area(0, 0, m.width, m.height);
 		sf::RectangleShape rectArea;
@@ -120,7 +130,7 @@ int main(){
 				//cv.setFillColor(sf::Color::White);
 
 				cv.setOutlineThickness(1);
-				cv.setOutlineColor(sf::Color(255, 255, 0));
+				cv.setOutlineColor(sf::Color(200, 200, 200));
 
 				window.draw(cv);
 			}
@@ -166,7 +176,7 @@ int main(){
 
 				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);
 				circ.setFillColor(sf::Color::Red);
-				circ.setPosition((agent->position.x - Simulator::AGENT_RADIUS) * scale, (agent->position.y - Simulator::AGENT_RADIUS) * scale);
+				circ.setPosition(dx + (agent->position.x - Simulator::AGENT_RADIUS) * scale, dy + (agent->position.y - Simulator::AGENT_RADIUS) * scale);
 				window.draw(circ);
 			}
 
