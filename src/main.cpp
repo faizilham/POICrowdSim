@@ -56,7 +56,8 @@ void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
 int main(){
 	try{
 		cout << setprecision(5);
-		bool showroute = true;
+		bool showroute = false;
+		bool shownavmesh = false;
 
 		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
 		XMLMapReader::MAP_SCALE = 1.0;
@@ -75,15 +76,13 @@ int main(){
 			dx = (windowWidth - (m.width * scale)) / 2;
 		}
 
-		std::cout<<scale<<" "<<dx<<" "<<dy<<std::endl;
-
 		m.agentPathWidth = 3.0;
 		Simulator::AGENT_RADIUS = 1.0;
-		Simulator::AGENT_GOAL_SQUARE = 1.0; // 2.5 * 2.5
-		Simulator::AGENT_MAXSPEED = 1.0;
+		Simulator::AGENT_GOAL_SQUARE = 2.0; // 2.5 * 2.5
+		Simulator::AGENT_MAXSPEED = 0.8;
 		Simulator::AGENT_TIMEHORIZON = 2.0;
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
-		Simulator::AGENT_NEIGHBORDIST = 10.0;
+		Simulator::AGENT_NEIGHBORDIST = 15.0;
 		
 		m.timesteps = 10000;
 
@@ -100,7 +99,7 @@ int main(){
 		PlanManager pm(m, hm);
 		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
 
-		sim->initialize(1);
+		sim->initialize(0.75);
 
 		sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "POICrowdSim");
 
@@ -124,15 +123,18 @@ int main(){
 			}
 
 			// draw navmesh
-			for (Polygon& poly : hm.getCorridors()){
-				sf::ConvexShape cv;
-				toSFConvex(poly, cv);
-				//cv.setFillColor(sf::Color::White);
 
-				cv.setOutlineThickness(1);
-				cv.setOutlineColor(sf::Color(200, 200, 200));
+				if (shownavmesh){
+				for (Polygon& poly : hm.getCorridors()){
+					sf::ConvexShape cv;
+					toSFConvex(poly, cv);
+					//cv.setFillColor(sf::Color::White);
 
-				window.draw(cv);
+					cv.setOutlineThickness(1);
+					cv.setOutlineColor(sf::Color(200, 200, 200));
+
+					window.draw(cv);
+				}
 			}
 
 			// draw spawns
@@ -189,7 +191,7 @@ int main(){
 				sim->update();
 			}
 
-			sf::sleep(sf::milliseconds(50));
+			sf::sleep(sf::milliseconds(33));
 		}
 
 		return 0;

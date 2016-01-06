@@ -165,8 +165,26 @@ namespace POICS{
 		 					rvo.setAgentPrefVelocity (agent->id, IDENTITY);
 		 				}
 		 			} else {
+
 		 				RVO::Vector2 currPos = toRVOVector(agent->position);
 						RVO::Vector2 nextPos = toRVOVector(agent->route.front());
+
+						auto second = ++(agent->route.begin());
+
+		 				if (!rvo.queryVisibility(currPos, nextPos, AGENT_RADIUS)){
+		 					agent->route.clear();
+		 					planner->buildNextRoute(agent->position, agent->plan.front(), agent->route);
+		 					nextPos = toRVOVector(agent->route.front());
+		 				} else if (second != agent->route.end()){
+		 					RVO::Vector2 secondPos = toRVOVector(*second);
+		 					double nextDist = agent->route.front().squareDistanceTo(*second);
+		 					double secDist = agent->position.squareDistanceTo(*second);
+
+		 					if ((nextDist >= secDist) && rvo.queryVisibility(currPos, secondPos, AGENT_RADIUS)){
+		 						agent->route.pop_front(); nextPos = secondPos;
+		 					}
+		 				}
+
 						RVO::Vector2 prefV = prefVelocity(currPos, nextPos);
 
 		 				rvo.setAgentPrefVelocity (agent->id, prefV);

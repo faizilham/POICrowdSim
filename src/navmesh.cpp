@@ -3,7 +3,7 @@
 #include "clipper/clipper.h"
 #include "helper.h"
 #include <algorithm>
-
+#include <cmath>
 #include <iostream>
 
 namespace POICS{
@@ -144,7 +144,9 @@ namespace POICS{
 		createTPPList(maparea, input, specials);
 
 		/* HM Partition */
+		
 		if (!pp.ConvexPartition_HM(&input, &output)){
+		//if (!pp.Triangulate_EC(&input, &output)){
 			except("Invalid input polygon when building corridors");
 		}
 
@@ -173,20 +175,21 @@ namespace POICS{
 
 				// resulting polygon is CCW
 				if (poly1.testNeighborhood(poly2, p1, p2, true)){
-					poly1.addNeighbor(poly2, p1, p2);
+					double laneDiff = 2.5;
+
+					poly1.addNeighbor(poly2, p1, p2); 
 					
-					//Portal& portal1 = poly1.getNeighbors().back();
+					// move right point a bit to left for making lane
+					Portal& portal1 = poly1.getNeighbors().back();
+					portal1.p2.x -= portal1.unit.x * laneDiff;
+					portal1.p2.y -= portal1.unit.y * laneDiff;
 
 					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
 
-					// shrink neighbor portal for making simple lane
-					Portal& portal = poly2.getNeighbors().back();
-					double laneDiff = 2.5;
-
-					portal.p1.x += portal.unit.x * laneDiff;
-					portal.p1.y += portal.unit.y * laneDiff;
-					portal.p2.x -= portal.unit.x * laneDiff;
-					portal.p2.y -= portal.unit.y * laneDiff;
+					// move right point a bit to left for making lane
+					Portal& portal2 = poly2.getNeighbors().back();
+					portal2.p2.x -= portal2.unit.x * laneDiff;
+					portal2.p2.y -= portal2.unit.y * laneDiff;
 				}
 			}
 		}
@@ -219,12 +222,23 @@ namespace POICS{
 	}
 
 
-	int HMNavMesh::findCorridor(const Point& p) const{
-		for (const Polygon& poly : corridors){
-			if (poly.contains(p)) return poly.id;
+	int HMNavMesh::findCorridor(const Point& p) {
+		int min_id = -1; double min_dist = INFINITY;
+		for (Polygon& poly : corridors){
+			if (poly.contains(p)){
+				return poly.id;	
+			} else {
+				for (Point& p1 : poly.getPoints()){
+					double dist = p.squareDistanceTo(p1);
+					if (dist < min_dist){
+						min_dist = dist;
+						min_id = poly.id;
+					}
+				}
+			}
 		}
 
-		return -1;
+		return min_id;
 	}
 
 	void HMNavMesh::calculateDensity(AgentList& agents, double radius){

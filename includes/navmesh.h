@@ -27,7 +27,7 @@ namespace POICS{
 
 		double getDistance(const Point& start, int startCorridor, const Point& end, int endCorridor, double agentWidth) const;
 
-		int findCorridor(const Point& p) const;
+		int findCorridor(const Point& p);
 
 		void calculateDensity(AgentList& agents, double radius);
 	};
