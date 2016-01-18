@@ -63,6 +63,10 @@ namespace POICS {
 		profiles[profile_id].setDuration(_min, _max);
 	}
 
+	void AgentBuilder::addProfileExtras(int id, std::string key, std::string value){
+		profiles[id].extras.insert(std::make_pair(key, value));	
+	}
+
 	void AgentBuilder::addInterestRange(int profile_id, std::string topic_name, double _min, double _max){
 		auto topic = topic_ids->find(topic_name);
 

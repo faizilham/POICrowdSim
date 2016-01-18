@@ -18,6 +18,7 @@ namespace POICS{
 		double dist;
 		int min_duration, max_duration;
 		std::map<int, std::pair<double, double>> topicInterestRange;
+		std::map<std::string, std::string> extras;
 
 		Profile(std::string _name, double _dist);
 		~Profile();
@@ -68,9 +69,11 @@ namespace POICS{
 
 		int addProfile (std::string _name, double _dist);
 		void setProfileDuration(int id, int _min, int _max);
+		void addProfileExtras(int id, std::string key, std::string value);
 		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
 
 		void generateAgents(double totalTimesteps, AgentList& result_agents);
+		std::vector<Profile>& getProfiles(){ return profiles;}
 	};
 }
 

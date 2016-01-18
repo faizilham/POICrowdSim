@@ -4,6 +4,7 @@
 #include "simulator.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <exception>
 #include <cstdlib>
 
@@ -91,6 +92,28 @@ int main(){
 		xa->build(as);
 
 		//cout << m;
+		std::vector<Profile> profiles = as.getProfiles();
+		std::map<std::string, sf::Color> profileColor;
+
+		for (Profile& profile : profiles){
+			int r, g, b;
+			try{
+				std::string colorstr = profile.extras.at("color"); int color;
+
+				std::stringstream ss;
+				ss << std::hex << colorstr;
+				ss >> color;
+
+				r = (color >> 16) & 0xFF;
+				g = (color >> 8) & 0xFF;
+				b = color & 0xFF;
+			}catch(...){
+				r = 255; g = 0; b = 0;
+			}
+
+			profileColor.insert(std::make_pair(profile.name, sf::Color(r,g,b)));
+		}
+
 
 		PathFinder pf;
 		HMNavMesh hm(pf);
@@ -176,8 +199,8 @@ int main(){
 					}
 				}
 
-				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);
-				circ.setFillColor(sf::Color::Red);
+				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);			
+				circ.setFillColor(profileColor[agent->profile_name]);
 				circ.setPosition(dx + (agent->position.x - Simulator::AGENT_RADIUS) * scale, dy + (agent->position.y - Simulator::AGENT_RADIUS) * scale);
 				window.draw(circ);
 			}

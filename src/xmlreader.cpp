@@ -66,6 +66,11 @@ namespace POICS{
 		str.assign(cstr);
 	}
 
+	void dataElmt(XMLElement *elmt, std::string& key, std::string& value){
+		strAttr(elmt, "key", key);
+		strAttr(elmt, "value", value);
+	}
+
 	void readRect(XMLElement *elmt, Rect& r){
 		double x, y, w, h;
 
@@ -127,7 +132,6 @@ namespace POICS{
 			elmt = elmt->NextSiblingElement("topic");
 		}		
 	}
-
 
 	void XMLMapReaderImpl::build (MapArea& map){
 		XMLElement *elmt1, *elmt2, *elmt3; std::string s1; Rect rect;
@@ -224,7 +228,7 @@ namespace POICS{
 	}
 
 	void XMLAgentReaderImpl::build (AgentBuilder& as){
-		XMLElement *elmt1, *elmt2, *elmt3, *elmt4, *elmt5; std::string s1; int n; double d1, d2;
+		XMLElement *elmt1, *elmt2, *elmt3, *elmt4, *elmt5; std::string s1, s2; int n; double d1, d2;
 
 		elmt1 = readChildElement(&doc, "agents");
 
@@ -251,6 +255,13 @@ namespace POICS{
 				elmt5 = elmt5->NextSiblingElement("topic");
 			} while (elmt5 != NULL);
 
+			elmt4 = readChildElement(elmt3, "data", true);
+			while (elmt4 != NULL){
+				dataElmt(elmt4, s1, s2);
+				as.addProfileExtras(id, s1, s2);
+				elmt4 = elmt4->NextSiblingElement("data");
+			}
+			
 			elmt3 = elmt3->NextSiblingElement("profile");
 		}while(elmt3 != NULL);
 	}
