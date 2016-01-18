@@ -70,7 +70,7 @@ namespace POICS {
 	class WScoreFunction : public ScoreFunc{
 	public:
 		virtual double scorefunc(const NodeSet& nodes, std::vector<double>& topic_param, const std::vector<int>& path){
-			double sum  = 1.0;
+			double sum  = 0.0;
 		
 			int n = path.size();
 			for (int i = 0; i < n; ++i){
@@ -85,7 +85,7 @@ namespace POICS {
 		}
 
 		virtual double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std::vector<int>& path, int newNode){
-			double sum  = 1.0;
+			double sum  = 0.0;
 
 			int n = path.size();
 			for (int i = 0; i < n; ++i){

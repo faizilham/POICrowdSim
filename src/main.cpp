@@ -56,8 +56,8 @@ void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
 int main(){
 	try{
 		cout << setprecision(5);
-		bool showroute = false;
-		bool shownavmesh = false;
+		bool showroute = true;
+		bool shownavmesh = true;
 
 		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
 		XMLMapReader::MAP_SCALE = 1.0;
@@ -99,7 +99,7 @@ int main(){
 		PlanManager pm(m, hm);
 		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
 
-		sim->initialize(0.75);
+		sim->initialize(1);
 
 		sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "POICrowdSim");
 
@@ -191,7 +191,7 @@ int main(){
 				sim->update();
 			}
 
-			sf::sleep(sf::milliseconds(33));
+			sf::sleep(sf::milliseconds(50));
 		}
 
 		return 0;

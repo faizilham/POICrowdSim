@@ -45,9 +45,9 @@ namespace POICS {
 
 		void two_opt();
 		void setNodeInMiddle(int pos, int node);
-		int buildT(std::vector<int>& unused_nodes, bool* used);
-		void buildUnused(std::vector<int>& unused_nodes, bool* used);
-		void pathTightening(std::vector<int>& unused_nodes, bool* used);
+		int buildT(std::vector<int>& unused_nodes, std::vector<bool>& used);
+		void buildUnused(std::vector<int>& unused_nodes, std::vector<bool>& used);
+		void pathTightening(std::vector<int>& unused_nodes, std::vector<bool>& used);
 	};
 
 	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int POIIdx, int start, int end, ScoreFunc& SF, std::list<int>& result);

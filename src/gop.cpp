@@ -86,6 +86,8 @@ namespace POICS{
 		} while(changed);
 	}
 
+	static const double EPSILON = 1e-6;
+
 	void Solution::process_gop(int par_i, int par_t, int POIIdx, int start, int end){
 		/*
 		Input: Parameters i and t, graph G = (V,E), distance matrix d for which dab is
@@ -98,14 +100,24 @@ namespace POICS{
 	    std::uniform_int_distribution<> random_node(POIIdx, nodes->num_nodes - 1);
 
 		/** INITIALIZATION PHASE **/
-		score = 0.0; distance = 0.0; path.clear(); std::set<int> R, L; bool used[nodes->num_nodes];
-		std::fill_n(used, POIIdx, true);
-		std::fill_n(used + POIIdx, nodes->num_nodes - POIIdx, false);
+		score = 0.0; distance = 0.0; path.clear(); std::set<int> R, L; std::vector<bool> used(nodes->num_nodes);
+		std::fill_n(used.begin(), POIIdx, true);
+
+		int available_nodes = nodes->num_nodes - POIIdx;
+
+		for (int i = POIIdx; i < (int) used.size(); ++i){
+			double sc = countSP(i);
+			if (sc > EPSILON){
+				used[i] = false;
+			} else {
+				used[i] = true;
+				available_nodes -= 1;
+			}
+		}
 
 		// 2. Initialize solution S to contain the single node s
 		path.push_back(start); used[start] = true;
 		double last_distance = 0.0; 
-		int available_nodes = nodes->num_nodes - POIIdx;
 
 		// 3. While adding node e to the end of S would not cause the length of S to exceed the distance limit l.
 		while (distance + edges->getLength(path.back(), end) <= distance_budget){
@@ -122,7 +134,7 @@ namespace POICS{
 				for (int i = 0; i < par_i; ++i){
 					do{
 						node = random_node(generator);
-					} while((node == end) || (std::find(path.begin(), path.end(), node) != path.end()));
+					} while((node == end) || (used[node]) || (std::find(path.begin(), path.end(), node) != path.end()));
 
 					L.insert(node);
 				}
@@ -241,7 +253,7 @@ namespace POICS{
 
 	}
 
-	void Solution::pathTightening(std::vector<int>& unused_nodes, bool* used){
+	void Solution::pathTightening(std::vector<int>& unused_nodes, std::vector<bool>& used){
 		/* 7. Build T */
 		// since T is redefined every iteration, no need to save all and only take the 1st
 		int T = buildT(unused_nodes, used);
@@ -273,7 +285,7 @@ namespace POICS{
 		}
 	}
 
-	void Solution::buildUnused(std::vector<int>& unused_nodes, bool* used){
+	void Solution::buildUnused(std::vector<int>& unused_nodes, std::vector<bool>& used){
 		/* 6. Place the vertices not in S in a list L, such that Lm is the mth element of the list.
 			Define function sp(S,k) = score(T), where T is S with vertex k inserted at arbitrary location. 
 			Insert the elements into L such that sp(S,Lm) < sp(S,Lo), implies m > o. */
@@ -295,7 +307,7 @@ namespace POICS{
 			std::iter_swap(unused_nodes.begin(), unused_nodes.begin() + max_id); // TODO try with sort, maybe not so efficient
 	}
 
-	int Solution::buildT(std::vector<int>& unused_nodes, bool* used){
+	int Solution::buildT(std::vector<int>& unused_nodes, std::vector<bool>& used){
 		/* Define set T = {Lm in L,Lm not in S : there exist (a,b) in S : the length of S is less than budget if
 			edge (a,b) is removed from S and edges (a,Lm) and (Lm,b) are added to S}.
 		*/
