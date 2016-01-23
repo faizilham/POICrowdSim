@@ -6,3 +6,4 @@ bin/*.exe
 *.stackdump
 tmp/
 *.gdb
+lib/*.so*

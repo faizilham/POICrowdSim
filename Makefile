@@ -36,11 +36,11 @@ OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
 .PHONY: all run clean
   
-all: bin/libpoics.so bin/main.o
-	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Lbin -lpoics $(MAINLIB)
+all: lib/libpoics.so bin/main.o
+	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Llib -Wl,-rpath=lib -lpoics $(MAINLIB)
 
-bin/libpoics.so: $(OBJS)
-	$(CC) -shared -o bin/libpoics.so $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
+lib/libpoics.so: $(OBJS)
+	$(CC) -shared -o lib/libpoics.so $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
 
 bin/main.o: src/main.cpp
 	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)
@@ -49,7 +49,7 @@ run:
 	bin/main
 	
 clean:
-	rm -f bin/main bin/*.o
+	rm -f bin/main bin/*.o lib/libpoics.so
 
 #dependency builder
 #depend: .depend
