@@ -1,4 +1,3 @@
-#include "xmlreader.h"
 #include "navmesh.h"
 #include "planmanager.h"
 #include "simulator.h"
@@ -7,6 +6,7 @@
 #include <sstream>
 #include <exception>
 #include <cstdlib>
+#include <cstring>
 
 #include <memory>
 
@@ -15,7 +15,7 @@
 using namespace POICS;
 using namespace std;
 
-static double scale = 2.5;
+static double scale;
 static double dx, dy;
 
 void toSFVertex (Point& in, sf::Vertex& out){
@@ -54,16 +54,37 @@ void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
 	}
 }
 
-int main(){
+int main(int argc, char** argv){
 	try{
-		cout << setprecision(5);
-		bool showroute = true;
-		bool shownavmesh = true;
+		if (argc < 2) {
+			cout << "Usage: poicrowd scenarioname [--route] [--navmesh] \n";
+			exit(1);
+		}
 
-		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create("example/mapfile.xml"));
-		XMLMapReader::MAP_SCALE = 1.0;
+		cout << setprecision(5);
+		bool showroute = false;
+		bool shownavmesh = false;
+
+		if (argc > 2){
+			for (int i = 2; i < argc; ++i){
+				string arg(argv[i]);
+
+				if (arg == "--route"){
+					showroute = true;
+				} else if (arg == "--navmesh"){
+					shownavmesh = true;
+				}
+			}
+		}
+
+		string mapfile = string(argv[1]) + string(".xarea");
+		string agentfile = string(argv[1]) + string(".xprof");
+
+		
+		
+
 		MapArea m;
-		xm->build(m);
+		m.loadFromXML(mapfile.c_str());
 
 		int windowWidth = 800, windowHeight = 600;
 
@@ -87,9 +108,8 @@ int main(){
 		
 		m.timesteps = 10000;
 
-		std::unique_ptr<XMLAgentReader> xa(XMLAgentReader::create("example/agentfile.xml"));
 		AgentBuilder as(m.getTopicIds());
-		xa->build(as);
+		as.loadFromXML(agentfile.c_str());
 
 		//cout << m;
 		std::vector<Profile> profiles = as.getProfiles();
@@ -146,8 +166,7 @@ int main(){
 			}
 
 			// draw navmesh
-
-				if (shownavmesh){
+			if (shownavmesh){
 				for (Polygon& poly : hm.getCorridors()){
 					sf::ConvexShape cv;
 					toSFConvex(poly, cv);
@@ -217,76 +236,9 @@ int main(){
 			sf::sleep(sf::milliseconds(50));
 		}
 
-		return 0;
-
-
-		/*std::unique_ptr<Painter> painter(Painter::create(m.width, m.height, 3));
-
-		painter->setColor(255, 0, 0);
-		for (SpawnPoint& spawn : m.getSpawns()){
-			painter->drawRect(spawn.border);
-		}
-
-		painter->setColor(0, 0, 255);
-		for (ExitPoint& ex : m.getExits()){
-			painter->drawRect(ex.border);
-		}
-
-		painter->setColor(0, 255, 0);
-		for (POI& poi : m.getPois()){
-			painter->drawRect(poi.border);
-		}
-
-		painter->setColor(150, 150, 150);
-		for (Polygon& pl : hm.getCorridors()){
-			painter->drawPoly(pl);
-		}
-
-
-
-		PlanManager pm(m, hm);
-
-		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
-
-		sim->initialize(2);
-
-		while (!sim->finished()){
-			double timestep = sim->getTimestep();
-			cout<<timestep<<endl;
-			for (Agent *agent : sim->getActiveAgents()){
-				cout<<agent->id<<" "<<(int)(agent->state)<<"/"<<agent->position<<endl;
-
-				if (agent->state == AgentState::INIT){
-					painter->setColor(255, 150, 0);
-					cout<<"route:";
-					Point prev = agent->position;
-					for (Point& point : agent->route){
-						cout<<" "<<point;
-
-						
-						painter->drawLine(prev, point);
-
-						prev = point;
-					}
-					cout<<endl;
-				}
-
-				painter->setColor(255, 150, 150);
-				painter->drawPoint(agent->position);
-			}
-			sim->update();
-		}
-
-		painter->save("tmp/tes.bmp");*/
-
-		/*AgentPtr& agent = sim->initialAgents.front();
-
-		pm.buildPlan(agent->duration * 60 * 5.0, agent->topicInterest, agent->plan);
-
-		cout<<pm.poiNodeIdStart<<" "<<agent->plan.size()<<endl;
-*/
-	}catch (const exception& e){
+	} catch (const exception& e) {
 		cerr<<e.what();
 	}
 
+	return 0;
 }

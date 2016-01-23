@@ -74,6 +74,8 @@ namespace POICS{
 
 		void generateAgents(double totalTimesteps, AgentList& result_agents);
 		std::vector<Profile>& getProfiles(){ return profiles;}
+
+		void loadFromXML(const char* filename);
 	};
 }
 

@@ -2,6 +2,9 @@
 #include "mapobject.h"
 #include <algorithm>
 
+#include "xmlreader.h"
+#include <memory>
+
 using std::endl;
 
 namespace POICS{
@@ -80,6 +83,11 @@ namespace POICS{
 
 	void MapArea::addObstaclePoint(int id, double x, double y){
 		obstacles[id].addPoint(x,y);
+	}
+
+	void MapArea::loadFromXML(const char* filename){
+		std::unique_ptr<XMLMapReader> xm(XMLMapReader::create(filename));
+		xm->build(*this);
 	}
 
 	std::ostream& operator<<(std::ostream& os, const POI& p){

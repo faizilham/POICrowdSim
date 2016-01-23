@@ -95,6 +95,7 @@ namespace POICS {
 		std::map<std::string, int>& getTopics() {return topic_ids;}
 
 		friend std::ostream& operator<<(std::ostream& os, const MapArea& m);
+		void loadFromXML(const char* filename);
 	};
 }
 

@@ -46,7 +46,7 @@ bin/main.o: src/main.cpp
 	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)
 
 run:
-	bin/main
+	bin/main example/test
 	
 clean:
 	rm -f bin/main bin/*.o lib/libpoics.so

@@ -3,6 +3,9 @@
 #include <algorithm>
 #include "helper.h"
 
+#include "xmlreader.h"
+#include <memory>
+
 namespace POICS {
 
 	static std::random_device rd;
@@ -103,5 +106,10 @@ namespace POICS {
 
 			result_agents.push_back(agent);
 		}
+	}
+
+	void AgentBuilder::loadFromXML(const char* filename){
+		std::unique_ptr<XMLAgentReader> xa(XMLAgentReader::create(filename));
+		xa->build(*this);
 	}
 }
