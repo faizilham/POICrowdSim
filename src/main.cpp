@@ -71,6 +71,7 @@ int main(int argc, char** argv){
 		bool showroute = false;
 		bool shownavmesh = false;
 		bool trianglenavmesh = false;
+		bool makelane = true;
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
@@ -88,15 +89,14 @@ int main(int argc, char** argv){
 					RNG::setRandomSeed(seed);
 				} else if (arg == "--triangle") {
 					trianglenavmesh = true;
+				} else if (arg == "--nolane") {
+					makelane = false;
 				}
 			}
 		}
 
 		string mapfile = string(argv[1]) + string(".xarea");
 		string agentfile = string(argv[1]) + string(".xprof");
-
-		
-		
 
 		MapArea m;
 		m.loadFromXML(mapfile.c_str());
@@ -151,7 +151,7 @@ int main(int argc, char** argv){
 
 
 		PathFinder pf;
-		HMNavMesh hm(pf, trianglenavmesh);
+		HMNavMesh hm(pf, trianglenavmesh, makelane);
 		hm.build(m);
 
 		PlanManager pm(m, hm);
@@ -165,12 +165,20 @@ int main(int argc, char** argv){
 		sf::RectangleShape rectArea;
 		toSFRect(area, rectArea); rectArea.setFillColor(sf::Color::White);
 
+		bool paused = false;
+
 		while (window.isOpen())	{
 			sf::Event event;
 			while (window.pollEvent(event)) {		
-				if (event.type == sf::Event::Closed)
-				window.close();
+				if (event.type == sf::Event::Closed) {
+					window.close();
+					break;
+				} else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space){
+					paused = !paused;
+				}
 			}
+
+			if (paused) continue;
 
 			window.clear(sf::Color::Black);
 			window.draw(rectArea);

@@ -183,18 +183,19 @@ namespace POICS{
 					double laneDiff = 2.5;
 
 					poly1.addNeighbor(poly2, p1, p2); 
-					
-					// move right point a bit to left for making lane
-					Portal& portal1 = poly1.getNeighbors().back();
-					portal1.p2.x -= portal1.unit.x * laneDiff;
-					portal1.p2.y -= portal1.unit.y * laneDiff;
-
 					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
 
-					// move right point a bit to left for making lane
-					Portal& portal2 = poly2.getNeighbors().back();
-					portal2.p2.x -= portal2.unit.x * laneDiff;
-					portal2.p2.y -= portal2.unit.y * laneDiff;
+					if (makelane) {
+						// move right point a bit to left for making lane
+						Portal& portal1 = poly1.getNeighbors().back();
+						portal1.p2.x -= portal1.unit.x * laneDiff;
+						portal1.p2.y -= portal1.unit.y * laneDiff;
+
+						// move right point a bit to left for making lane
+						Portal& portal2 = poly2.getNeighbors().back();
+						portal2.p2.x -= portal2.unit.x * laneDiff;
+						portal2.p2.y -= portal2.unit.y * laneDiff;
+					}
 				}
 			}
 		}
