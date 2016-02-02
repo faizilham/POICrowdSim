@@ -25,19 +25,27 @@ namespace POICS{
 		poly.calcCentroid(); //poly.setOrientation()
 	}
 
-	void offsetAndMerge(Polygon& area, std::vector<Polygon>& obstacles, Polygon& newArea, std::vector<Polygon>& newObstacles){
+	void offsetAndMerge(Polygon& area, std::vector<Polygon>& obstacles, Polygon& newArea, std::vector<Polygon>& newObstacles, bool useoffset){
 		//, Polygon& areaResult, std::vector<Polygon>& obstacleResult
 		ClipperLib::ClipperOffset co; ClipperLib::Paths offsets;
 		// offset
 		
-		for (Polygon& obstacle : obstacles){
-			ClipperLib::Path path; toClipperPath(obstacle, path); ClipperLib::Paths newPath;
+		if (useoffset){
+			for (Polygon& obstacle : obstacles){
+				ClipperLib::Path path; toClipperPath(obstacle, path); ClipperLib::Paths newPath;
 
-			co.AddPath(path, ClipperLib::jtSquare, ClipperLib::etClosedPolygon);
-			co.Execute(newPath, 1.5 * CLIPPER_SCALE);
-			co.Clear();
+				co.AddPath(path, ClipperLib::jtSquare, ClipperLib::etClosedPolygon);
+				co.Execute(newPath, 1.2 * CLIPPER_SCALE);
+				co.Clear();
 
-			offsets.push_back(newPath.front());
+				offsets.push_back(newPath.front());
+			}
+		} else {
+			for (Polygon& obstacle : obstacles){
+				ClipperLib::Path path;
+				toClipperPath(obstacle, path);
+				offsets.push_back(path);
+			}
 		}
 		ReversePaths(offsets);
 
@@ -89,7 +97,7 @@ namespace POICS{
 	}
 
 
-	void createTPPList(MapArea& maparea, std::list<TPPLPoly>& tpls, std::vector<Polygon>& specials){
+	void createTPPList(MapArea& maparea, std::list<TPPLPoly>& tpls, std::vector<Polygon>& specials, bool useoffset){
 		TPPLPoly tpl; tpls.clear();
 
 		/** add map area polygon **/
@@ -101,7 +109,7 @@ namespace POICS{
 		std::vector<Polygon> newObs;
 
 
-		offsetAndMerge(parea, maparea.getObstacles(), newArea, newObs);
+		offsetAndMerge(parea, maparea.getObstacles(), newArea, newObs, useoffset);
 
 		toTPPLPoly(newArea, false, tpl);
 		tpls.push_back(tpl);
@@ -141,7 +149,7 @@ namespace POICS{
 		std::vector<Polygon> specials;
 
 		/* convert to TPPLPoly */
-		createTPPList(maparea, input, specials);
+		createTPPList(maparea, input, specials, true);
 
 		/* HM Partition */
 
@@ -186,8 +194,14 @@ namespace POICS{
 					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
 
 					if (makelane) {
+
 						// move right point a bit to left for making lane
 						Portal& portal1 = poly1.getNeighbors().back();
+
+						if (portal1.width / 2 <= laneDiff) {
+							laneDiff = portal1.width * 3 / 4;
+						}
+
 						portal1.p2.x -= portal1.unit.x * laneDiff;
 						portal1.p2.y -= portal1.unit.y * laneDiff;
 
@@ -227,6 +241,11 @@ namespace POICS{
 		return calcDistance(path);
 	}
 
+	double sqPointDistance(const Point& p, const Point& l1, const Point& l2){
+		double divident = (l2.y - l1.y)*p.x - (l2.x - l1.x)*p.y + l2.x*l1.y - l2.y*l1.x;
+		return divident * divident / l1.squareDistanceTo(l2);
+	}
+
 
 	int HMNavMesh::findCorridor(const Point& p) {
 		int min_id = -1; double min_dist = INFINITY;
@@ -234,13 +253,27 @@ namespace POICS{
 			if (poly.contains(p)){
 				return poly.id;	
 			} else {
-				for (Point& p1 : poly.getPoints()){
-					double dist = p.squareDistanceTo(p1);
+				std::vector<Point>& points = poly.getPoints();
+				int n = points.size();
+
+				for (int i = 0; i < n; ++i){
+					Point& p1 = points[i];
+					Point& p2 = (i+1 == n) ? points[0] : points[i+1];
+					double dist = sqPointDistance(p, p1, p2);
+
 					if (dist < min_dist){
 						min_dist = dist;
 						min_id = poly.id;
 					}
 				}
+
+				/*for (Point& p1 : poly.getPoints()){
+					double dist = p.squareDistanceTo(p1);
+					if (dist < min_dist){
+						min_dist = dist;
+						min_id = poly.id;
+					}
+				}*/
 			}
 		}
 

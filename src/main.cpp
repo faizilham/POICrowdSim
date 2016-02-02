@@ -72,6 +72,7 @@ int main(int argc, char** argv){
 		bool shownavmesh = false;
 		bool trianglenavmesh = false;
 		bool makelane = true;
+		int skip = 0;
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
@@ -87,6 +88,10 @@ int main(int argc, char** argv){
 
 					unsigned int seed = (unsigned int) stoi(arg2);
 					RNG::setRandomSeed(seed);
+				} else if (arg == "--skip") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+					skip = stoi(arg2);
 				} else if (arg == "--triangle") {
 					trianglenavmesh = true;
 				} else if (arg == "--nolane") {
@@ -151,7 +156,7 @@ int main(int argc, char** argv){
 
 
 		PathFinder pf;
-		HMNavMesh hm(pf, trianglenavmesh, makelane);
+		HMNavMesh hm(pf, trianglenavmesh, makelane, CornerSmoothing::POLYOFFSET);
 		hm.build(m);
 
 		PlanManager pm(m, hm);
@@ -166,6 +171,38 @@ int main(int argc, char** argv){
 		toSFRect(area, rectArea); rectArea.setFillColor(sf::Color::White);
 
 		bool paused = false;
+
+		while (sim->getTimestep() < skip){
+			sf::Event event;
+			while (window.pollEvent(event)) {		
+				if (event.type == sf::Event::Closed) {
+					window.close();
+					break;
+				} 
+			}
+
+			if (!sim->finished()){
+				sim->update();
+			} else {
+				break;
+			}
+
+			window.clear(sf::Color::Black);
+
+			sf::Text ttext;
+			ttext.setFont(font);
+			string ctstep;
+			stringstream ss; ss << setprecision(4); ss << sim->getTimestep(); ss >> ctstep;
+
+			ttext.setString(ctstep);
+			ttext.setCharacterSize(16); // in pixels, not points!
+			// set the color
+			ttext.setColor(sf::Color::Yellow);
+			window.draw(ttext);
+
+			// end the current frame
+			window.display();
+		}
 
 		while (window.isOpen())	{
 			sf::Event event;
@@ -233,7 +270,7 @@ int main(int argc, char** argv){
 				rect.setFillColor(sf::Color(200, 200, 255));
 				window.draw(rect);
 
-				sf::Text text;
+				/*sf::Text text;
 				text.setFont(font);
 
 				// set the string to display
@@ -249,11 +286,13 @@ int main(int argc, char** argv){
 
 				// set the color
 				text.setColor(sf::Color::Black);
-				window.draw(text);
+				window.draw(text);*/
 			}
 
 			/*if (shownavmesh) {
-				for (Polygon& poly : hm.getCorridors()){
+				std::vector<Polygon>& corridors = hm.getCorridors();
+
+				for (Polygon& poly : corridors){
 					Point center = poly.center();
 					double rad = 0.4;
 
@@ -261,6 +300,35 @@ int main(int argc, char** argv){
 					cc.setFillColor(sf::Color::Red);
 					cc.setPosition(dx + (center.x - rad) * scale, dy + (center.y - rad) * scale);
 					window.draw(cc);
+
+					// for (Portal& portal : poly.getNeighbors()){
+					// 	sf::Vertex line[3];
+					// 	Point center3 = portal.center;
+					// 	Point center2 = corridors[portal.to_id].center();
+
+					// 	toSFVertex(center, line[0]); toSFVertex(center2, line[1]);
+					// 	toSFVertex(center3, line[2]); 
+
+					// 	line[0].color = sf::Color(255, 0, 0);
+					// 	line[1].color = sf::Color(255, 0, 0);
+					// 	line[2].color = sf::Color(255, 0, 0);
+						
+					// 	window.draw(line, 2, sf::Lines);
+					// }			
+
+					sf::Text text;
+					text.setFont(font);
+					
+					// set the string to display
+					text.setString(to_string(poly.id));
+
+					text.setCharacterSize(12);
+
+					text.setPosition(dx + center.x * scale, dy + center.y * scale);
+
+					// set the color
+					text.setColor(sf::Color::Black);
+					window.draw(text);
 				}
 			}*/
 

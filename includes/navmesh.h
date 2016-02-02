@@ -8,16 +8,19 @@
 #include "agentbuilder.h"
 
 namespace POICS{
+
+	enum class CornerSmoothing {NONE, PORTAL, POLYOFFSET};
+
 	/* Hertel-Mehlhorn convex polygon partition based navigation mesh */
 	class POICS_API HMNavMesh {
 	private:
 		std::vector<Polygon> corridors;
 		PathFinder& pathfinder;
 
-		bool trianglenavmesh, makelane;
+		bool trianglenavmesh, makelane; CornerSmoothing smoothing;
 	public:
-		HMNavMesh(PathFinder& _pathfinder, bool _triangle, bool _makelane)
-		: pathfinder(_pathfinder), trianglenavmesh(_triangle), makelane(_makelane){
+		HMNavMesh(PathFinder& _pathfinder, bool _triangle, bool _makelane, CornerSmoothing _smoothing)
+		: pathfinder(_pathfinder), trianglenavmesh(_triangle), makelane(_makelane), smoothing(_smoothing){
 			pathfinder.setCorridors(corridors);
 		}
 
