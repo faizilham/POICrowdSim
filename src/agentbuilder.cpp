@@ -8,8 +8,6 @@
 #include "rng.h"
 
 namespace POICS {
-	static std::mt19937 am_rng(RNG::getRandomSeed());
-
 	Profile::Profile(std::string _name, double _dist): name(_name), dist(_dist){}
 	Profile::~Profile(){}
 

@@ -88,7 +88,6 @@ namespace POICS{
 	}
 
 	static const double EPSILON = 1e-6;
-	static std::mt19937 generator(RNG::getRandomSeed());
 
 	void Solution::process_gop(int par_i, int par_t, int POIIdx, int start, int end){
 		/*
@@ -133,7 +132,7 @@ namespace POICS{
 				L.clear();
 				for (int i = 0; i < par_i; ++i){
 					do{
-						node = random_node(generator);
+						node = random_node(gop_rng);
 					} while((node == end) || (used[node]) || (std::find(path.begin(), path.end(), node) != path.end()));
 
 					L.insert(node);
@@ -194,7 +193,7 @@ namespace POICS{
 			for (int i = 0; i < par_i; ++i){
 				int node;
 				do{
-					node = path[random_remove(generator)];
+					node = path[random_remove(gop_rng)];
 				} while (node == start || node == end || (R.find(node) != R.end()));
 				R.insert(node);
 			}

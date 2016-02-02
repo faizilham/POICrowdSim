@@ -6,8 +6,6 @@
 #include "rng.h"
 
 namespace POICS{
-	static std::mt19937 sp_rng(RNG::getRandomSeed());
-
 	double Point::squareDistanceTo(const Point& p2) const{
 		double dx = x-p2.x, dy = y - p2.y;
 

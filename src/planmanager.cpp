@@ -6,8 +6,6 @@
 #include <iostream>
 
 namespace POICS {
-	static std::mt19937 cm_rng(RNG::getRandomSeed());
-
 	PlanManager::PlanManager(MapArea& _maparea, HMNavMesh& _hmnav): maparea(&_maparea), hmnav(&_hmnav){
 		std::vector<POI>& pois = maparea->getPois();
 		std::vector<SpawnPoint>& spawns = maparea->getSpawns();
