@@ -7,9 +7,9 @@
 #include <exception>
 #include <cstdlib>
 #include <cstring>
-
+#include <string>
 #include <memory>
-
+#include "rng.h"
 #include <SFML/Graphics.hpp>
 
 using namespace POICS;
@@ -56,6 +56,12 @@ void drawPoly(sf::RenderWindow& window, Polygon& poly, sf::Color color){
 
 int main(int argc, char** argv){
 	try{
+		sf::Font font;
+		if (!font.loadFromFile("tmp/arial.ttf"))
+		{
+		    exit(1);
+		}
+
 		if (argc < 2) {
 			cout << "Usage: poicrowd scenarioname [--route] [--navmesh] \n";
 			exit(1);
@@ -67,12 +73,18 @@ int main(int argc, char** argv){
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
-				string arg(argv[i]);
+				string arg = argv[i];
 
 				if (arg == "--route"){
 					showroute = true;
 				} else if (arg == "--navmesh"){
 					shownavmesh = true;
+				} else if (arg == "--seed") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+
+					unsigned int seed = (unsigned int) stoi(arg2);
+					RNG::setRandomSeed(seed);
 				}
 			}
 		}
@@ -106,7 +118,7 @@ int main(int argc, char** argv){
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
 		Simulator::AGENT_NEIGHBORDIST = 15.0;
 		
-		m.timesteps = 10000;
+		m.timesteps = 5000;
 
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());
@@ -174,7 +186,6 @@ int main(int argc, char** argv){
 
 					cv.setOutlineThickness(1);
 					cv.setOutlineColor(sf::Color(200, 200, 200));
-
 					window.draw(cv);
 				}
 			}
@@ -199,7 +210,37 @@ int main(int argc, char** argv){
 				toSFRect(poi.border, rect);
 				rect.setFillColor(sf::Color(200, 200, 255));
 				window.draw(rect);
+
+				sf::Text text;
+				text.setFont(font);
+
+				// set the string to display
+				text.setString(poi.name);
+
+				float th = 12;
+				text.setCharacterSize(th); // in pixels, not points!
+				th = th / 2;
+				Point center = poi.border.center();
+				float tw = text.getLocalBounds().width / 2;
+
+				text.setPosition(dx + center.x * scale - tw, dy + center.y * scale - th);
+
+				// set the color
+				text.setColor(sf::Color::Black);
+				window.draw(text);
 			}
+
+			/*if (shownavmesh) {
+				for (Polygon& poly : hm.getCorridors()){
+					Point center = poly.center();
+					double rad = 0.4;
+
+					sf::CircleShape cc(rad * scale);			
+					cc.setFillColor(sf::Color::Red);
+					cc.setPosition(dx + (center.x - rad) * scale, dy + (center.y - rad) * scale);
+					window.draw(cc);
+				}
+			}*/
 
 			for (Agent *agent : sim->getActiveAgents()){
 				if (showroute && !agent->route.empty()){

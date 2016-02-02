@@ -3,10 +3,10 @@
 #include <cstdlib>
 #include <random>
 #include <iostream>
+#include "rng.h"
 
 namespace POICS{
-	static std::random_device rd;
-	static std::mt19937 sp_rng(rd());
+	static std::mt19937 sp_rng(RNG::getRandomSeed());
 
 	double Point::squareDistanceTo(const Point& p2) const{
 		double dx = x-p2.x, dy = y - p2.y;

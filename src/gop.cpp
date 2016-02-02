@@ -3,6 +3,7 @@
 #include <random>
 #include <algorithm> 
 #include <set>
+#include "rng.h"
 
 namespace POICS{
 	Solution::Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, ScoreFunc& _SF)
@@ -87,6 +88,7 @@ namespace POICS{
 	}
 
 	static const double EPSILON = 1e-6;
+	static std::mt19937 generator(RNG::getRandomSeed());
 
 	void Solution::process_gop(int par_i, int par_t, int POIIdx, int start, int end){
 		/*
@@ -94,9 +96,7 @@ namespace POICS{
 		the distance between vertices a and b, start node s, destination node e, distance
 		limit l, and score(S), a function that returns the score of a solution S.
 		*/
-
-		std::random_device rd;
-	    std::mt19937 generator(rd());
+	    
 	    std::uniform_int_distribution<> random_node(POIIdx, nodes->num_nodes - 1);
 
 		/** INITIALIZATION PHASE **/

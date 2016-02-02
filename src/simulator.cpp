@@ -1,12 +1,12 @@
 #include "simulator.h"
 #include <random>
+#include "rng.h"
 #include <cmath>
 
 #include <iostream>
 
 namespace POICS{
-	static std::random_device rd;
-	static std::mt19937 sim_rng(rd());
+	static std::mt19937 sim_rng(RNG::getRandomSeed());
 	static const double PI = 3.14159265358979323846;
 	static const RVO::Vector2 IDENTITY(0.0, 0.0);
 

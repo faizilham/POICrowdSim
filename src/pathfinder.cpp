@@ -2,13 +2,9 @@
 
 #include <cstdlib>
 #include <cmath>
-#include <random>
 #include "priority_queue.h"
 
 namespace POICS{
-	static std::random_device rd;
-	static std::mt19937 pt_rng(rd());
-
 	AStarNode::AStarNode(Polygon* _poly)
 	: closed(false), opened(false), from(NULL), gvalue(INFINITY), hvalue(INFINITY), polygon(_poly) {
 		id = polygon->id;

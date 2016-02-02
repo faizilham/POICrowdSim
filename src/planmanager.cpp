@@ -2,12 +2,11 @@
 #include <random>
 #include <omp.h>
 #include "gop.h"
-
+#include "rng.h"
 #include <iostream>
 
 namespace POICS {
-	static std::random_device rd;
-	static std::mt19937 cm_rng(rd());
+	static std::mt19937 cm_rng(RNG::getRandomSeed());
 
 	PlanManager::PlanManager(MapArea& _maparea, HMNavMesh& _hmnav): maparea(&_maparea), hmnav(&_hmnav){
 		std::vector<POI>& pois = maparea->getPois();

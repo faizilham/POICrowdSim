@@ -26,7 +26,7 @@ THIRD_PARTY_DIR=tinyxml2 polypartition RVO2 clipper
 MODULES = 	tinyxml2 polypartition image imageio clipper \
 			Agent KdTree Obstacle RVOSimulator \
 			shapes mapobject xmlreader navmesh planmanager \
-			graph pathfinder agentbuilder gop simulator imagehelper
+			graph pathfinder agentbuilder gop simulator imagehelper rng
 
 # Everything after this is generic, no need to edit
 VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
