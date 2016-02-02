@@ -178,7 +178,18 @@ int main(int argc, char** argv){
 				}
 			}
 
-			if (paused) continue;
+			if (paused){
+				sf::sleep(sf::milliseconds(50));
+				continue;
+			}
+
+			// update
+			if (!sim->finished()){
+				sim->update();
+			} else {
+				sf::sleep(sf::milliseconds(50));
+				continue;
+			}
 
 			window.clear(sf::Color::Black);
 			window.draw(rectArea);
@@ -276,14 +287,19 @@ int main(int argc, char** argv){
 				window.draw(circ);
 			}
 
+			sf::Text ttext;
+			ttext.setFont(font);
+			string ctstep;
+			stringstream ss; ss << setprecision(4); ss << sim->getTimestep(); ss >> ctstep;
+
+			ttext.setString(ctstep);
+			ttext.setCharacterSize(16); // in pixels, not points!
+			// set the color
+			ttext.setColor(sf::Color::Yellow);
+			window.draw(ttext);
 
 			// end the current frame
 			window.display();
-
-			// update
-			if (!sim->finished()){
-				sim->update();
-			}
 
 			sf::sleep(sf::milliseconds(50));
 		}
