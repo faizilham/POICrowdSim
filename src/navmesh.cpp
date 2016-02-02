@@ -144,12 +144,17 @@ namespace POICS{
 		createTPPList(maparea, input, specials);
 
 		/* HM Partition */
-		
-		if (!pp.ConvexPartition_HM(&input, &output)){
-		//if (!pp.Triangulate_EC(&input, &output)){
-			except("Invalid input polygon when building corridors");
-		}
 
+		if (trianglenavmesh){
+			if (!pp.Triangulate_EC(&input, &output)){
+				except("Invalid input polygon when building corridors");
+			}
+		} else {
+			if (!pp.ConvexPartition_HM(&input, &output)){
+				except("Invalid input polygon when building corridors");
+			}	
+		}
+		
 		/* convert back to POICS::Polygon */
 		// TPPL_CCW 1, TPPL_CW -1
 		corridors.clear();

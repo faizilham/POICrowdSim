@@ -70,6 +70,7 @@ int main(int argc, char** argv){
 		cout << setprecision(5);
 		bool showroute = false;
 		bool shownavmesh = false;
+		bool trianglenavmesh = false;
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
@@ -85,6 +86,8 @@ int main(int argc, char** argv){
 
 					unsigned int seed = (unsigned int) stoi(arg2);
 					RNG::setRandomSeed(seed);
+				} else if (arg == "--triangle") {
+					trianglenavmesh = true;
 				}
 			}
 		}
@@ -148,7 +151,7 @@ int main(int argc, char** argv){
 
 
 		PathFinder pf;
-		HMNavMesh hm(pf);
+		HMNavMesh hm(pf, trianglenavmesh);
 		hm.build(m);
 
 		PlanManager pm(m, hm);

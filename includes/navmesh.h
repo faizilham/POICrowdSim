@@ -13,8 +13,10 @@ namespace POICS{
 	private:
 		std::vector<Polygon> corridors;
 		PathFinder& pathfinder;
+
+		bool trianglenavmesh;
 	public:
-		HMNavMesh(PathFinder& _pathfinder): pathfinder(_pathfinder){
+		HMNavMesh(PathFinder& _pathfinder, bool _triangle): pathfinder(_pathfinder), trianglenavmesh(_triangle){
 			pathfinder.setCorridors(corridors);
 		}
 
