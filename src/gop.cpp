@@ -4,6 +4,7 @@
 #include <algorithm> 
 #include <set>
 #include "rng.h"
+#include <cmath>
 #include <iostream>
 
 namespace POICS{
@@ -159,10 +160,18 @@ namespace POICS{
 			--available_nodes;
 		}
 
+		if (path.size() < 2) {
+			path.push_back(end);
+			distance += edges->getLength(path.back(), end);
+			score = countScore();
+			return;
+		}
+
 		// 4. Replace the last vertex in S with e.
 		used[path.back()] = false; path.pop_back(); 
 		distance = distance - last_distance + edges->getLength(path.back(), end);
 		path.push_back(end); used[end] = true;
+		
 
 		/* 5. 2-opt algorithm */
 		two_opt();
@@ -176,7 +185,6 @@ namespace POICS{
 		// 7-8 Path tightening
 		pathTightening(unused_nodes, used);
 
-
 		/** PERTURBATION AND IMPROVEMENT **/
 
 		/* 9. Flag current solution S as the best solution discovered and set y, the number of
@@ -185,6 +193,8 @@ namespace POICS{
 		Solution best(*this);
 		int y = 0;
 
+		
+
 		// 10. While y <= t
 		while(y <= par_t){
 			/* (a) Randomly select i unique nodes in S, each of which is not s or e, and store them in set R.
@@ -192,6 +202,8 @@ namespace POICS{
 			std::uniform_int_distribution<> random_remove(0, path.size()-1);
 			R.clear();
 			for (int i = 0; i < par_i; ++i){
+				if (path.size() - R.size() < 3) break;
+
 				int node;
 				do{
 					node = path[random_remove(gop_rng)];
@@ -336,9 +348,11 @@ namespace POICS{
 		do{
 			old = current;
 			current.process_gop(par_i, par_t, POIIdx, start, end);
-		}while (old.score < current.score);
+		}while ((old.score < current.score));
 
-		//std::cout<<old.score<<" "<<old.distance<<" "<<distance_budget<<"\n";
+		if (abs(old.score - current.score) < 1e6) old = current;
+
+		std::cout<<old.score<<" "<<(old.path.size() - 2)<<" "<<old.distance<<" "<<distance_budget<<"\n";
 
 		result.clear();
 		for (int p : old.path){

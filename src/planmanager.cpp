@@ -24,21 +24,28 @@ namespace POICS {
 		exitNodeIdStart = spawns.size();
 		poiNodeIdStart = exitNodeIdStart + exits.size();
 
+		std::vector<int> duration;
+
 		startDistribution.reserve(spawns.size());
 		nodePosition.reserve(num_nodes);
 		nodeCorridorId.reserve(num_nodes);
+		duration.reserve(num_nodes);
 
 		for (SpawnPoint& spawn : spawns){
 			Point center = spawn.border.center();
 			nodePosition.push_back(center);
 			startDistribution.push_back(spawn.dist);
 			nodeCorridorId.push_back(hmnav->findCorridor(center));
+
+			duration.push_back(0);
 		}
 
 		for (ExitPoint& ep : exits){
 			Point center = ep.border.center();
 			nodePosition.push_back(center);
 			nodeCorridorId.push_back(hmnav->findCorridor(center));
+
+			duration.push_back(0);
 		}
 
 		int id = poiNodeIdStart;
@@ -53,13 +60,17 @@ namespace POICS {
 			}
 
 			++id;
+
+			duration.push_back(poi.activityTime);
 		}
 
 		#pragma omp parallel for firstprivate(num_nodes)
 		for (int i = 0; i < num_nodes - 1; ++i){
 			for (int j = i + 1; j < num_nodes; ++j){
 				double distance = hmnav->getDistance(nodePosition[i], nodeCorridorId[i], nodePosition[j], nodeCorridorId[j], agentPathWidth);
-				edges.addEdgeSymmetric(i, j, distance);
+				//edges.addEdgeSymmetric(i, j, distance);
+				edges.addEdge(i, j, distance + duration[j]);
+				edges.addEdge(j, i, distance + duration[i]);
 			}
 		}		
 	}

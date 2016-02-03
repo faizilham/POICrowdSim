@@ -244,7 +244,7 @@ namespace POICS{
 
 			if (currentTimestep < agent->nextUpdate) continue; // not yet the spawn time, continue
 
-			planner->buildPlan(agent->duration * 60 * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
+			planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
 			int start = agent->plan.front(); agent->plan.pop_front(); 
 			int next = agent->plan.front();
 			
