@@ -60,7 +60,6 @@ namespace POICS {
 		std::map<std::string, int> topic_ids;
 	public:
 		double agentPathWidth = 3.0; // actual agent width + some margin. TODO maybe dynamic setting
-		double timesteps;
 		
 		double width, height;
 		int startTime, endTime;

@@ -15,35 +15,35 @@
 	</exits>
 
 	<pois>
-		<poi name="baju1" duration="100" activity="" x="25" y="25" width="15" height="15">
+		<poi name="baju1" duration="40" activity="" x="25" y="25" width="15" height="15">
 			<relevance>
 				<topic name="shoes" value="0.5"/>
 				<topic name="dress" value="0.7"/>
 			</relevance>
 		</poi>
-		<poi name="sepatu1" duration="100" activity="" x="60" y="25" width="15" height="15">
+		<poi name="sepatu1" duration="40" activity="" x="60" y="25" width="15" height="15">
 			<relevance>
 				<topic name="shoes" value="0.8"/>
 				</relevance>
 		</poi>
-		<poi name="kopi" duration="30" activity="" x="60" y="60" width="15" height="15">
+		<poi name="kopi" duration="10" activity="" x="60" y="60" width="15" height="15">
 			<relevance>
 				<topic name="coffee" value="0.7"/>
 			</relevance>
 		</poi>
-		<poi name="komputer" duration="30" activity="" x="25" y="60" width="15" height="15">
+		<poi name="komputer" duration="10" activity="" x="25" y="60" width="15" height="15">
 			<relevance>
 				<topic name="coffee" value="0.7"/>
 			</relevance>
 		</poi>
 
-		<poi name="baju2" duration="100" activity="" x="125" y="25" width="15" height="15">
+		<poi name="baju2" duration="40" activity="" x="125" y="25" width="15" height="15">
 			<relevance>
 				<topic name="shoes" value="0.5"/>
 				<topic name="dress" value="0.7"/>
 			</relevance>
 		</poi>
-		<poi name="sepatu2" duration="100" activity="" x="160" y="25" width="15" height="15">
+		<poi name="sepatu2" duration="40" activity="" x="160" y="25" width="15" height="15">
 			<relevance>
 				<topic name="shoes" value="0.8"/>
 			</relevance>

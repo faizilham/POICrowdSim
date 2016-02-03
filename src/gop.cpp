@@ -4,6 +4,7 @@
 #include <algorithm> 
 #include <set>
 #include "rng.h"
+#include <iostream>
 
 namespace POICS{
 	Solution::Solution(int budget, std::vector<double>& _topic_param, const NodeSet* _nodes, const EdgeSet* _edges, ScoreFunc& _SF)
@@ -336,6 +337,8 @@ namespace POICS{
 			old = current;
 			current.process_gop(par_i, par_t, POIIdx, start, end);
 		}while (old.score < current.score);
+
+		//std::cout<<old.score<<" "<<old.distance<<" "<<distance_budget<<"\n";
 
 		result.clear();
 		for (int p : old.path){

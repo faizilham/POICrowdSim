@@ -144,8 +144,6 @@ namespace POICS{
 		map.width = scale(d1);
 		map.height = scale(d2);
 
-		map.timesteps = 1000; // TODO set from start & end time attribute
-
 		/** read topic **/
 		elmt2 = readChildElement(elmt1, "topics");
 
@@ -233,6 +231,8 @@ namespace POICS{
 		elmt1 = readChildElement(&doc, "agents");
 
 		intAttr(elmt1, "count", n); as.setNumAgents(n);
+		intAttr(elmt1, "enterTime", n); as.entryTime = n;
+
 		elmt2 = readChildElement(elmt1, "profiles");
 
 		elmt3 = readChildElement(elmt2, "profile");

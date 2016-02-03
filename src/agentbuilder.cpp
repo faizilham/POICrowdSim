@@ -89,7 +89,7 @@ namespace POICS {
 	void AgentBuilder::setNumAgents(int num){ num_agent = num;}
 	int AgentBuilder::getNumAgents() const { return num_agent;}
 
-	void AgentBuilder::generateAgents(double totalTimesteps, AgentList& result_agents){
+	void AgentBuilder::generateAgents(AgentList& result_agents){
 		int num_topic = topic_ids->size();
 
 		std::uniform_real_distribution<double> rnd(0.0, 1.0);
@@ -97,9 +97,9 @@ namespace POICS {
 		for (int i = 0; i < num_agent; ++i){
 			// select profile
 			int profile_id = getRandomId(profiles, rnd(am_rng));
-			double entryTime = rnd(am_rng) * (totalTimesteps / 2); // TODO
+			double e = rnd(am_rng) * entryTime;
 
-			Agent* agent = new Agent(i, profiles[profile_id], entryTime, num_topic);
+			Agent* agent = new Agent(i, profiles[profile_id], e, num_topic);
 
 			result_agents.push_back(agent);
 		}

@@ -42,6 +42,8 @@ namespace POICS{
 		int duration;
 		double nextUpdate;
 		
+		double startTime = 0, length = 0, last_len = 0;
+
 		std::string profile_name;
 		AgentState state;
 
@@ -60,6 +62,7 @@ namespace POICS{
 		std::vector<Profile> profiles;
 		std::map<std::string, int>* topic_ids;
 	public:
+		double entryTime;
 		/* building phase */
 		AgentBuilder(std::map<std::string, int>& _topic_ids): topic_ids(&_topic_ids){}
 		~AgentBuilder(){}
@@ -72,7 +75,7 @@ namespace POICS{
 		void addProfileExtras(int id, std::string key, std::string value);
 		void addInterestRange(int profile_id, std::string topic_name, double _min, double _max);
 
-		void generateAgents(double totalTimesteps, AgentList& result_agents);
+		void generateAgents(AgentList& result_agents);
 		std::vector<Profile>& getProfiles(){ return profiles;}
 
 		void loadFromXML(const char* filename);

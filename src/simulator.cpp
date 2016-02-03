@@ -91,7 +91,7 @@ namespace POICS{
 
 	void SimulatorImpl::initialize(double _deltaTimestep){
 		deltaTimestep = _deltaTimestep;
-		maxTimestep = maparea->timesteps;
+		maxTimestep = agentbuilder->entryTime;
 		maxRecalcTimestep = 10.0;
 
 		recalcTimestep = 0.0;
@@ -102,7 +102,7 @@ namespace POICS{
 		buildObstacles();
 
 		// build agents
-		agentbuilder->generateAgents(maxTimestep, initialAgents);
+		agentbuilder->generateAgents(initialAgents);
 		num_agents = agentbuilder->getNumAgents();
 
 		// neighborDist, maxNeighbors, timeHorizon, timeHorizonObst, radius, maxSpeed
@@ -141,10 +141,6 @@ namespace POICS{
 		 			rvo.setAgentPosition(agent->id, initPos(agent->id));
 		 			exitAgents.push_back(agent);
 		 			activeAgents.erase(oldItr);
-
-		 			double tm = currentTimestep - agent->startTime;
-
-		 			std::cout<<"e "<<tm<<" "<<agent->length<<" "<<(agent->length / tm)<<"\n";
 		 		} break;
 		 		case AgentState::TO_POI: {
 		 			agent->position = toPoint(rvo.getAgentPosition(agent->id));
@@ -165,8 +161,10 @@ namespace POICS{
 		 					agent->currentNode = agent->plan.front(); agent->plan.pop_front();
 		 					if (agent->nextState() == AgentState::IN_POI){
 		 						// TODO set nextUpdate based on place duration & activity type
-		 						agent->nextUpdate = currentTimestep + 10.0;
-		 						agent->startTime += 10.0;
+		 						double poiduration = maparea->getPois()[agent->currentNode - planner->poiNodeIdStart].activityTime;
+
+		 						agent->nextUpdate = currentTimestep + poiduration;
+		 						agent->startTime += poiduration;
 		 					}
 
 		 					rvo.setAgentPrefVelocity (agent->id, IDENTITY);

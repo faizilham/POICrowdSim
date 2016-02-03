@@ -131,8 +131,6 @@ int main(int argc, char** argv){
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
 		Simulator::AGENT_NEIGHBORDIST = 15.0;*/
 		
-		m.timesteps = 500;
-
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());
 
