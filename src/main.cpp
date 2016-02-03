@@ -120,7 +120,7 @@ int main(int argc, char** argv){
 
 		m.agentPathWidth = 3.0;
 		Simulator::AGENT_RADIUS = 1.0;
-		Simulator::AGENT_GOAL_SQUARE = 2.0; // 2.5 * 2.5
+		Simulator::AGENT_GOAL_SQUARE = 1.5; // 2.5 * 2.5
 		Simulator::AGENT_MAXSPEED = 0.8;
 		Simulator::AGENT_TIMEHORIZON = 2.0;
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
@@ -270,7 +270,7 @@ int main(int argc, char** argv){
 				rect.setFillColor(sf::Color(200, 200, 255));
 				window.draw(rect);
 
-				/*sf::Text text;
+				sf::Text text;
 				text.setFont(font);
 
 				// set the string to display
@@ -286,7 +286,7 @@ int main(int argc, char** argv){
 
 				// set the color
 				text.setColor(sf::Color::Black);
-				window.draw(text);*/
+				window.draw(text);
 			}
 
 			/*if (shownavmesh) {
@@ -314,7 +314,16 @@ int main(int argc, char** argv){
 					// 	line[2].color = sf::Color(255, 0, 0);
 						
 					// 	window.draw(line, 2, sf::Lines);
-					// }			
+
+
+					// 	sf::CircleShape cc1(rad * scale), cc2(rad * scale);			
+					// 	cc1.setFillColor(sf::Color::Blue);
+					// 	cc2.setFillColor(sf::Color::Green);
+					// 	cc1.setPosition(dx + (portal.p1.x - rad) * scale, dy + (portal.p1.y - rad) * scale);
+					// 	cc2.setPosition(dx + (portal.p2.x - rad) * scale, dy + (portal.p2.y - rad) * scale);
+					// 	window.draw(cc1);
+					// 	window.draw(cc2);
+					// }		
 
 					sf::Text text;
 					text.setFont(font);
