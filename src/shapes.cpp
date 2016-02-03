@@ -65,7 +65,8 @@ namespace POICS{
 		from_id = _from->id;
 		to_id = _to->id;
 		center.setAsMiddle(p1, p2);
-		roughDistance = _from->center().squareDistanceTo(center) + center.squareDistanceTo(_to->center());
+		//roughDistance = _from->center().squareDistanceTo(center) + center.squareDistanceTo(_to->center());
+		roughDistance = _from->center().squareDistanceTo(_to->center());
 
 		width = p1.distanceTo(p2);
 		unit.x = (p2.x - p1.x) / width;

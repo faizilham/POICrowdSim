@@ -11,7 +11,7 @@ namespace POICS{
 	}
 
 	double heuristic(Polygon* current, Polygon* target){
-		return current->center().squareDistanceTo(target->center()) + target->getDensityWeight();
+		return current->center().squareDistanceTo(target->center());// + target->getDensityWeight();
 	}
 
 	void buildPortal(AStarNode* last, std::vector<AStarNode>& anodes, double agentWidth, std::vector<Portal>& result_portal){
