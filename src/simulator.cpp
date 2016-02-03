@@ -166,8 +166,11 @@ namespace POICS{
 		 				}
 		 			} else {
 
-		 				RVO::Vector2 currPos = toRVOVector(agent->position);
-						RVO::Vector2 nextPos = toRVOVector(agent->route.front());
+		 				Point cp = agent->position;
+		 				Point np = agent->route.front();
+
+		 				RVO::Vector2 currPos = toRVOVector(cp);
+						RVO::Vector2 nextPos = toRVOVector(np);
 
 						auto second = ++(agent->route.begin());
 
@@ -175,15 +178,23 @@ namespace POICS{
 
 		 					if (agent->nextUpdate < 0) agent->nextUpdate = currentTimestep + 5.0;
 		 					else if (agent->nextUpdate < currentTimestep) {
+
+		 						double len = cp.distanceTo(np); Point unit;
+								unit.x = (cp.x - np.x) / len;
+								unit.y = (cp.y - np.y) / len;
+
+								cp.x += AGENT_RADIUS * unit.x;
+								cp.y += AGENT_RADIUS * unit.y;
+
 			 					agent->route.clear();
-			 					planner->buildNextRoute(agent->position, agent->plan.front(), agent->route);
+			 					planner->buildNextRoute(cp, agent->plan.front(), agent->route);
 			 					nextPos = toRVOVector(agent->route.front());
 			 					agent->nextUpdate = -1;
 			 				}
 		 				} else if (second != agent->route.end()){
 		 					RVO::Vector2 secondPos = toRVOVector(*second);
-		 					double nextDist = agent->route.front().squareDistanceTo(*second);
-		 					double secDist = agent->position.squareDistanceTo(*second);
+		 					double nextDist = np.squareDistanceTo(*second);
+		 					double secDist = cp.squareDistanceTo(*second);
 
 		 					if ((nextDist >= secDist) && rvo.queryVisibility(currPos, secondPos, AGENT_RADIUS)){
 		 						agent->route.pop_front(); nextPos = secondPos;

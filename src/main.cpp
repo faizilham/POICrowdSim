@@ -72,6 +72,7 @@ int main(int argc, char** argv){
 		bool shownavmesh = false;
 		bool trianglenavmesh = false;
 		bool makelane = true;
+		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 		int skip = 0;
 
 		if (argc > 2){
@@ -96,6 +97,10 @@ int main(int argc, char** argv){
 					trianglenavmesh = true;
 				} else if (arg == "--nolane") {
 					makelane = false;
+				} else if (arg == "--portal") {
+					smoothing = CornerSmoothing::PORTAL;
+				} else if (arg == "--nosmooth") {
+					smoothing = CornerSmoothing::NONE;
 				}
 			}
 		}
@@ -156,7 +161,7 @@ int main(int argc, char** argv){
 
 
 		PathFinder pf;
-		HMNavMesh hm(pf, trianglenavmesh, makelane, CornerSmoothing::POLYOFFSET);
+		HMNavMesh hm(pf, trianglenavmesh, makelane, smoothing);
 		hm.build(m);
 
 		PlanManager pm(m, hm);
@@ -202,6 +207,8 @@ int main(int argc, char** argv){
 
 			// end the current frame
 			window.display();
+
+			paused = true;
 		}
 
 		while (window.isOpen())	{
@@ -231,11 +238,6 @@ int main(int argc, char** argv){
 			window.clear(sf::Color::Black);
 			window.draw(rectArea);
 
-			// draw obstacle
-			for (Polygon& poly : m.getObstacles()){
-				drawPoly(window, poly, sf::Color::Black);
-			}
-
 			// draw navmesh
 			if (shownavmesh){
 				for (Polygon& poly : hm.getCorridors()){
@@ -247,6 +249,11 @@ int main(int argc, char** argv){
 					cv.setOutlineColor(sf::Color(200, 200, 200));
 					window.draw(cv);
 				}
+			}
+
+			// draw obstacle
+			for (Polygon& poly : m.getObstacles()){
+				drawPoly(window, poly, sf::Color::Black);
 			}
 
 			// draw spawns
@@ -301,7 +308,7 @@ int main(int argc, char** argv){
 					cc.setPosition(dx + (center.x - rad) * scale, dy + (center.y - rad) * scale);
 					window.draw(cc);
 
-					// for (Portal& portal : poly.getNeighbors()){
+					 for (Portal& portal : poly.getNeighbors()){
 					// 	sf::Vertex line[3];
 					// 	Point center3 = portal.center;
 					// 	Point center2 = corridors[portal.to_id].center();
@@ -316,14 +323,14 @@ int main(int argc, char** argv){
 					// 	window.draw(line, 2, sf::Lines);
 
 
-					// 	sf::CircleShape cc1(rad * scale), cc2(rad * scale);			
-					// 	cc1.setFillColor(sf::Color::Blue);
-					// 	cc2.setFillColor(sf::Color::Green);
-					// 	cc1.setPosition(dx + (portal.p1.x - rad) * scale, dy + (portal.p1.y - rad) * scale);
-					// 	cc2.setPosition(dx + (portal.p2.x - rad) * scale, dy + (portal.p2.y - rad) * scale);
-					// 	window.draw(cc1);
-					// 	window.draw(cc2);
-					// }		
+						sf::CircleShape cc1(rad * scale), cc2(rad * scale);			
+						cc1.setFillColor(sf::Color::Blue);
+						cc2.setFillColor(sf::Color::Green);
+						cc1.setPosition(dx + (portal.p1.x - rad) * scale, dy + (portal.p1.y - rad) * scale);
+						cc2.setPosition(dx + (portal.p2.x - rad) * scale, dy + (portal.p2.y - rad) * scale);
+						window.draw(cc1);
+						window.draw(cc2);
+					}		
 
 					sf::Text text;
 					text.setFont(font);
@@ -346,6 +353,14 @@ int main(int argc, char** argv){
 
 					Point prev = agent->position;
 					for (Point& point : agent->route){
+
+						/*double rad = 0.5;
+
+						sf::CircleShape cc(rad * scale);			
+						cc.setFillColor(sf::Color::Blue);
+						cc.setPosition(dx + (point.x - rad) * scale, dy + (point.y - rad) * scale);
+						window.draw(cc);*/
+
 						sf::Vertex line[2];
 
 						toSFVertex(prev, line[0]); toSFVertex(point, line[1]);

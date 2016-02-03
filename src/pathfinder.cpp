@@ -27,19 +27,22 @@ namespace POICS{
 		for (int i = n - 1; i > 0; --i){
 			Polygon *from = reverse_route[i], *to = reverse_route[i-1];
 			Portal portal = *from->getNeighbor(to->id);
-			//Point& unit = portal.unit;
+			Point& unit = portal.unit;
 
 			//double halfMargin = (agentWidth + (portal.width / 2)) / 2;
 
 			//std::uniform_real_distribution<double> randw(agentWidth, std::min(3*agentWidth, halfMargin));
 
 			//double r1 = randw(pt_rng), r2 = randw(pt_rng);
-			/*double r1 = agentWidth / 2, r2 = agentWidth / 2;
 
-			portal.p1.x += unit.x * r1;
-			portal.p1.y += unit.y * r1;
-			portal.p2.x -= unit.x * r2;
-			portal.p2.y -= unit.y * r2;*/
+			/*if (agentWidth > 0){
+				double r1 = agentWidth / 2, r2 = agentWidth / 2;
+
+				portal.p1.x += unit.x * r1;
+				portal.p1.y += unit.y * r1;
+				portal.p2.x -= unit.x * r2;
+				portal.p2.y -= unit.y * r2;
+			}*/
 
 			result_portal.push_back(portal);
 		}
@@ -162,12 +165,16 @@ namespace POICS{
 		funnelRight = portals[0].p2;
 		funnelLeft = portals[0].p1;
 
+		double product;
+
 		for (int i = 1; i < numportal; ++i) {
 			right = portals[i].p2;
 			left = portals[i].p1;
 
 			// update right
-			if (crossproduct(apex, funnelRight, right) <= 0.0) {
+
+			product = crossproduct(apex, funnelRight, right);
+			if (product < 0.0 || abs(product) < EPSILON) {
 				if ((apex == funnelRight) || (crossproduct(apex, funnelLeft, right) > 0.0)) {
 					// tighten funnel
 					funnelRight = right;
@@ -190,7 +197,8 @@ namespace POICS{
 			}
 
 			// update left
-			if (crossproduct(apex, funnelLeft, left) >= 0.0) {
+			product = crossproduct(apex, funnelLeft, left);
+			if (product > 0.0 || abs(product) < EPSILON) {
 				if ((apex == funnelLeft) || (crossproduct(apex, funnelRight, left) < 0.0)) {
 					// tighten funnel
 					funnelLeft = left;
