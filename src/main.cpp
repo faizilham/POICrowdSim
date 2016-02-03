@@ -123,15 +123,15 @@ int main(int argc, char** argv){
 			dx = (windowWidth - (m.width * scale)) / 2;
 		}
 
-		m.agentPathWidth = 3.0;
+		/*m.agentPathWidth = 3.0;
 		Simulator::AGENT_RADIUS = 1.0;
 		Simulator::AGENT_GOAL_SQUARE = 1.5; // 2.5 * 2.5
-		Simulator::AGENT_MAXSPEED = 0.8;
+		Simulator::AGENT_MAXSPEED = 1.0;
 		Simulator::AGENT_TIMEHORIZON = 2.0;
 		Simulator::AGENT_TIMEHORIZONOBS = 1.0;
-		Simulator::AGENT_NEIGHBORDIST = 15.0;
+		Simulator::AGENT_NEIGHBORDIST = 15.0;*/
 		
-		m.timesteps = 5000;
+		m.timesteps = 500;
 
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());

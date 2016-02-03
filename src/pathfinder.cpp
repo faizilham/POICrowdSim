@@ -27,7 +27,7 @@ namespace POICS{
 		for (int i = n - 1; i > 0; --i){
 			Polygon *from = reverse_route[i], *to = reverse_route[i-1];
 			Portal portal = *from->getNeighbor(to->id);
-			Point& unit = portal.unit;
+			//Point& unit = portal.unit;
 
 			//double halfMargin = (agentWidth + (portal.width / 2)) / 2;
 

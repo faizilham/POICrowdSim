@@ -9,9 +9,9 @@ namespace POICS{
 	static const double PI = 3.14159265358979323846;
 	static const RVO::Vector2 IDENTITY(0.0, 0.0);
 
-	double Simulator::AGENT_RADIUS = 2.0;
-	double Simulator::AGENT_GOAL_SQUARE = 6.25; // 2.5 * 2.5
-	double Simulator::AGENT_MAXSPEED = 2.0;
+	double Simulator::AGENT_RADIUS = 1.0;
+	double Simulator::AGENT_GOAL_SQUARE = 1.5;
+	double Simulator::AGENT_MAXSPEED = 1.0;
 	double Simulator::AGENT_TIMEHORIZON = 2.0;
 	double Simulator::AGENT_TIMEHORIZONOBS = 1.0;
 	double Simulator::AGENT_NEIGHBORDIST = 15.0;
@@ -141,6 +141,10 @@ namespace POICS{
 		 			rvo.setAgentPosition(agent->id, initPos(agent->id));
 		 			exitAgents.push_back(agent);
 		 			activeAgents.erase(oldItr);
+
+		 			double tm = currentTimestep - agent->startTime;
+
+		 			std::cout<<"e "<<tm<<" "<<agent->length<<" "<<(agent->length / tm)<<"\n";
 		 		} break;
 		 		case AgentState::TO_POI: {
 		 			agent->position = toPoint(rvo.getAgentPosition(agent->id));
@@ -148,7 +152,9 @@ namespace POICS{
 		 			if (agent->position.squareDistanceTo(agent->route.front()) < AGENT_GOAL_SQUARE){
 		 				agent->nextUpdate = -1;
 		 				agent->route.pop_front();
+
 		 				if (!agent->route.empty()){
+		 					agent->length += agent->position.distanceTo(agent->route.front());
 
 		 					// set velocity to the next point in route
 		 					RVO::Vector2 currPos = toRVOVector(agent->position);
@@ -160,6 +166,7 @@ namespace POICS{
 		 					if (agent->nextState() == AgentState::IN_POI){
 		 						// TODO set nextUpdate based on place duration & activity type
 		 						agent->nextUpdate = currentTimestep + 10.0;
+		 						agent->startTime += 10.0;
 		 					}
 
 		 					rvo.setAgentPrefVelocity (agent->id, IDENTITY);
@@ -252,6 +259,10 @@ namespace POICS{
 			rvo.setAgentPosition(agent->id, currPos);
 			rvo.setAgentPrefVelocity (agent->id, prefVelocity(currPos, nextPos));
 
+			agent->currentNode = start;
+			agent->startTime = currentTimestep;
+			agent->length = agent->position.distanceTo(agent->route.front());
+
 			/* TODO edit this part (erase and move) when parallelize */
 			activeAgents.push_back(agent);
 			initialAgents.erase(oldItr);
@@ -259,6 +270,6 @@ namespace POICS{
 	}
 
 	bool SimulatorImpl::finished(){
-		return (currentTimestep >= maxTimestep) || (activeAgents.empty() && initialAgents.empty());
+		return (activeAgents.empty() && initialAgents.empty()); // || (currentTimestep >= maxTimestep) 
 	}
 }
