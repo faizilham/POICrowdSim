@@ -35,7 +35,7 @@ namespace POICS{
 				ClipperLib::Path path; toClipperPath(obstacle, path); ClipperLib::Paths newPath;
 
 				co.AddPath(path, ClipperLib::jtSquare, ClipperLib::etClosedPolygon);
-				co.Execute(newPath, 1.2 * CLIPPER_SCALE);
+				co.Execute(newPath, 1.5 * CLIPPER_SCALE);
 				co.Clear();
 
 				offsets.push_back(newPath.front());
@@ -198,8 +198,8 @@ namespace POICS{
 						// move right point a bit to left for making lane
 						Portal& portal1 = poly1.getNeighbors().back();
 
-						if (portal1.width / 2 <= laneDiff) {
-							laneDiff = portal1.width * 3 / 4;
+						if (portal1.width / 2 < laneDiff) {
+							laneDiff = portal1.width;
 						}
 
 						portal1.p2.x -= portal1.unit.x * laneDiff;

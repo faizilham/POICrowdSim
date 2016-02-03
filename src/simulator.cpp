@@ -146,6 +146,7 @@ namespace POICS{
 		 			agent->position = toPoint(rvo.getAgentPosition(agent->id));
 
 		 			if (agent->position.squareDistanceTo(agent->route.front()) < AGENT_GOAL_SQUARE){
+		 				agent->nextUpdate = -1;
 		 				agent->route.pop_front();
 		 				if (!agent->route.empty()){
 
@@ -171,9 +172,14 @@ namespace POICS{
 						auto second = ++(agent->route.begin());
 
 		 				if (!rvo.queryVisibility(currPos, nextPos, AGENT_RADIUS)){
-		 					agent->route.clear();
-		 					planner->buildNextRoute(agent->position, agent->plan.front(), agent->route);
-		 					nextPos = toRVOVector(agent->route.front());
+
+		 					if (agent->nextUpdate < 0) agent->nextUpdate = currentTimestep + 5.0;
+		 					else if (agent->nextUpdate < currentTimestep) {
+			 					agent->route.clear();
+			 					planner->buildNextRoute(agent->position, agent->plan.front(), agent->route);
+			 					nextPos = toRVOVector(agent->route.front());
+			 					agent->nextUpdate = -1;
+			 				}
 		 				} else if (second != agent->route.end()){
 		 					RVO::Vector2 secondPos = toRVOVector(*second);
 		 					double nextDist = agent->route.front().squareDistanceTo(*second);
@@ -203,6 +209,7 @@ namespace POICS{
 						RVO::Vector2 nextPos = toRVOVector(agent->route.front());
 
 		 				rvo.setAgentPrefVelocity (agent->id, prefVelocity(currPos, nextPos));
+		 				agent->nextUpdate = -1;
 		 			}
 		 		}
 		 		default: break;
