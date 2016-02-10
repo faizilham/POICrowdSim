@@ -189,7 +189,7 @@ namespace POICS{
 
 				// resulting polygon is CCW
 				if (poly1.testNeighborhood(poly2, p1, p2, true)){
-					double laneDiff = 2.5;
+					double laneDiff = 3.0;
 
 					poly1.addNeighbor(poly2, p1, p2); 
 					poly2.addNeighbor(poly1, p2, p1); // mirrored for neighbor
@@ -215,7 +215,7 @@ namespace POICS{
 
 					if (makelane) {
 						if (portal1.width / 2 < laneDiff) {
-							laneDiff = portal1.width;
+							laneDiff = portal1.width / 2;
 						}
 
 						// move right point a bit to left for making lane
@@ -274,7 +274,7 @@ namespace POICS{
 
 		int min_id = -1; double min_dist = INFINITY;
 		
-		for (Polygon& poly : corridors){
+		/*for (Polygon& poly : corridors){
 			std::vector<Point>& points = poly.getPoints();
 			int n = points.size();
 
@@ -282,6 +282,17 @@ namespace POICS{
 				Point& p1 = points[i];
 				Point& p2 = (i+1 == n) ? points[0] : points[i+1];
 				double dist = sqPointDistance(p, p1, p2);
+
+				if (dist < min_dist){
+					min_dist = dist;
+					min_id = poly.id;
+				}
+			}
+		}*/
+
+		for (Polygon& poly : corridors){
+			for (Point& point : poly.getPoints()){
+				double dist = p.squareDistanceTo(point);
 
 				if (dist < min_dist){
 					min_dist = dist;

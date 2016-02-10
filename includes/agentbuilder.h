@@ -37,7 +37,7 @@ namespace POICS{
 		std::list<int> plan; // POI plan
 		std::list<Point> route; // route, list of points
 
-		Point position;
+		Point position, identityPosition;
 		int currentNode = -1;
 		int duration;
 		double nextUpdate;

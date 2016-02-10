@@ -124,8 +124,8 @@ namespace POICS {
 		return -1;
 	}
 
-	void PlanManager::buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const{
-		int pi = 3, pt = 2000;
+	SolutionMeta PlanManager::buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const{
+		int pi = 3, pt = 1000;
 
 		// select start and end
 		std::uniform_real_distribution<double> rnd(0.0, 1.0);
@@ -135,7 +135,7 @@ namespace POICS {
 
 		WScoreFunction wsf;
 
-		two_param_iterative_gop(pi, pt, distance_budget, topic_interest, nodes, edges, poiNodeIdStart, start, end, wsf, result_plan);
+		return two_param_iterative_gop(pi, pt, distance_budget, topic_interest, nodes, edges, poiNodeIdStart, start, end, wsf, result_plan);
 	}
 
 	void PlanManager::buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const{

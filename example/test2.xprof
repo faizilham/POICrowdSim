@@ -1,30 +1,31 @@
 <?xml version="1.0"?>
-<agents count="10" enterTime="250">
+<agents count="200" enterTime="100">
 	<profiles>
-		<profile name="Profile 1" dist="0.5">
-			<maxTime min="450" max="500" />
+		<profile name="Red" dist="0.5">
+			<maxTime min="300" max="500" />
 			<interest>
 				<topic name="shoes" min="0.2" max="0.3"/>
-				<topic name="dress" min="0.7" max="1"/>
-				<topic name="electronics" min="0.1" max="0.9"/>
+				<topic name="dress" min="0.8" max="1"/>
+				<topic name="electronics" min="0.2" max="0.3"/>
 			</interest>
 
 			<data key="color" value="ff0000" />
 		</profile>
-		<profile name="Profile 2" dist="0.3">
-			<maxTime min="220" max="230" />
+		<profile name="Green" dist="0.3">
+			<maxTime min="300" max="500" />
 			<interest>
-				<topic name="shoes" min="0.2" max="0.3"/>
-				<topic name="dress" min="0.7" max="1"/>
+				<topic name="dress" min="0.2" max="0.3"/>
+				<topic name="shoes" min="0.8" max="1"/>
+				<topic name="coffee" min="0.2" max="0.3"/>
 			</interest>
 
 			<data key="color" value="00ff00" />
 		</profile>
-		<profile name="Profile 3" dist="0.2">
-			<maxTime min="200" max="300" />
+		<profile name="Blue" dist="0.2">
+			<maxTime min="300" max="500" />
 			<interest>
-				<topic name="coffee" min="0.5" max="0.9"/>
-				<topic name="electronics" min="0.5" max="0.9"/>
+				<topic name="coffee" min="0.7" max="0.9"/>
+				<topic name="electronics" min="0.7" max="0.9"/>
 			</interest>
 
 			<data key="color" value="0000ff" />

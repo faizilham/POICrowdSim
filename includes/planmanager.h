@@ -6,6 +6,7 @@
 #include "mapobject.h"
 #include "graph.h"
 #include "navmesh.h"
+#include "helper.h"
 
 #include <list>
 
@@ -25,7 +26,7 @@ namespace POICS {
 		PlanManager(MapArea& _maparea, HMNavMesh& _hmnav);
 		~PlanManager(){}
 
-		void buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const;
+		SolutionMeta buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const;
 
 		// build route from Point a to b, without a in the resulting list
 		void buildNextRoute(Point& from, int nodeTo, std::list<Point>& result_path) const;

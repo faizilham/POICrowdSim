@@ -342,7 +342,7 @@ namespace POICS{
 		return -1;
 	}
 
-	void two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int POIIdx, int start, int end, ScoreFunc& SF, std::list<int>& result){
+	SolutionMeta two_param_iterative_gop(int par_i, int par_t, int distance_budget, std::vector<double>& topic_param, const NodeSet& nodes, const EdgeSet& edges, int POIIdx, int start, int end, ScoreFunc& SF, std::list<int>& result){
 		Solution old(distance_budget, topic_param, &nodes, &edges, SF), current(distance_budget, topic_param, &nodes, &edges, SF);
 
 		do{
@@ -352,11 +352,13 @@ namespace POICS{
 
 		if (abs(old.score - current.score) < 1e6) old = current;
 
-		std::cout<<old.score<<" "<<(old.path.size() - 2)<<" "<<old.distance<<" "<<distance_budget<<"\n";
+		//std::cout<<old.score<<" "<<(old.path.size() - 2)<<" "<<old.distance<<" "<<distance_budget<<"\n";
 
 		result.clear();
 		for (int p : old.path){
 			result.push_back(p);
 		}
+
+		return std::make_pair(old.score, old.distance);
 	}
 }

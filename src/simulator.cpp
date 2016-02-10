@@ -2,8 +2,9 @@
 #include <random>
 #include "rng.h"
 #include <cmath>
-
+#include "helper.h"
 #include <iostream>
+#include "omp.h"
 
 namespace POICS{
 	static const double PI = 3.14159265358979323846;
@@ -62,17 +63,38 @@ namespace POICS{
 		agentCleaner(exitAgents);
 	}
 
+	void rectToRVOObst (Rect& r, std::vector<RVO::Vector2>& rvoobstacle){
+		Polygon obstacle; rvoobstacle.clear();
+
+		r.copyToPolygonCCW(obstacle);
+
+		for (Point& point : obstacle.getPoints()){
+			rvoobstacle.emplace_back(point.x, point.y);
+		}
+	}
+
 	void SimulatorImpl::buildObstacles(){
-		
+		std::vector<RVO::Vector2> rvoobstacle;
+		double d = 0.5; double w, h;
+		w = maparea->width; h = maparea->height;
 
 		for (Polygon& obstacle : maparea->getObstacles()){
-			std::vector<RVO::Vector2> rvoobstacle;
+			rvoobstacle.clear();
 			for (Point& point : obstacle.getPoints()){
 				rvoobstacle.emplace_back(point.x, point.y);
 			}
 
 			rvo.addObstacle(rvoobstacle);
 		}
+
+		
+		Rect rtop(0, h+d, w, d), rbottom(0, 0, w, d), rleft(-d, h, d, h), rright(w+d, h, d, h);
+
+		rectToRVOObst(rtop, rvoobstacle); rvo.addObstacle(rvoobstacle);
+		rectToRVOObst(rbottom, rvoobstacle); rvo.addObstacle(rvoobstacle);
+		rectToRVOObst(rleft, rvoobstacle); rvo.addObstacle(rvoobstacle);
+		rectToRVOObst(rright, rvoobstacle); rvo.addObstacle(rvoobstacle);
+
 
 		rvo.processObstacles();
 	}
@@ -112,6 +134,26 @@ namespace POICS{
 		for (Agent* agent : initialAgents){
 			rvo.addAgent(initPos(agent->id));
 		}
+
+		/*#pragma omp parallel for
+		for (int i = 0; i < num_agents; ++i){
+			Agent* agent = initialAgents[i];
+
+			planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
+		}*/
+
+		#pragma omp parallel
+		#pragma omp single
+		{
+			for(auto it = initialAgents.begin(); it != initialAgents.end(); ++it){
+				#pragma omp task firstprivate(it)
+				{
+					Agent* agent = *it;
+					planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
+				}
+			}
+			#pragma omp taskwait
+		}
 	}
 
 	// normalized velocity with perturbation based on current and next
@@ -134,6 +176,8 @@ namespace POICS{
 			auto oldItr = itr++;
 		 	Agent* agent = *oldItr;
 
+		 	agent->position = toPoint(rvo.getAgentPosition(agent->id));
+
 		 	switch(agent->state){
 		 		case AgentState::INIT: agent->nextState(); break;
 		 		case AgentState::EXITING:{
@@ -143,8 +187,6 @@ namespace POICS{
 		 			activeAgents.erase(oldItr);
 		 		} break;
 		 		case AgentState::TO_POI: {
-		 			agent->position = toPoint(rvo.getAgentPosition(agent->id));
-
 		 			if (agent->position.squareDistanceTo(agent->route.front()) < AGENT_GOAL_SQUARE){
 		 				agent->nextUpdate = -1;
 		 				agent->route.pop_front();
@@ -166,6 +208,8 @@ namespace POICS{
 		 						agent->nextUpdate = currentTimestep + poiduration;
 		 						agent->startTime += poiduration;
 		 					}
+
+		 					//agent->identityPosition = agent->position;
 
 		 					rvo.setAgentPrefVelocity (agent->id, IDENTITY);
 		 				}
@@ -226,7 +270,14 @@ namespace POICS{
 
 		 				rvo.setAgentPrefVelocity (agent->id, prefVelocity(currPos, nextPos));
 		 				agent->nextUpdate = -1;
-		 			}
+		 			} /*else {
+		 				RVO::Vector2 currPos = toRVOVector(agent->position);
+						RVO::Vector2 nextPos = toRVOVector(agent->identityPosition);
+
+		 				RVO::Vector2 prefV = prefVelocity(currPos, nextPos);
+
+		 				rvo.setAgentPrefVelocity (agent->id, prefV);
+		 			}*/
 		 		}
 		 		default: break;
 		 	}
@@ -244,7 +295,6 @@ namespace POICS{
 
 			if (currentTimestep < agent->nextUpdate) continue; // not yet the spawn time, continue
 
-			planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
 			int start = agent->plan.front(); agent->plan.pop_front(); 
 			int next = agent->plan.front();
 			

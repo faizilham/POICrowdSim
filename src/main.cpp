@@ -89,10 +89,14 @@ int main(int argc, char** argv){
 
 					unsigned int seed = (unsigned int) stoi(arg2);
 					RNG::setRandomSeed(seed);
+					
+					i = i + 1;
 				} else if (arg == "--skip") {
 					if (i == argc - 1) exit(1);
 					string arg2 = argv[i+1];
 					skip = stoi(arg2);
+
+					i = i + 1;
 				} else if (arg == "--triangle") {
 					trianglenavmesh = true;
 				} else if (arg == "--nolane") {
@@ -101,6 +105,8 @@ int main(int argc, char** argv){
 					smoothing = CornerSmoothing::PORTAL;
 				} else if (arg == "--nosmooth") {
 					smoothing = CornerSmoothing::NONE;
+				} else {
+					cout<<"Unknown option: "<<arg<<"\n";
 				}
 			}
 		}
