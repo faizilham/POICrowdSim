@@ -139,6 +139,13 @@ namespace POICS{
 		elmt1 = readChildElement(&doc, "environment");
 
 		double d1, d2;
+
+		try {
+			doubleAttr(elmt1, "scale", d1);
+			if (d1 > 0)
+				MAP_SCALE = d1;
+		} catch (...){}
+
 		doubleAttr(elmt1, "width", d1);
 		doubleAttr(elmt1, "height", d2);
 		map.width = scale(d1);

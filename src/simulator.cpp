@@ -11,7 +11,7 @@ namespace POICS{
 	static const RVO::Vector2 IDENTITY(0.0, 0.0);
 
 	double Simulator::AGENT_RADIUS = 1.0;
-	double Simulator::AGENT_GOAL_SQUARE = 1.5;
+	double Simulator::AGENT_GOAL_SQUARE = 2;
 	double Simulator::AGENT_MAXSPEED = 1.0;
 	double Simulator::AGENT_TIMEHORIZON = 2.0;
 	double Simulator::AGENT_TIMEHORIZONOBS = 1.0;
@@ -133,15 +133,11 @@ namespace POICS{
 
 		for (Agent* agent : initialAgents){
 			rvo.addAgent(initPos(agent->id));
-		}
-
-		/*#pragma omp parallel for
-		for (int i = 0; i < num_agents; ++i){
-			Agent* agent = initialAgents[i];
 
 			planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
-		}*/
+		}
 
+		/*
 		#pragma omp parallel
 		#pragma omp single
 		{
@@ -154,12 +150,13 @@ namespace POICS{
 			}
 			#pragma omp taskwait
 		}
+		*/
 	}
 
 	// normalized velocity with perturbation based on current and next
 	RVO::Vector2 prefVelocity(RVO::Vector2 curr, RVO::Vector2 next){
 		std::uniform_real_distribution<double> rnd_rad(0.0, PI);
-		std::uniform_real_distribution<double> rnd_len(0.0, 0.0002f);
+		std::uniform_real_distribution<double> rnd_len(0.0, 0.0001f);
 		float angle = rnd_rad(sim_rng);
 		float dist = rnd_len(sim_rng);
 
@@ -242,10 +239,11 @@ namespace POICS{
 			 				}
 		 				} else if (second != agent->route.end()){
 		 					RVO::Vector2 secondPos = toRVOVector(*second);
-		 					double nextDist = np.squareDistanceTo(*second);
-		 					double secDist = cp.squareDistanceTo(*second);
+		 					double currNextDist = cp.squareDistanceTo(np);
+		 					double nextSecDist = np.squareDistanceTo(*second);
+		 					double currSecDist = cp.squareDistanceTo(*second);
 
-		 					if ((nextDist >= secDist) && rvo.queryVisibility(currPos, secondPos, AGENT_RADIUS)){
+		 					if ((currSecDist <= currNextDist + nextSecDist) && rvo.queryVisibility(currPos, secondPos, AGENT_RADIUS)){
 		 						agent->route.pop_front(); nextPos = secondPos;
 		 					}
 		 				}

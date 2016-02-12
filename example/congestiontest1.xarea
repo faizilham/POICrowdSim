@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <environment width="80" height="50" scale="1.5">
 	<topics>
-		test
+		red, blue
 	</topics>
 
 	<spawns>
@@ -14,14 +14,14 @@
 	</exits>
 
 	<pois>
-		<poi name="shop1" duration="10" x="5" y="10" width="10" height="20">
+		<poi name="Red Shop" duration="30" x="5" y="10" width="10" height="20">
 			<relevance>
-				<topic name="test" value="1"/>
+				<topic name="red" value="1"/>
 			</relevance>
 		</poi>
-		<poi name="shop2" duration="10" x="65" y="10" width="10" height="20">
+		<poi name="Blue Shop" duration="30" x="65" y="10" width="10" height="20">
 			<relevance>
-				<topic name="test" value="1"/>
+				<topic name="blue" value="1"/>
 			</relevance>
 		</poi>
 	</pois>

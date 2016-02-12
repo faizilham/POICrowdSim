@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<environment width="80" height="50" scale="1">
+	<topics>
+		test
+	</topics>
+
+	<spawns>
+		<spawn dist="1" x="5" y="40" width="10" height="10" />
+	</spawns>
+
+	<exits>
+		<exit x="50" y="5" width="10" height="10" />
+	</exits>
+
+	<pois>
+		<poi name="shop" duration="10" x="5" y="10" width="10" height="20">
+			<relevance>
+				<topic name="test" value="1"/>
+			</relevance>
+		</poi>
+	</pois>
+
+	<obstacles>
+		<obstacle shape="rect" x="32" y="5" width="3" height="45" />
+		<obstacle shape="rect" x="45" y="0" width="3" height="45" />
+	</obstacles>
+</environment>

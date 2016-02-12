@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<environment width="200" height="100" scale="0.8">
+	<topics>
+		shoes, electronics, dress, coffee
+	</topics>
+
+	<spawns>
+		<spawn dist="0.5" x="1" y="1" width="10" height="10" />
+		<spawn dist="0.5" x="189" y="69" width="10" height="10" />
+	</spawns>
+
+	<exits>
+		<exit x="189" y="89" width="10" height="10" />
+		<exit x="29" y="1" width="10" height="10" />
+	</exits>
+
+	<pois>
+		<poi name="baju1" duration="10" activity="" x="25" y="25" width="15" height="15">
+			<relevance>
+				<topic name="shoes" value="0.5"/>
+				<topic name="dress" value="0.7"/>
+			</relevance>
+		</poi>
+		<poi name="sepatu1" duration="10" activity="" x="60" y="25" width="15" height="15">
+			<relevance>
+				<topic name="shoes" value="1"/>
+				</relevance>
+		</poi>
+		<poi name="kopi1" duration="10" activity="" x="60" y="60" width="15" height="15">
+			<relevance>
+				<topic name="coffee" value="1"/>
+			</relevance>
+		</poi>
+		<poi name="komputer1" duration="10" activity="" x="25" y="60" width="15" height="15">
+			<relevance>
+				<topic name="electronics" value="0.9"/>
+			</relevance>
+		</poi>
+
+		<poi name="baju2" duration="10" activity="" x="125" y="25" width="15" height="15">
+			<relevance>
+				<topic name="shoes" value="0.5"/>
+				<topic name="dress" value="0.7"/>
+			</relevance>
+		</poi>
+		<poi name="sepatu2" duration="10" activity="" x="160" y="25" width="15" height="15">
+			<relevance>
+				<topic name="shoes" value="1"/>
+				</relevance>
+		</poi>
+
+		<poi name="komputer2" duration="10" activity="" x="125" y="60" width="15" height="15">
+			<relevance>
+				<topic name="electronics" value="0.9"/>
+			</relevance>
+		</poi>
+		<poi name="kopi2" duration="10" activity="" x="160" y="60" width="15" height="15">
+			<relevance>
+				<topic name="coffee" value="1"/>
+			</relevance>
+		</poi>
+	</pois>
+
+	<obstacles>
+		<obstacle shape="poly">
+			20,55 45,55 45,80 55,80 55,55 80,55 80,45 55,45 55,20 45,20 45,45 20,45
+		</obstacle>
+		<obstacle shape="poly">
+			120,55 145,55 145,80 155,80 155,55 180,55 180,45 155,45 155,20 145,20 145,45 120,45
+		</obstacle>
+		<obstacle shape="rect" x="90" y="45" width="20" height="10" />
+
+		<obstacle shape="rect" x="20" y="20" width="3" height="20" />		
+		<obstacle shape="rect" x="20" y="20" width="20" height="3" />
+
+		<obstacle shape="rect" x="60" y="20" width="20" height="3" />
+		<obstacle shape="rect" x="77" y="20" width="3" height="20" />
+
+		<obstacle shape="rect" x="20" y="60" width="3" height="20" />		
+		<obstacle shape="rect" x="20" y="77" width="20" height="3" />
+
+		<obstacle shape="rect" x="60" y="77" width="20" height="3" />
+		<obstacle shape="rect" x="77" y="60" width="3" height="20" />
+
+		<obstacle shape="rect" x="120" y="20" width="3" height="20" />		
+		<obstacle shape="rect" x="120" y="20" width="20" height="3" />
+
+		<obstacle shape="rect" x="160" y="20" width="20" height="3" />
+		<obstacle shape="rect" x="177" y="20" width="3" height="20" />
+
+		<obstacle shape="rect" x="120" y="60" width="3" height="20" />		
+		<obstacle shape="rect" x="120" y="77" width="20" height="3" />
+
+		<obstacle shape="rect" x="160" y="77" width="20" height="3" />
+		<obstacle shape="rect" x="177" y="60" width="3" height="20" />
+	</obstacles>
+</environment>

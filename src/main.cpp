@@ -171,6 +171,7 @@ int main(int argc, char** argv){
 		PlanManager pm(m, hm);
 		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
 
+		cout<<"Calculating Plan\n";
 		sim->initialize(1);
 
 		sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "POICrowdSim");

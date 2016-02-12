@@ -52,7 +52,7 @@ namespace POICS{
 		std::vector<Polygon>& corridors = *(this->corridors);
 
 		std::vector<AStarNode> anodes;
-		std::vector<AStarNode*> closedset;
+		//std::vector<AStarNode*> closedset;
 		PriorityQueue<double, AStarNode*> openset;
 
 		Polygon* target = &(corridors[endCorridor]);
@@ -78,7 +78,7 @@ namespace POICS{
 
 			openset.pop();
 			current->closed = true;
-			closedset.push_back(current);
+			//closedset.push_back(current);
 			for (const Portal& portal : current->polygon->getNeighbors()){
 				AStarNode* neighbor = &(anodes[portal.to_id]);
 
