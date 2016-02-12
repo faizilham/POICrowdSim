@@ -28,22 +28,35 @@ MODULES = 	tinyxml2 polypartition image imageio clipper \
 			shapes mapobject xmlreader navmesh planmanager \
 			graph pathfinder agentbuilder gop simulator imagehelper rng
 
+TEST = traffictest
+
 # Everything after this is generic, no need to edit
-VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR)
+VPATH = src $(addprefix src/,$(THIRD_PARTY_DIR)) $(INCLUDE_DIR) test
 INCLUDE = -Isrc $(addprefix -I,$(INCLUDE_DIR))
 SOURCES = $(addsuffix .$(EXT),$(MODULES))
 OBJS = $(SOURCES:%.$(EXT)=bin/%.o)
 
-.PHONY: all run clean
+.PHONY: all run clean test
   
-all: lib/libpoics.so bin/main.o
-	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Llib -Wl,-rpath=lib -lpoics $(MAINLIB)
+all: bin/main
 
 lib/libpoics.so: $(OBJS)
 	$(CC) -shared -o lib/libpoics.so $(OBJS) $(DLL_FLAGS) $(FLAGS) $(LIB)
 
+bin/main: lib/libpoics.so bin/main.o
+	$(CC) -o bin/main bin/main.o $(FLAGS) $(LIB) -Llib -Wl,-rpath=lib -lpoics $(MAINLIB)
+
 bin/main.o: src/main.cpp
 	$(CC) -c -o bin/main.o src/main.cpp $(FLAGS) $(INCLUDE)
+
+### tests
+
+test: bin/traffictest
+
+bin/traffictest: lib/libpoics.so test/traffictest.cpp
+	$(CC) -o bin/traffictest test/traffictest.cpp $(FLAGS) $(INCLUDE) $(LIB) -Llib -Wl,-rpath=lib -lpoics
+
+###
 
 run:
 	bin/main example/test

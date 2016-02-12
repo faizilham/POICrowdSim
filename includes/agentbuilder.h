@@ -6,6 +6,7 @@
 #include <map>
 #include "shapes.h"
 #include "mapobject.h"
+#include "helper.h"
 #include <list>
 
 namespace POICS{
@@ -42,7 +43,10 @@ namespace POICS{
 		int duration;
 		double nextUpdate;
 		
-		double startTime = 0, length = 0, last_len = 0;
+		double startTime = 0, endTime = 0, totalVelocity = 0, walkingTimesteps = 0, poiTimesteps = 0;
+		int totalpoi = 0;
+		
+		SolutionMeta metasolution;
 
 		std::string profile_name;
 		AgentState state;

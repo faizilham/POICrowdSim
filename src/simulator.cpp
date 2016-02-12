@@ -2,7 +2,6 @@
 #include <random>
 #include "rng.h"
 #include <cmath>
-#include "helper.h"
 #include <iostream>
 #include "omp.h"
 
@@ -39,6 +38,7 @@ namespace POICS{
 
 		virtual double getTimestep() const { return currentTimestep;}
 		virtual const AgentList& getActiveAgents() const {return activeAgents;}
+		virtual const AgentList& getFinishedAgents() const {return exitAgents;}
 
 		virtual void initialize(double deltaTimestep);
 		virtual void update();
@@ -134,7 +134,8 @@ namespace POICS{
 		for (Agent* agent : initialAgents){
 			rvo.addAgent(initPos(agent->id));
 
-			planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
+			agent->metasolution = planner->buildPlan(agent->duration * AGENT_MAXSPEED, agent->topicInterest, agent->plan);
+			agent->totalpoi = agent->plan.size() - 2;
 		}
 
 		/*
@@ -180,17 +181,23 @@ namespace POICS{
 		 		case AgentState::EXITING:{
 		 			// TODO edit this erase part when parallelize
 		 			rvo.setAgentPosition(agent->id, initPos(agent->id));
+		 			agent->endTime = currentTimestep;
+
 		 			exitAgents.push_back(agent);
 		 			activeAgents.erase(oldItr);
 		 		} break;
 		 		case AgentState::TO_POI: {
+		 			RVO::Vector2 currVel = rvo.getAgentVelocity(agent->id);
+		 			double currSquareSpeed = (currVel.x() * currVel.x()) + (currVel.y() * currVel.y());
+
+		 			agent->totalVelocity += currSquareSpeed;
+		 			agent->walkingTimesteps += deltaTimestep;
+
 		 			if (agent->position.squareDistanceTo(agent->route.front()) < AGENT_GOAL_SQUARE){
 		 				agent->nextUpdate = -1;
 		 				agent->route.pop_front();
 
 		 				if (!agent->route.empty()){
-		 					agent->length += agent->position.distanceTo(agent->route.front());
-
 		 					// set velocity to the next point in route
 		 					RVO::Vector2 currPos = toRVOVector(agent->position);
 							RVO::Vector2 nextPos = toRVOVector(agent->route.front());
@@ -203,7 +210,7 @@ namespace POICS{
 		 						double poiduration = maparea->getPois()[agent->currentNode - planner->poiNodeIdStart].activityTime;
 
 		 						agent->nextUpdate = currentTimestep + poiduration;
-		 						agent->startTime += poiduration;
+		 						agent->poiTimesteps += poiduration;
 		 					}
 
 		 					//agent->identityPosition = agent->position;
@@ -254,7 +261,7 @@ namespace POICS{
 		 			}
 		 		} break;
 		 		case AgentState::IN_POI: {
-		 			if (currentTimestep > agent->nextUpdate){
+		 			if (currentTimestep >= agent->nextUpdate){
 		 				// TODO activity type
 		 				agent->nextState();
 
@@ -307,7 +314,6 @@ namespace POICS{
 
 			agent->currentNode = start;
 			agent->startTime = currentTimestep;
-			agent->length = agent->position.distanceTo(agent->route.front());
 
 			/* TODO edit this part (erase and move) when parallelize */
 			activeAgents.push_back(agent);

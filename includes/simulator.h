@@ -22,6 +22,7 @@ namespace POICS{
 
 		virtual double getTimestep() const = 0;
 		virtual const AgentList& getActiveAgents() const = 0;
+		virtual const AgentList& getFinishedAgents() const = 0;
 
 		virtual void initialize(double deltaTimestep) = 0;
 		virtual void update() = 0;

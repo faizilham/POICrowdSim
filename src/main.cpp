@@ -74,6 +74,7 @@ int main(int argc, char** argv){
 		bool makelane = true;
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 		int skip = 0;
+		int track = -1;
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
@@ -95,6 +96,12 @@ int main(int argc, char** argv){
 					if (i == argc - 1) exit(1);
 					string arg2 = argv[i+1];
 					skip = stoi(arg2);
+
+					i = i + 1;
+				} else if (arg == "--track") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+					track = stoi(arg2);
 
 					i = i + 1;
 				} else if (arg == "--triangle") {
@@ -378,10 +385,24 @@ int main(int argc, char** argv){
 					}
 				}
 
-				sf::CircleShape circ(Simulator::AGENT_RADIUS * scale);			
+				double ax = dx + (agent->position.x - Simulator::AGENT_RADIUS) * scale;
+				double ay = dy + (agent->position.y - Simulator::AGENT_RADIUS) * scale;
+				double ar = Simulator::AGENT_RADIUS * scale;
+
+				sf::CircleShape circ(ar);			
 				circ.setFillColor(profileColor[agent->profile_name]);
-				circ.setPosition(dx + (agent->position.x - Simulator::AGENT_RADIUS) * scale, dy + (agent->position.y - Simulator::AGENT_RADIUS) * scale);
+				circ.setPosition(ax, ay);
 				window.draw(circ);
+
+				if (agent->id == track){
+					sf::RectangleShape rect;
+					rect.setSize(sf::Vector2f(2*ar, 2*ar));
+					rect.setPosition(ax, ay);
+					rect.setFillColor(sf::Color::Transparent);
+					rect.setOutlineThickness(1);
+					rect.setOutlineColor(sf::Color(255, 0, 0));
+					window.draw(rect);
+				}
 			}
 
 			sf::Text ttext;

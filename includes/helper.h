@@ -13,7 +13,7 @@
 
 namespace POICS{
 
-	typedef std::pair<double, double> SolutionMeta;
+	typedef std::pair<double, double> SolutionMeta; // SolutionMeta : <score, distance>
 
 	// trim from start
 	static inline std::string &ltrim(std::string &s) {

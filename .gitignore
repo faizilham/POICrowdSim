@@ -1,5 +1,6 @@
 bin/*.o
 bin/main
+bin/*test
 bin/*.dll
 bin/*.so
 bin/*.exe
