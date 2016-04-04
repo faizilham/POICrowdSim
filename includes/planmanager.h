@@ -33,6 +33,9 @@ namespace POICS {
 		void buildNextRoute(Point& from, Point& to, std::list<Point>& result_path) const;
 		Point getRandomPoint(int node) const;
 		HMNavMesh* getNavMesh(){return hmnav;}
+
+		NodeSet& getNodes() { return nodes; }
+		EdgeSet& getEdges() { return edges; }
 	};	
 }
 
