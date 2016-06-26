@@ -49,6 +49,103 @@ double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std:
 	return sum;
 }
 
+void brutePlanRecursive (NodeSet& nodes, EdgeSet& edges, std::vector<double>& topicInterest, int endNode, double budget, std::vector<int>& currentPath, double length, std::vector<int>& bestPath, double& bestScore, double& bestLen, std::vector<int>& candidates, std::vector<bool>& visit){
+	int i = 0; bool added = false;
+
+	for (int node : candidates){
+		if (!visit[i]){
+			
+			double newlen = edges.getLength(currentPath.back(), node);
+			double endlend = edges.getLength(node, endNode);
+
+			if (length + newlen + endlend < budget){
+				added = true;
+				visit[i] = true;
+				currentPath.push_back(node);
+
+				brutePlanRecursive(nodes, edges, topicInterest, endNode, budget,  currentPath, length + newlen, bestPath, bestScore, bestLen, candidates, visit);
+				
+				currentPath.pop_back();
+				visit[i] = false;
+			} else {
+				double s = scorefunc(nodes, topicInterest, currentPath);
+
+				if (s > bestScore){
+					bestScore = s; bestPath = currentPath; 
+					bestLen = length + edges.getLength(currentPath.back(), endNode);
+					bestPath.push_back(endNode); 
+				}
+			}
+		}
+
+		++i;
+	}
+
+	double sc = scorefunc(nodes, topicInterest, currentPath);
+
+	if (!added && sc > bestScore){
+		bestScore = sc; bestPath = currentPath;
+		bestLen = length + edges.getLength(currentPath.back(), endNode);
+		bestPath.push_back(endNode);
+	}
+}
+
+void brutePlan(NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex){
+	std::vector<int> path, currentPath, candidates; double score = 0, length = 0; std::vector<bool> visit;
+
+	std::vector<double>& topicInterest = agent->topicInterest;
+	int start = agent->plan.front(), end = agent->plan.back();
+	double budget = agent->duration;
+
+	for (int i = poiStartIndex; i < nodes.num_nodes; ++i){
+		if (abs(spfunc(nodes, topicInterest, path, i)) > 1e-6){ // if not zero interest
+			candidates.push_back(i);
+			visit.push_back(false);
+		}
+	}
+
+	currentPath.push_back(start);
+	brutePlanRecursive(nodes, edges, topicInterest, end, budget, currentPath, 0, path, score, length, candidates, visit);
+
+	cout << agent->profile_name <<" "<<budget<<" < ";
+
+	for (double db : topicInterest) { cout<<db<<" ";}
+
+	cout<<" > :\n\t(brut) ";
+
+	for (int node : path){
+		cout<<node<<" ";
+	}
+
+	cout<<"("<<score<<", "<<length<<")";
+
+	cout<<"\n\t(plan) ";
+
+	for (int node : agent->plan){
+		cout<<node<<" ";
+	}
+
+	cout<<"("<<agent->metasolution.first<<", "<<agent->metasolution.second<<")";
+	cout<<"\n";
+}
+
+void calculateGoldPlans (PlanManager& pm, std::unique_ptr<Simulator>& sim) {
+
+	NodeSet& nodes = pm.getNodes(); EdgeSet& edges = pm.getEdges();
+	int poiStartIndex = pm.poiNodeIdStart;
+
+	/*for (int i = 0; i < nodes.num_nodes; ++i){
+		for (int j = 0; j < nodes.num_nodes; ++j){
+			cout << edges.getLength(i,j) << " ";
+		}		
+		cout << endl;
+	}*/
+
+	for (Agent* agent : sim->getInitialAgents()){
+		brutePlan(nodes, edges, agent, poiStartIndex);
+	}
+}
+
 int main(int argc, char** argv){
 	try{
 
@@ -109,19 +206,22 @@ int main(int argc, char** argv){
 		std::unique_ptr<Simulator> sim(Simulator::create(m, as, pm));
 		cerr<<"Calculating Plan...\n";
 		sim->initialize(1);
+
+		// rate plan
+		calculateGoldPlans (pm, sim);
 		
 
 		/**** Do Simulation ****/
-		cerr<<"\nSimulating...\n";
+		/*cerr<<"\nSimulating...\n";
 		while (!sim->finished()){
 			sim->update();
 			cerr << "\rTimesteps: " << (int) sim->getTimestep() << flush;
 		}
 
-		cerr << "\n";
+		cerr << "\n";*/
 
 		/**** Post-Simulation ****/
-		for (Agent* agent : sim->getFinishedAgents()){
+		/*for (Agent* agent : sim->getFinishedAgents()){
 			double RMS = sqrt(agent->totalVelocity / agent->walkingTimesteps);
 			double totalTime = agent->endTime - agent->startTime;
 
@@ -137,7 +237,7 @@ int main(int argc, char** argv){
 					<< agent->metasolution.first << " "
 					<< agent->metasolution.second
 					<< "\n";
-		}
+		}*/
 
 	} catch (const exception& e) {
 		cerr<<e.what();

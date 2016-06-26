@@ -126,8 +126,8 @@ namespace POICS{
 			/* (a) Randomly select i nodes (with repeats allowed), s.t. each is not in S and each is not e.
 			 	Store these i nodes in set L. If all nodes except e have been added	to S, then add e to the end and return the final solution.*/
 			if (available_nodes == 0){
-				path.push_back(end);
 				distance += edges->getLength(path.back(), end);
+				path.push_back(end);
 				score = countScore();
 				return;
 			} else {
@@ -161,8 +161,8 @@ namespace POICS{
 		}
 
 		if (path.size() < 2) {
-			path.push_back(end);
 			distance += edges->getLength(path.back(), end);
+			path.push_back(end);
 			score = countScore();
 			return;
 		}
