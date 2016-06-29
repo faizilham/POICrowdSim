@@ -70,6 +70,7 @@ int main(int argc, char** argv){
 		cout << setprecision(5);
 		bool showroute = false;
 		bool shownavmesh = false;
+		bool meshdetail = false;
 		bool trianglenavmesh = false;
 		bool makelane = true;
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
@@ -84,6 +85,9 @@ int main(int argc, char** argv){
 					showroute = true;
 				} else if (arg == "--navmesh"){
 					shownavmesh = true;
+				} else if (arg == "--meshdetail"){
+					shownavmesh = true;
+					meshdetail = true;
 				} else if (arg == "--seed") {
 					if (i == argc - 1) exit(1);
 					string arg2 = argv[i+1];
@@ -223,6 +227,9 @@ int main(int argc, char** argv){
 			paused = true;
 		}
 
+		int selectedAgentId = -1;
+		bool changeSelect;
+
 		while (window.isOpen())	{
 			sf::Event event;
 			while (window.pollEvent(event)) {		
@@ -231,20 +238,36 @@ int main(int argc, char** argv){
 					break;
 				} else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Space){
 					paused = !paused;
+				} else if (event.type == sf::Event::MouseButtonPressed) {
+					if (event.mouseButton.button == sf::Mouse::Left) {
+						selectedAgentId = -1; changeSelect = true;
+
+						for (Agent *agent : sim->getActiveAgents()){
+							double ax = dx + (agent->position.x - Simulator::AGENT_RADIUS) * scale;
+							double ay = dy + (agent->position.y - Simulator::AGENT_RADIUS) * scale;
+							double ar = Simulator::AGENT_RADIUS * scale;
+							Point apos(ax, ay), mpos(event.mouseButton.x - ar, event.mouseButton.y - ar);
+
+							if (apos.squareDistanceTo(mpos) < ar * ar){
+								selectedAgentId = agent->id;
+								break;
+							}
+						}
+					}
 				}
 			}
 
-			if (paused){
-				sf::sleep(sf::milliseconds(50));
-				continue;
-			}
+			if (paused || sim->finished()){
 
-			// update
-			if (!sim->finished()){
-				sim->update();
+				if (changeSelect){
+					changeSelect = false;
+				} else {
+					sf::sleep(sf::milliseconds(50));
+					continue;
+				}
 			} else {
-				sf::sleep(sf::milliseconds(50));
-				continue;
+				// update
+				sim->update();
 			}
 
 			window.clear(sf::Color::Black);
@@ -260,6 +283,19 @@ int main(int argc, char** argv){
 					cv.setOutlineThickness(1);
 					cv.setOutlineColor(sf::Color(200, 200, 200));
 					window.draw(cv);
+
+					if (meshdetail){
+						double rad = 0.4;
+						for (Portal& portal : poly.getNeighbors()){
+							sf::CircleShape cc1(rad * scale), cc2(rad * scale);			
+							cc1.setFillColor(sf::Color::Blue);
+							cc2.setFillColor(sf::Color::Green);
+							cc1.setPosition(dx + (portal.p1.x - rad) * scale, dy + (portal.p1.y - rad) * scale);
+							cc2.setPosition(dx + (portal.p2.x - rad) * scale, dy + (portal.p2.y - rad) * scale);
+							window.draw(cc1);
+							window.draw(cc2);
+						}
+					}
 				}
 			}
 
@@ -361,7 +397,8 @@ int main(int argc, char** argv){
 			}*/
 
 			for (Agent *agent : sim->getActiveAgents()){
-				if (showroute && !agent->route.empty()){
+
+				if (((showroute && (selectedAgentId == -1)) || (agent->id == selectedAgentId)) && !agent->route.empty() ){
 
 					Point prev = agent->position;
 					for (Point& point : agent->route){
@@ -378,7 +415,7 @@ int main(int argc, char** argv){
 						toSFVertex(prev, line[0]); toSFVertex(point, line[1]);
 
 						line[0].color = sf::Color(255, 150, 0);
-						line[1].color = sf::Color(255, 150, 0);
+						line[1].color = sf::Color(255, 150, 0);							
 						
 						window.draw(line, 2, sf::Lines);
 						prev = point;

@@ -49,6 +49,10 @@ double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std:
 	return sum;
 }
 
+char toAlphabet(int index){
+	return 'a' + (char) index;
+}
+
 void brutePlanRecursive (NodeSet& nodes, EdgeSet& edges, std::vector<double>& topicInterest, int endNode, double budget, std::vector<int>& currentPath, double length, std::vector<int>& bestPath, double& bestScore, double& bestLen, std::vector<int>& candidates, std::vector<bool>& visit){
 	int i = 0; bool added = false;
 
@@ -109,9 +113,12 @@ void brutePlan(NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex)
 
 	cout << agent->profile_name <<" "<<budget<<" ";
 
-	cout<<score<<" "<<length<<" "<<path.size();
+	cout<<score<<" "<<length<<" "<<path.size()<<" ";
 
-	cout<<" "<<agent->metasolution.first<<" "<<agent->metasolution.second<<" "<<agent->plan.size();
+	for (int node : path) cout<<toAlphabet(node);
+
+	cout<<" "<<agent->metasolution.first<<" "<<agent->metasolution.second<<" "<<agent->plan.size()<<" ";
+	for (int node : agent->plan) cout<<toAlphabet(node);
 }
 
 void greedPlan (NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex){
@@ -164,7 +171,9 @@ void greedPlan (NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex
 
 	score = scorefunc(nodes, topicInterest, path);
 
-	cout<<" "<<score<<" "<<length<<" "<<path.size()<< "\n";
+	cout<<" "<<score<<" "<<length<<" "<<path.size()<<" ";
+	for (int node : path) cout<<toAlphabet(node);
+	cout<<endl;
 }
 
 void calculateGoldPlans (PlanManager& pm, std::unique_ptr<Simulator>& sim) {

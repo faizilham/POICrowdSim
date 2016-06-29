@@ -49,6 +49,8 @@ double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std:
 	return sum;
 }
 
+bool compAgentId(Agent* a, Agent* b) { return a->id < b->id; }
+
 int main(int argc, char** argv){
 	try{
 
@@ -60,6 +62,7 @@ int main(int argc, char** argv){
 		cout << setprecision(5);
 
 		bool trianglenavmesh = false;
+		bool rmsonly = false;
 		bool makelane = true;
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 
@@ -83,7 +86,9 @@ int main(int argc, char** argv){
 					smoothing = CornerSmoothing::PORTAL;
 				} else if (arg == "--nosmooth") {
 					smoothing = CornerSmoothing::NONE;
-				} else {
+				} else if (arg == "--rmsonly") {
+					rmsonly = true;
+				}else {
 					cout<<"Unknown option: "<<arg<<"\n";
 				}
 			}
@@ -121,11 +126,17 @@ int main(int argc, char** argv){
 		cerr << "\n";
 
 		/**** Post-Simulation ****/
+
+		sim->getFinishedAgents().sort(compAgentId);
+
 		for (Agent* agent : sim->getFinishedAgents()){
 			double RMS = sqrt(agent->totalVelocity / agent->walkingTimesteps);
 			double totalTime = agent->endTime - agent->startTime;
 
-			cout	<< agent->id << " "
+			if (rmsonly){
+				cout << RMS << "\n";
+			} else {
+				cout << agent->id << " "
 					<< agent->profile_name << " "
 					<< agent->startTime << " "
 					<< totalTime << " "
@@ -137,7 +148,9 @@ int main(int argc, char** argv){
 					<< agent->metasolution.first << " "
 					<< agent->metasolution.second << " "
 					<< makelane
-					<< "\n";
+					<< "\n";	
+			}
+			
 		}
 
 	} catch (const exception& e) {

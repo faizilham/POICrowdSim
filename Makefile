@@ -54,7 +54,7 @@ bin/main.o: src/main.cpp
 test: bin/traffictest bin/routevalidate
 
 bin/traffictest: lib/libpoics.so test/traffictest.cpp
-	$(CC) -o bin/traffictest test/traffictest.cpp $(FLAGS) $(INCLUDE) $(LIB) -Llib -Wl,-rpath=lib -lpoics
+	$(CC) -o bin/traffictest test/traffictest.cpp $(FLAGS) $(INCLUDE) $(LIB) -Llib -Wl,-rpath=lib -lpoics -fpermissive
 
 bin/routevalidate: lib/libpoics.so test/routevalidate.cpp
 	$(CC) -o bin/routevalidate test/routevalidate.cpp $(FLAGS) $(INCLUDE) $(LIB) -Llib -Wl,-rpath=lib -lpoics

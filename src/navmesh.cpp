@@ -215,7 +215,7 @@ namespace POICS{
 
 					if (makelane) {
 						if (portal1.width / 2 < laneDiff) {
-							laneDiff = 0;//portal1.width / 2;
+							laneDiff = portal1.width / 3;
 						}
 
 						// move right point a bit to left for making lane
