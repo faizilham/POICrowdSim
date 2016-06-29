@@ -107,26 +107,64 @@ void brutePlan(NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex)
 	currentPath.push_back(start);
 	brutePlanRecursive(nodes, edges, topicInterest, end, budget, currentPath, 0, path, score, length, candidates, visit);
 
-	cout << agent->profile_name <<" "<<budget<<" < ";
+	cout << agent->profile_name <<" "<<budget<<" ";
 
-	for (double db : topicInterest) { cout<<db<<" ";}
+	cout<<score<<" "<<length<<" "<<path.size();
 
-	cout<<" > :\n\t(brut) ";
+	cout<<" "<<agent->metasolution.first<<" "<<agent->metasolution.second<<" "<<agent->plan.size();
+}
 
-	for (int node : path){
-		cout<<node<<" ";
+void greedPlan (NodeSet& nodes, EdgeSet& edges,  Agent* agent, int poiStartIndex){
+	std::vector<int> path, candidates; double score = 0, length = 0; std::vector<bool> visit;
+
+	std::vector<double>& topicInterest = agent->topicInterest;
+	int start = agent->plan.front(), end = agent->plan.back();
+	double budget = agent->duration;
+
+	for (int i = poiStartIndex; i < nodes.num_nodes; ++i){
+		if (abs(spfunc(nodes, topicInterest, path, i)) > 1e-6){ // if not zero interest
+			candidates.push_back(i);
+			visit.push_back(false);
+		}
 	}
 
-	cout<<"("<<score<<", "<<length<<")";
+	path.push_back(start); int next, node; double curS;
+	int num_nodes = candidates.size();
 
-	cout<<"\n\t(plan) ";
+	do {
+		next = -1;
+		curS = 0;
+		for (int i = 0; i < num_nodes; ++i){
+			if (visit[i]) continue;
 
-	for (int node : agent->plan){
-		cout<<node<<" ";
-	}
+			node = candidates[i];
 
-	cout<<"("<<agent->metasolution.first<<", "<<agent->metasolution.second<<")";
-	cout<<"\n";
+			double newlen = edges.getLength(path.back(), node);
+			double endlend = edges.getLength(node, end);
+
+			double sc = spfunc(nodes, topicInterest, path, node);
+
+			if ((length + newlen + endlend < budget) && (curS < sc)){
+				next = i;
+				curS = sc;
+			}
+		}
+
+		if (next > -1){
+			visit[next] = true;
+			node = candidates[next];
+			length += edges.getLength(path.back(), node);
+			path.push_back(node);
+		}
+
+	} while (next > -1);
+
+	length += edges.getLength(path.back(), end);
+	path.push_back(end);
+
+	score = scorefunc(nodes, topicInterest, path);
+
+	cout<<" "<<score<<" "<<length<<" "<<path.size()<< "\n";
 }
 
 void calculateGoldPlans (PlanManager& pm, std::unique_ptr<Simulator>& sim) {
@@ -143,6 +181,7 @@ void calculateGoldPlans (PlanManager& pm, std::unique_ptr<Simulator>& sim) {
 
 	for (Agent* agent : sim->getInitialAgents()){
 		brutePlan(nodes, edges, agent, poiStartIndex);
+		greedPlan(nodes, edges, agent, poiStartIndex);
 	}
 }
 
@@ -208,6 +247,7 @@ int main(int argc, char** argv){
 		sim->initialize(1);
 
 		// rate plan
+		cerr<<"Rate Plan...\n";
 		calculateGoldPlans (pm, sim);
 		
 

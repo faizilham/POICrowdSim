@@ -135,7 +135,8 @@ int main(int argc, char** argv){
 					<< agent->duration << " "
 					<< agent->totalpoi << " "
 					<< agent->metasolution.first << " "
-					<< agent->metasolution.second
+					<< agent->metasolution.second << " "
+					<< makelane
 					<< "\n";
 		}
 

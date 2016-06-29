@@ -125,7 +125,7 @@ namespace POICS {
 	}
 
 	SolutionMeta PlanManager::buildPlan(int distance_budget, std::vector<double>& topic_interest, std::list<int>& result_plan) const{
-		int pi = 3, pt = 1000;
+		int pi = 4, pt = 2000;
 
 		// select start and end
 		std::uniform_real_distribution<double> rnd(0.0, 1.0);
