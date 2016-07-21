@@ -179,8 +179,9 @@ namespace POICS{
 		elmt3 = readChildElement(elmt2, "exit");
 
 		do{
+			doubleAttr(elmt3, "dist", d1);
 			readRect(elmt3, rect);
-			map.addExitPoint(rect);
+			map.addExitPoint(d1, rect);
 			elmt3 = elmt3->NextSiblingElement("exit");
 		}while(elmt3 != NULL);
 

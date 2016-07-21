@@ -19,7 +19,7 @@ namespace POICS {
 	public:
 		int spawnNodeIdStart, exitNodeIdStart, poiNodeIdStart;
 
-		std::vector<double> startDistribution;
+		std::vector<double> startDistribution, exitDistribution;
 		std::vector<Point> nodePosition;
 		std::vector<int> nodeCorridorId;
 

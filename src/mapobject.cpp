@@ -56,15 +56,15 @@ namespace POICS{
 		return id;
 	}
 
-	int MapArea::addExitPoint(double x, double y, double w, double h){
+	int MapArea::addExitPoint(double dist, double x, double y, double w, double h){
 		int id = exits.size();
-		exits.push_back(ExitPoint (id, x, y, w, h));
+		exits.push_back(ExitPoint (id, dist, x, y, w, h));
 		return id;
 	}
 
-	int MapArea::addExitPoint(Rect& r){
+	int MapArea::addExitPoint(double dist, Rect& r){
 		int id = exits.size();
-		exits.push_back(ExitPoint (id, r));
+		exits.push_back(ExitPoint (id, dist, r));
 		return id;
 	}
 

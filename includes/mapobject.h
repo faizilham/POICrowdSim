@@ -39,14 +39,14 @@ namespace POICS {
 
 	class POICS_API ExitPoint {
 	public:
-		int id;
+		int id; double dist;
 		Rect border;
 
-		ExitPoint(int _id, double x, double y, double w, double h)
-		: id(_id), border(x,y,w,h){}
+		ExitPoint(int _id, double _dist, double x, double y, double w, double h)
+		: id(_id), dist(_dist), border(x,y,w,h){}
 
-		ExitPoint(int _id, Rect& _border)
-		: id(_id), border(_border){}
+		ExitPoint(int _id, double _dist, Rect& _border)
+		: id(_id), dist(_dist), border(_border){}
 
 		friend std::ostream& operator<<(std::ostream& os, const ExitPoint& ep);
 	};
@@ -80,8 +80,8 @@ namespace POICS {
 		int addSpawnPoint(double dist, Rect& r);
 
 		
-		int addExitPoint(double x, double y, double w, double h);
-		int addExitPoint(Rect& r);
+		int addExitPoint(double dist, double x, double y, double w, double h);
+		int addExitPoint(double dist, Rect& r);
 
 		int createObstacle();
 		int addObstacle(Polygon& polygon);

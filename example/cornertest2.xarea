@@ -9,7 +9,7 @@
 	</spawns>
 
 	<exits>
-		<exit x="50" y="5" width="10" height="10" />
+		<exit dist="1" x="50" y="5" width="10" height="10" />
 	</exits>
 
 	<pois>

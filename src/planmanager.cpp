@@ -27,6 +27,7 @@ namespace POICS {
 		std::vector<int> duration;
 
 		startDistribution.reserve(spawns.size());
+		exitDistribution.reserve(spawns.size());
 		nodePosition.reserve(num_nodes);
 		nodeCorridorId.reserve(num_nodes);
 		duration.reserve(num_nodes);
@@ -43,6 +44,7 @@ namespace POICS {
 		for (ExitPoint& ep : exits){
 			Point center = ep.border.center();
 			nodePosition.push_back(center);
+			exitDistribution.push_back(ep.dist);
 			nodeCorridorId.push_back(hmnav->findCorridor(center));
 
 			duration.push_back(0);
@@ -131,7 +133,8 @@ namespace POICS {
 		std::uniform_real_distribution<double> rnd(0.0, 1.0);
 
 		int start = getRandomId(startDistribution, rnd(cm_rng));
-		int end = (int) (rnd(cm_rng) * (poiNodeIdStart - exitNodeIdStart)) + exitNodeIdStart;
+		//int end = (int) (rnd(cm_rng) * (poiNodeIdStart - exitNodeIdStart)) + exitNodeIdStart;
+		int end = getRandomId(exitDistribution, rnd(cm_rng)) + exitNodeIdStart;
 
 		WScoreFunction wsf;
 
