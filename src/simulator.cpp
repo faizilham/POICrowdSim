@@ -175,7 +175,22 @@ namespace POICS{
 			auto oldItr = itr++;
 		 	Agent* agent = *oldItr;
 
+		 	bool changePos = false;
 		 	agent->position = toPoint(rvo.getAgentPosition(agent->id));
+
+		 	if (agent->position.x < 0){
+		 		agent->position.x = 0; changePos = true;
+		 	} else if (agent->position.x > maparea->width){
+		 		agent->position.x = maparea->width - 1; changePos = true;
+		 	}
+
+		 	if (agent->position.y < 0){
+		 		agent->position.y = 0; changePos = true;
+		 	} else if (agent->position.y > maparea->width){
+		 		agent->position.y = maparea->width - 1; changePos = true;
+		 	}
+
+		 	if (changePos) rvo.setAgentPosition(agent->id, toRVOVector(agent->position));
 
 		 	switch(agent->state){
 		 		case AgentState::INIT: agent->nextState(); break;

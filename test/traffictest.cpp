@@ -64,6 +64,8 @@ int main(int argc, char** argv){
 		bool trianglenavmesh = false;
 		bool rmsonly = false;
 		bool makelane = true;
+		int numagentparam = 0;
+		int timelimit = 9999999;
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 
 		if (argc > 2){
@@ -88,7 +90,21 @@ int main(int argc, char** argv){
 					smoothing = CornerSmoothing::NONE;
 				} else if (arg == "--rmsonly") {
 					rmsonly = true;
-				}else {
+				} else if (arg == "--numagent") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+
+					numagentparam = stoi(arg2);
+					
+					i = i + 1;
+				} else if (arg == "--limit") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+
+					timelimit = stoi(arg2);
+					
+					i = i + 1;
+				} else {
 					cout<<"Unknown option: "<<arg<<"\n";
 				}
 			}
@@ -104,6 +120,8 @@ int main(int argc, char** argv){
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());
 
+		if (numagentparam > 0) as.setNumAgents(numagentparam);
+
 		PathFinder pf;
 		HMNavMesh hm(pf, trianglenavmesh, makelane, smoothing);
 		hm.build(m);
@@ -118,7 +136,7 @@ int main(int argc, char** argv){
 
 		/**** Do Simulation ****/
 		cerr<<"\nSimulating...\n";
-		while (!sim->finished()){
+		while (!sim->finished() && (sim->getTimestep() < timelimit)){
 			sim->update();
 			cerr << "\rTimesteps: " << (int) sim->getTimestep() << flush;
 		}
