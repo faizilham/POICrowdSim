@@ -76,6 +76,7 @@ int main(int argc, char** argv){
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 		int skip = 0;
 		int track = -1;
+		int numagentparam = 0;
 
 		if (argc > 2){
 			for (int i = 2; i < argc; ++i){
@@ -107,6 +108,13 @@ int main(int argc, char** argv){
 					string arg2 = argv[i+1];
 					track = stoi(arg2);
 
+					i = i + 1;
+				} else if (arg == "--numagent") {
+					if (i == argc - 1) exit(1);
+					string arg2 = argv[i+1];
+
+					numagentparam = stoi(arg2);
+					
 					i = i + 1;
 				} else if (arg == "--triangle") {
 					trianglenavmesh = true;
@@ -150,6 +158,8 @@ int main(int argc, char** argv){
 		
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());
+
+		if (numagentparam > 0) as.setNumAgents(numagentparam);
 
 		//cout << m;
 		std::vector<Profile> profiles = as.getProfiles();
