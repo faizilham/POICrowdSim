@@ -318,21 +318,21 @@ int main(int argc, char** argv){
 			for (SpawnPoint& spawn : m.getSpawns()){
 				sf::RectangleShape rect;
 				toSFRect(spawn.border, rect);
-				rect.setFillColor(sf::Color(255, 200, 200));
+				rect.setFillColor(sf::Color(255, 160, 160));
 				window.draw(rect);
 			}
 
 			for (ExitPoint& ex : m.getExits()){
 				sf::RectangleShape rect;
 				toSFRect(ex.border, rect);
-				rect.setFillColor(sf::Color(200, 255, 200));
+				rect.setFillColor(sf::Color(160, 255, 160));
 				window.draw(rect);
 			}
 
 			for (POI& poi : m.getPois()){
 				sf::RectangleShape rect;
 				toSFRect(poi.border, rect);
-				rect.setFillColor(sf::Color(200, 200, 255));
+				rect.setFillColor(sf::Color(160, 160, 255));
 				window.draw(rect);
 
 				sf::Text text;

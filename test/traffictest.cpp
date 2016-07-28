@@ -11,6 +11,7 @@
 #include <memory>
 #include <cmath>
 #include "rng.h"
+#include "clipper/clipper.h"
 
 using namespace POICS;
 using namespace std;
@@ -51,6 +52,61 @@ double spfunc(const NodeSet& nodes, std::vector<double>& topic_param, const std:
 
 bool compAgentId(Agent* a, Agent* b) { return a->id < b->id; }
 
+static double CLIPPER_SCALE = 1000.0;
+
+void toClipperPath(Polygon& poly, ClipperLib::Path& path){
+	for (Point& point : poly.getPoints()){
+		path << ClipperLib::IntPoint((int) (point.x * CLIPPER_SCALE), (int) (point.y * CLIPPER_SCALE));
+	}
+}
+
+void fromClipperPath(ClipperLib::Path& path, Polygon& poly){
+	poly.reset();
+	for (ClipperLib::IntPoint p : path){
+		poly.addPoint(p.X / CLIPPER_SCALE, p.Y / CLIPPER_SCALE);
+	}
+
+	poly.calcCentroid(); //poly.setOrientation()
+}
+
+void merge(std::vector<Polygon>& obstacles, std::vector<Polygon>& newObstacles){
+	//, Polygon& areaResult, std::vector<Polygon>& obstacleResult
+	ClipperLib::ClipperOffset co; ClipperLib::Paths offsets;
+	// offset
+	
+	for (Polygon& obstacle : obstacles){
+		ClipperLib::Path path;
+		toClipperPath(obstacle, path);
+		offsets.push_back(path);
+	}
+	ReversePaths(offsets);
+
+	// merge
+	ClipperLib::Clipper clipper; ClipperLib::Paths solution;
+
+	clipper.AddPaths(offsets, ClipperLib::ptSubject, true);
+	clipper.Execute(ClipperLib::ctUnion, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+
+	for (ClipperLib::Path& p : solution){
+		Polygon newObs; fromClipperPath(p, newObs);
+		newObstacles.push_back(newObs);
+	}
+}
+
+void CountObs(MapArea& m){
+	std::vector<Polygon> newObstacles;
+
+	merge(m.getObstacles(), newObstacles);
+
+	double total = 0;
+
+	for (Polygon& p : newObstacles){
+		total += p.getArea();
+	}
+
+	cout << newObstacles.size() << " " << total << endl;
+}
+
 int main(int argc, char** argv){
 	try{
 
@@ -66,6 +122,7 @@ int main(int argc, char** argv){
 		bool makelane = true;
 		int numagentparam = 0;
 		int timelimit = 9999999;
+		bool countobs = false;
 		CornerSmoothing smoothing = CornerSmoothing::POLYOFFSET;
 
 		if (argc > 2){
@@ -104,6 +161,8 @@ int main(int argc, char** argv){
 					timelimit = stoi(arg2);
 					
 					i = i + 1;
+				} else if (arg == "--countobs") {
+					countobs = true;
 				} else {
 					cout<<"Unknown option: "<<arg<<"\n";
 				}
@@ -116,6 +175,11 @@ int main(int argc, char** argv){
 
 		MapArea m;
 		m.loadFromXML(mapfile.c_str());
+
+		if (countobs){
+			CountObs(m);
+			return 0;
+		}
 		
 		AgentBuilder as(m.getTopicIds());
 		as.loadFromXML(agentfile.c_str());
